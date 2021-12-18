@@ -85,3 +85,4 @@ if __name__ == "__main__":
     print("patience: "+str(rider.patience))
     rider.tick_wait_time()
     print("wait time: "+str(rider.wait_time))
+    print("trip duration: "+str(rider.get_trip_duration()))
