@@ -5,6 +5,8 @@ class Driver:
     PICKUP = "pickup"
     DROPOFF = "dropoff"
 
+    __slots__ = ["_id", "_pos", "_status", "_rider", "_total_relocate_effort"]
+
     def __init__(self, wID, pos):
         self._id = wID
         self._pos = pos
