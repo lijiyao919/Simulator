@@ -3,19 +3,21 @@ from driver import Driver
 from rider import Rider
 
 class Zone:
+    __slots__ = ["_id", "_neighbor_zones", "_drivers_on_line", "_drivers_off_line",
+                 "_riders_on_call", "_success_order_num", "_fail_order_num"]
     def __init__(self, zID):
         self._id = zID
         self._neighbor_zones = {}
         self._drivers_on_line = {}  #drivers that are available
         self._drivers_off_line = {}  #drivers in PICKUP, DROPOFF, and the zone is the destination
-        self._riders_on_call = {}
+        self._riders_on_call = []
         self._success_order_num = 0
         self._fail_order_num = 0
 
     def __repr__(self):
         message = "cls:" + type(self).__name__ + ", id:" + str(self._id) + ", neighbor_zones:" + str(self._neighbor_zones.keys()) + \
                   ", drivers_online:" + str(self._drivers_on_line.keys()) + ", drivers_offline:" + str(self._drivers_off_line.keys()) + \
-                  ", riders_oncall:" + str(self._riders_on_call.keys()) + ", success order number:" + str(self._success_order_num) + \
+                  ", riders_oncall:" + str(self._riders_on_call) + ", success order number:" + str(self._success_order_num) + \
                   ", fail order num:" + str(self._fail_order_num)
         return message
 
@@ -39,8 +41,7 @@ class Zone:
 
     def pop_driver_on_line_by_random(self):
         if len(self._drivers_on_line) != 0:
-            driver = self._drivers_on_line.pop(random.choice(list(self._drivers_on_line.keys())))
-            return driver
+            return self._drivers_on_line.pop(random.choice(list(self._drivers_on_line.keys())))
         else:
             return None
 
@@ -51,12 +52,17 @@ class Zone:
 
     def pop_driver_off_line_by_id(self, driver_id):
         assert driver_id in self._drivers_off_line.keys()
-        driver = self._drivers_off_line.pop(driver_id)
-        return driver
+        return self._drivers_off_line.pop(driver_id)
 
     def add_riders(self, rider):
-        assert rider.status == self._id
-        self._riders_on_call[rider.id] = rider
+        assert rider.start_zone == self._id
+        self._riders_on_call.append(rider)
+
+    def pop_first_riders(self):
+        if len(self._riders_on_call) != 0:
+            return self._riders_on_call.pop(0)
+        else:
+            return None
 
     @property
     def success_order_num(self):
@@ -98,6 +104,12 @@ if __name__ == "__main__":
     driver = z1.pop_driver_off_line_by_id(driver.id)
     print(z1)
     z1.add_driver_on_line(driver)
+    print(z1)
+
+    rider = Rider(1, 10, 50, 1, 12, 10, 20)
+    z1.add_riders(rider)
+    print(z1)
+    z1.pop_first_riders()
     print(z1)
 
     z1.tick_success_order_num()
