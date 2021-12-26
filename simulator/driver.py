@@ -5,11 +5,11 @@ class Driver:
     PICKUP = "pickup"
     DROPOFF = "dropoff"
 
-    __slots__ = ["_id", "_pos", "_status", "_rider", "_total_relocate_effort"]
+    __slots__ = ["_id", "_zid", "_status", "_rider", "_total_relocate_effort"]
 
     def __init__(self, wID, pos):
         self._id = wID
-        self._pos = pos
+        self._zid = pos
 
         self._status = Driver.IDLE
         self._rider = None
@@ -17,7 +17,7 @@ class Driver:
 
     def __repr__(self):
         message = "cls:" + type(self).__name__ + ", id:" + str(self._id) +", status:" + str(self._status) + \
-                  ", pos:" + str(self._pos) + ", total_relocate_effort: " + str(self._total_relocate_effort)
+                  ", pos:" + str(self._zid) + ", total_relocate_effort: " + str(self._total_relocate_effort)
         return message+", rider info: ["+str(self._rider)+"]" if self._rider is not None else message
 
     @property
@@ -25,12 +25,12 @@ class Driver:
         return self._id
 
     @property
-    def pos(self):
-        return self._pos
+    def zid(self):
+        return self._zid
 
-    @pos.setter
-    def pos(self, p):
-        self._pos = p
+    @zid.setter
+    def zid(self, p):
+        self._zid = p
 
     @property
     def status(self):
@@ -75,8 +75,8 @@ if __name__ == "__main__":
     driver.pair_rider(rider)
     print(driver)
     print("id: ", driver.id)
-    driver.pos = 40
-    print("pos: ", driver.pos)
+    driver.zid = 40
+    print("pos: ", driver.zid)
     driver.status = driver.PICKUP
     print("status: ", driver.status)
     print("pick duration: ", driver.get_pick_duration())
