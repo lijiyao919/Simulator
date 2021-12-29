@@ -34,6 +34,10 @@ class Zone:
         assert zone.id is not self._id
         self._neighbor_zones[zone.id] = zone
 
+    @property
+    def drivers_on_line(self):
+        return self._drivers_on_line
+
     def add_driver_on_line(self, driver):
         assert driver is not None
         assert driver.id not in self._drivers_off_line.keys()
@@ -44,6 +48,10 @@ class Zone:
             return self._drivers_on_line.pop(random.choice(list(self._drivers_on_line.keys())))
         else:
             return None
+
+    @property
+    def drivers_off_line(self):
+        return self._drivers_off_line
 
     def add_driver_off_line(self, driver):
         assert driver is not None
@@ -94,17 +102,16 @@ if __name__ == "__main__":
 
     z1.add_driver_on_line(driver1)
     z1.add_driver_on_line(driver2)
-    print(z1)
+    print("driver online: ", z1.drivers_on_line.keys())
     driver = z1.pop_driver_on_line_by_random()
-    print(z1)
+    print("driver online: ", z1.drivers_on_line.keys())
 
     z1.add_driver_off_line(driver)
-    print(z1)
-
+    print("driver offline", z1.drivers_off_line.keys())
     driver = z1.pop_driver_off_line_by_id(driver.id)
-    print(z1)
+    print("driver offline", z1.drivers_off_line.keys())
     z1.add_driver_on_line(driver)
-    print(z1)
+    print("driver online: ", z1.drivers_on_line.keys())
 
     rider = Rider(1, 10, 50, 1, 12, 10, 20)
     z1.add_riders(rider)
