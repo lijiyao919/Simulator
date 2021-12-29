@@ -5,15 +5,15 @@ class Rider:
     FINISHED = "finished"
     CANCEL = "cancel"
 
-    __slots__ = ["_id", "_start_time", "_end_time", "_start_zone", "_end_zone", "_price",
+    __slots__ = ["_id", "_start_time", "_start_zone", "_end_zone", "_trip_duration", "_price",
                  "_patience", "_status", "_call_taxi_duration", "_wait_pick_duration"]
 
-    def __init__(self, uID, sT, eT, sZ, eZ, p, pat):
+    def __init__(self, uID, sT, sZ, eZ, d, p, pat):
         self._id = uID
         self._start_time = sT
-        self._end_time =eT
         self._start_zone = sZ
         self._end_zone = eZ
+        self._trip_duration = d
         self._price = p
         self._patience = pat
 
@@ -23,7 +23,7 @@ class Rider:
 
     def __repr__(self):
         return "cls:" + type(self).__name__ + ", id:" + str(self._id) +", status:" + str(self._status) + ", start_time:"+ str(self._start_time)+\
-               ", end_time:"+str(self._end_time) + ", start_zone:"+str(self._start_zone) + ", end_zone:" + str(self._end_zone) + \
+               ", start_zone:"+str(self._start_zone) + ", end_zone:" + str(self._end_zone) + ", trip_duration:"+str(self._trip_duration)+\
                ", price:"+ str(self._price) + ", patience:" + str(self._patience) + ", call_taxi_duration:" + str(self._call_taxi_duration) + \
                ", wait_pick_duration:" + str(self._wait_pick_duration)
 
@@ -36,16 +36,16 @@ class Rider:
         return self._start_time
 
     @property
-    def end_time(self):
-        return self._end_time
-
-    @property
     def start_zone(self):
         return self._start_zone
 
     @property
     def end_zone(self):
         return self._end_zone
+
+    @property
+    def trip_duration(self):
+        return self._trip_duration
 
     @property
     def price(self):
@@ -80,15 +80,15 @@ class Rider:
 
 
 if __name__ == "__main__":
-    rider = Rider(1, 10, 50, 23, 12, 10, 20)
+    rider = Rider(1, 10, 23, 12, 40, 10, 20)
     print(rider)
     print("ID: "+str(rider.id))
     rider.status = Rider.WAIT
     print("status: " + str(rider.status))
     print("start time: " + str(rider.start_time))
-    print("end time: " + str(rider.end_time))
     print("start zone: " + str(rider.start_zone))
     print("end zone: " + str(rider.end_zone))
+    print("trip duration: "+str(rider.trip_duration))
     print("price: " + str(rider.price))
     print("patience: "+str(rider.patience))
     rider.tick_call_taxi_duration()

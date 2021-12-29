@@ -62,7 +62,7 @@ class Driver:
 
     def get_trip_duration(self):
         assert self._rider is not None
-        return self._rider.end_time - self._rider.start_time
+        return self._rider.trip_duration
 
 
 if __name__ == "__main__":
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     driver.tick_relocate_effort()
     print("total relocate effort: ", driver._total_relocate_effort)
 
-    rider = Rider(1, 10, 50, 23, 12, 10, 20)
+    rider = Rider(1, 10, 23, 12, 40, 10, 20)
     driver.pair_rider(rider)
     print(driver)
     print("id: ", driver.id)
