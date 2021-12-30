@@ -1,10 +1,12 @@
 import pandas as pd
 import datetime
+import random
 
-FILE_NAME="Taxi_Trips_08_2019.csv"
+FILE_NAME = "Taxi_Trips_08_2019.csv"
 CLEAN_FILE_NAME = "Chicago_08_29_clean.csv"
 YEAR = 2019
 MONTH = 8
+DATE = 1
 
 def clean_trips_data():
     df = pd.read_csv(FILE_NAME)
@@ -27,10 +29,12 @@ def clean_trips_data():
         d["ID"].append(actor_id)
 
         #time
-        date = int(obs["Trip Start Timestamp"].split('/')[1])
-        d["Time"].append(int((pd.to_datetime(obs["Trip Start Timestamp"]) - pd.Timestamp(YEAR, MONTH, date, 0)) / pd.to_timedelta(1, unit='m')))
+        timestamp = int((pd.to_datetime(obs["Trip Start Timestamp"]) - pd.Timestamp(YEAR, MONTH, DATE, 0)) / pd.to_timedelta(1, unit='m'))
+        timestamp = timestamp + round(random.uniform(0, 15))
+        d["Time"].append(timestamp)
 
         #weekday
+        date = int(obs["Trip Start Timestamp"].split('/')[1])
         d["Weekday"].append(datetime.date(YEAR,MONTH,date).weekday())
 
         # zone id
@@ -45,6 +49,7 @@ def clean_trips_data():
 
     print("Write data...")
     df = pd.DataFrame(d)
+    df.sort_values(by="Time", ascending=True, inplace=True)
     df.to_csv(CLEAN_FILE_NAME, index=False)
 
 
