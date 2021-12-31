@@ -1,22 +1,19 @@
 from rider import Rider
 
 class Driver:
-    IDLE = "idle"
-    PICKUP = "pickup"
-    DROPOFF = "dropoff"
 
-    __slots__ = ["_id", "_zid", "_status", "_rider", "_total_relocate_effort"]
+    __slots__ = ["_id", "_zid", "_wake_up_time", "_rider", "_total_relocate_effort"]
 
     def __init__(self, wID, pos):
         self._id = wID
         self._zid = pos
 
-        self._status = Driver.IDLE
+        self._wake_up_time = 0 # the time when driver wake up from offline to online
         self._rider = None
         self._total_relocate_effort = 0
 
     def __repr__(self):
-        message = "cls:" + type(self).__name__ + ", id:" + str(self._id) +", status:" + str(self._status) + \
+        message = "cls:" + type(self).__name__ + ", id:" + str(self._id) +", wake_up_time:" + str(self._wake_up_time) + \
                   ", pos:" + str(self._zid) + ", total_relocate_effort: " + str(self._total_relocate_effort)
         return message+", rider info: ["+str(self._rider)+"]" if self._rider is not None else message
 
@@ -33,12 +30,12 @@ class Driver:
         self._zid = p
 
     @property
-    def status(self):
-        return self._status
+    def wake_up_time(self):
+        return self._wake_up_time
 
-    @status.setter
-    def status(self, s):
-        self._status = s
+    @wake_up_time.setter
+    def wake_up_time(self, time):
+        self._wake_up_time = time
 
     @property
     def rider(self):
@@ -77,8 +74,8 @@ if __name__ == "__main__":
     print("id: ", driver.id)
     driver.zid = 40
     print("pos: ", driver.zid)
-    driver.status = driver.PICKUP
-    print("status: ", driver.status)
+    driver.wake_up_time = 60
+    print("wake up time: ", driver.wake_up_time)
     print("pick duration: ", driver.get_pick_duration())
     print("trip duration: ", driver.get_trip_duration())
 

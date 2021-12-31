@@ -1,12 +1,7 @@
 class Rider:
-    CALL = "call"
-    WAIT = "wait"
-    ON_TRIP = "on_trip"
-    FINISHED = "finished"
-    CANCEL = "cancel"
 
     __slots__ = ["_id", "_start_time", "_start_zone", "_end_zone", "_trip_duration", "_price",
-                 "_patience", "_status", "_call_taxi_duration", "_wait_pick_duration"]
+                 "_give_up_time", "_status", "_call_taxi_duration", "_wait_pick_duration"]
 
     def __init__(self, uID, sT, sZ, eZ, d, p, pat):
         self._id = uID
@@ -15,16 +10,15 @@ class Rider:
         self._end_zone = eZ
         self._trip_duration = d
         self._price = p
-        self._patience = pat
+        self._give_up_time = sT+pat
 
-        self._status = Rider.CALL
         self._call_taxi_duration = 0
         self._wait_pick_duration = 0
 
     def __repr__(self):
-        return "cls:" + type(self).__name__ + ", id:" + str(self._id) +", status:" + str(self._status) + ", start_time:"+ str(self._start_time)+\
-               ", start_zone:"+str(self._start_zone) + ", end_zone:" + str(self._end_zone) + ", trip_duration:"+str(self._trip_duration)+\
-               ", price:"+ str(self._price) + ", patience:" + str(self._patience) + ", call_taxi_duration:" + str(self._call_taxi_duration) + \
+        return "cls:" + type(self).__name__ + ", id:" + str(self._id) +", give_up_time:" + str(self._give_up_time) + ", start_time:" + str(self._start_time) +\
+               ", start_zone:" + str(self._start_zone) + ", end_zone:" + str(self._end_zone) + ", trip_duration:" + str(self._trip_duration) +\
+               ", price:" + str(self._price) + ", patience:" + str(self._give_up_time) + ", call_taxi_duration:" + str(self._call_taxi_duration) + \
                ", wait_pick_duration:" + str(self._wait_pick_duration)
 
     @property
@@ -52,16 +46,8 @@ class Rider:
         return self._price
 
     @property
-    def patience(self):
-        return self._patience
-
-    @property
-    def status(self):
-        return self._status
-
-    @status.setter
-    def status(self, status):
-        self._status = status
+    def give_up_time(self):
+        return self._give_up_time
 
     @property
     def call_taxi_duration(self):
@@ -83,14 +69,12 @@ if __name__ == "__main__":
     rider = Rider(1, 10, 23, 12, 40, 10, 20)
     print(rider)
     print("ID: "+str(rider.id))
-    rider.status = Rider.WAIT
-    print("status: " + str(rider.status))
     print("start time: " + str(rider.start_time))
     print("start zone: " + str(rider.start_zone))
     print("end zone: " + str(rider.end_zone))
     print("trip duration: "+str(rider.trip_duration))
     print("price: " + str(rider.price))
-    print("patience: "+str(rider.patience))
+    print("give up time: "+str(rider.give_up_time))
     rider.tick_call_taxi_duration()
     print("call taxi duration: "+str(rider.call_taxi_duration))
     rider.wait_pick_duration =3
