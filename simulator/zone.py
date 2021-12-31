@@ -62,6 +62,10 @@ class Zone:
         assert driver_id in self._drivers_off_line.keys()
         return self._drivers_off_line.pop(driver_id)
 
+    @property
+    def riders_on_call(self):
+        return self._riders_on_call
+
     def add_riders(self, rider):
         assert rider.start_zone == self._id
         self._riders_on_call.append(rider)
@@ -113,11 +117,11 @@ if __name__ == "__main__":
     z1.add_driver_on_line(driver)
     print("driver online: ", z1.drivers_on_line.keys())
 
-    rider = Rider(1, 10, 50, 1, 12, 10, 20)
+    rider = Rider(1, 10, 1, 12, 40, 10, 20)
     z1.add_riders(rider)
-    print(z1)
+    print("riders on call: ", z1.riders_on_call)
     z1.pop_first_riders()
-    print(z1)
+    print("riders on call: ", z1.riders_on_call)
 
     z1.tick_success_order_num()
     print("success order num: "+str(z1.success_order_num))
