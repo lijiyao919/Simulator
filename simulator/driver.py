@@ -53,15 +53,6 @@ class Driver:
         assert self._rider is None
         self._total_relocate_effort += 1
 
-    def get_pick_duration(self):
-        assert self._rider is not None
-        return 1
-
-    def get_trip_duration(self):
-        assert self._rider is not None
-        return self._rider.trip_duration
-
-
 if __name__ == "__main__":
     driver = Driver(1, 30)
     print(driver)
@@ -76,8 +67,6 @@ if __name__ == "__main__":
     print("pos: ", driver.zid)
     driver.wake_up_time = 60
     print("wake up time: ", driver.wake_up_time)
-    print("pick duration: ", driver.get_pick_duration())
-    print("trip duration: ", driver.get_trip_duration())
 
 
 
