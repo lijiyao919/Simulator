@@ -39,6 +39,7 @@ class Trips:
         df = pd.read_csv(FILE_NAME)
         if row is None:
             row = len(df)
+        self._length = row
 
         print("Import Trips...")
         for i in range(row):
@@ -50,7 +51,6 @@ class Trips:
             trip_duration = int(obs["Duration"])
             trip_fare = float(obs["Fare"])
             self._trips.append(Rider(trip_id, timestamp, pickup_zone, dropoff_zone, trip_duration, trip_fare, 20))
-        self._length = i+1
         print("Done.")
 
     def pop_trip(self):
@@ -81,7 +81,7 @@ if __name__ == "__main__":
     print(normal.sample())
 
     it = Trips()
-    it.read_trips_from_csv()
+    it.read_trips_from_csv(row=7)
     print(it.length)
 
 
