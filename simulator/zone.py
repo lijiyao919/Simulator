@@ -41,6 +41,7 @@ class Zone:
     def add_driver_on_line(self, driver):
         assert driver is not None
         assert driver.id not in self._drivers_off_line.keys()
+        driver.zid = self._id
         self._drivers_on_line[driver.id] = driver
 
     def pop_driver_on_line_by_random(self):
@@ -49,6 +50,10 @@ class Zone:
         else:
             return None
 
+    def pop_driver_on_line_by_id(self, driver_id):
+        assert driver_id in self._drivers_on_line.keys()
+        return self._drivers_on_line.pop(driver_id)
+
     @property
     def drivers_off_line(self):
         return self._drivers_off_line
@@ -56,6 +61,7 @@ class Zone:
     def add_driver_off_line(self, driver):
         assert driver is not None
         assert driver.id not in self._drivers_on_line.keys()
+        driver.zid = self._id
         self._drivers_off_line[driver.id] = driver
 
     def pop_driver_off_line_by_id(self, driver_id):
