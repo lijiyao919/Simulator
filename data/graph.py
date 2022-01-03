@@ -80,3 +80,10 @@ AdjList_Chicago ={
 
 if __name__ == "__main__":
     print(AdjList_Chicago[1])
+    #check the largest degree of adjcent nodes
+    #Chicago is 9
+    max_len = 0
+    for l in AdjList_Chicago.values():
+        if len(l) > max_len:
+            max_len = len(l)
+    print(max_len)
