@@ -69,6 +69,9 @@ class Trips:
     def reset_index(self):
         self._index = 0
 
+    @property
+    def length(self):
+        return self._length
 
 
 if __name__ == "__main__":
@@ -79,5 +82,6 @@ if __name__ == "__main__":
 
     it = Trips()
     it.read_trips_from_csv()
+    print(it.length)
 
 
