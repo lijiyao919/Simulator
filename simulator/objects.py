@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import numpy as np
 import pandas as pd
-from rider import Rider
+from simulator.rider import Rider
 import math
 
 FILE_NAME = "C:/Users/Jiyao/PycharmProjects/Simulator/data/Chicago_08_29_clean.csv"

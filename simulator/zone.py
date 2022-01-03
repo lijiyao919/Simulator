@@ -1,6 +1,6 @@
 import random
-from driver import Driver
-from rider import Rider
+from simulator.driver import Driver
+from simulator.rider import Rider
 
 class Zone:
     __slots__ = ["_id", "_neighbor_zones", "_drivers_on_line", "_drivers_off_line",
