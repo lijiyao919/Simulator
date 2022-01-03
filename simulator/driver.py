@@ -1,4 +1,4 @@
-from rider import Rider
+from simulator.rider import Rider
 
 class Driver:
 
@@ -44,6 +44,9 @@ class Driver:
     def pair_rider(self, rider):
         assert rider is not None
         self._rider = rider
+
+    def finish_rider(self):
+        self._rider = None
 
     @property
     def total_relocate_effort(self):
