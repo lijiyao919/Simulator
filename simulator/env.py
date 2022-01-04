@@ -1,8 +1,8 @@
 from data.graph import AdjList_Chicago
-from objects import UniformDistribution, Trips
-from zone import Zone
-from driver import Driver
-from timer import Timer
+from simulator.objects import Trips
+from simulator.zone import Zone
+from simulator.driver import Driver
+from simulator.timer import Timer
 
 #driver
 LOW_BOUND = 10
@@ -12,7 +12,8 @@ class Env:
     def __init__(self):
         self._graph = {}
         self._trips = Trips()
-        self._trips.read_trips_from_csv(row=7)
+        self._trips.read_trips_from_csv(row=0)
+        self._monitor_drivers = {}
 
     def reset(self):
         self._create_graph()
@@ -30,10 +31,13 @@ class Env:
         self._iterate_riders_on_call_for_give_up()
 
         #iterate all off-line drivers in each zone
-        self._iterate_drivers_off_line()
+        self._iterate_drivers_off_line_for_wake_up()
 
         #match drivers and riders at each zone
         self._dispatch_drivers_for_riders()
+
+        #move on line drivers to seek
+        self._iterate_drivers_on_line_for_move(actions)
 
         Timer.tick_time()
 
@@ -62,6 +66,9 @@ class Env:
         message += "}"
         return message
 
+    def get_drivers_length(self):
+        return len(self._monitor_drivers)
+
     def _create_graph(self):
         #inititial each node
         for zid in AdjList_Chicago.keys():
@@ -82,7 +89,9 @@ class Env:
         id = 0
         for zid in self._graph.keys():
             for _ in range(num_drivers):
-                self._graph[zid].add_driver_on_line(Driver(id, zid))
+                d = Driver(id, zid)
+                self._graph[zid].add_driver_on_line(d)
+                self._monitor_drivers[id] = d
                 id+=1
 
     def _iterate_riders_on_call_for_give_up(self):
@@ -95,12 +104,26 @@ class Env:
                 else:
                     break
 
-    def _iterate_drivers_off_line(self):
+    def _iterate_drivers_off_line_for_wake_up(self):
         for zid in self._graph.keys():
             for did, d in self._graph[zid].drivers_off_line.copy().items():
+                assert d.zid == zid
                 if d.wake_up_time == Timer.get_time():
+                    d.finish_rider()
                     self._graph[zid].drivers_off_line.pop(did)
                     self._graph[zid].add_driver_on_line(d)
+
+    def _iterate_drivers_on_line_for_move(self, actions):
+        for zid in self._graph.keys():
+            for did, d in self._graph[zid].drivers_on_line.copy().items():
+                assert d.zid == zid
+                act = actions[did]
+                if act >= len(self._graph[zid].neighbod_zones):
+                    continue
+                zid_to_go = list(self._graph[zid].neighbod_zones.keys())[act]
+                d.tick_relocate_effort()
+                self._graph[zid].pop_driver_on_line_by_id(did)
+                self._graph[zid_to_go].add_driver_on_line(d)
 
     def _dispatch_drivers_for_riders(self):
         for zid in self._graph.keys():
