@@ -4,21 +4,24 @@ from simulator.rider import Rider
 
 class Zone:
     __slots__ = ["_id", "_neighbor_zones", "_drivers_on_line", "_drivers_off_line",
-                 "_riders_on_call", "_success_order_num", "_fail_order_num"]
+                 "_riders_on_call", "_total_order_num", "_success_order_num", "_fail_order_num", "_riders_call_time"]
     def __init__(self, zID):
         self._id = zID
         self._neighbor_zones = {}
         self._drivers_on_line = {}  #drivers that are available
         self._drivers_off_line = {}  #drivers in PICKUP, DROPOFF, and the zone is the destination
         self._riders_on_call = []
+        self._total_order_num = 0
         self._success_order_num = 0
         self._fail_order_num = 0
+        self._riders_call_time = 0
 
     def __repr__(self):
         message = "cls:" + type(self).__name__ + ", id:" + str(self._id) + ", neighbor_zones:" + str(self._neighbor_zones.keys()) + \
                   ", drivers_online:" + str(self._drivers_on_line.keys()) + ", drivers_offline:" + str(self._drivers_off_line.keys()) + \
                   ", riders_oncall:" + str(self._riders_on_call) + ", success order number:" + str(self._success_order_num) + \
-                  ", fail order num:" + str(self._fail_order_num)
+                  ", fail order num:" + str(self._fail_order_num) + ", riders call time:" + str(self._riders_call_time) + \
+                  ", total_order_num:" + str(self._total_order_num)
         return message
 
     @property
@@ -74,13 +77,20 @@ class Zone:
 
     def add_riders(self, rider):
         assert rider.start_zone == self._id
+        self._total_order_num += 1
         self._riders_on_call.append(rider)
 
     def pop_first_riders(self):
         if len(self._riders_on_call) != 0:
-            return self._riders_on_call.pop(0)
+            r = self._riders_on_call.pop(0)
+            self._riders_call_time += r.call_taxi_duration
+            return r
         else:
             return None
+
+    @property
+    def total_order_num(self):
+        return self._total_order_num
 
     @property
     def success_order_num(self):
@@ -95,6 +105,13 @@ class Zone:
 
     def tick_fail_order_num(self):
         self._fail_order_num += 1
+
+    @property
+    def riders_call_time(self):
+        return self._riders_call_time
+
+
+
 
 if __name__ == "__main__":
     z1 = Zone(1)
@@ -124,16 +141,34 @@ if __name__ == "__main__":
     print("driver online: ", z1.drivers_on_line.keys())
 
     rider = Rider(1, 10, 1, 12, 40, 10, 20)
+    rider2 = Rider(2, 10, 1, 12, 40, 10, 20)
     z1.add_riders(rider)
+    z1.add_riders(rider2)
     print("riders on call: ", z1.riders_on_call)
+    rider.tick_call_taxi_duration()
+    rider.tick_call_taxi_duration()
+    rider.tick_call_taxi_duration()
+    rider2.tick_call_taxi_duration()
+    rider2.tick_call_taxi_duration()
+    rider2.tick_call_taxi_duration()
+
     z1.pop_first_riders()
     print("riders on call: ", z1.riders_on_call)
+
+    z1.pop_first_riders()
+    print("riders on call: ", z1.riders_on_call)
+
+    print("total riders number: "+str(z1.total_order_num))
 
     z1.tick_success_order_num()
     print("success order num: "+str(z1.success_order_num))
 
     z1.tick_fail_order_num()
     print("fail order num: "+str(z1.fail_order_num))
+
+    print("toal call time: " + str(z1.riders_call_time))
+
+    print(z1)
 
 
 
