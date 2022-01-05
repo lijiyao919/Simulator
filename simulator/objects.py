@@ -4,7 +4,7 @@ import pandas as pd
 from simulator.rider import Rider
 import math
 
-FILE_NAME = "C:/Users/Jiyao/PycharmProjects/Simulator/data/Chicago_08_29_clean.csv"
+FILE_NAME = "C:/Users/Jiyao/PycharmProjects/Simulator/data/Taxi_Trips_Chicago_08_2019_clean.csv"
 
 class Distribution(ABC):
     @abstractmethod

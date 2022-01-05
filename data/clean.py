@@ -1,9 +1,8 @@
 import pandas as pd
-import datetime
 import random
 
-FILE_NAME = "Taxi_Trips_08_2019.csv"
-CLEAN_FILE_NAME = "Chicago_08_29_clean.csv"
+FILE_NAME = "Taxi_Trips_Chicago_08_2019.csv"
+CLEAN_FILE_NAME = "Taxi_Trips_Chicago_08_2019_clean.csv"
 YEAR = 2019
 MONTH = 8
 DATE = 1
@@ -12,13 +11,11 @@ def clean_trips_data():
     df = pd.read_csv(FILE_NAME)
     d = {"ID": [],
          "Time": [],
-         "Weekday": [],
          "Pickup": [],
          "Dropoff": [],
          "Duration": [],
          "Fare": [],
          }
-    cols = ["ID", "Time", "Weekday", "Pickup", "Dropoff", "Duration", "Fare"]
 
     print("Importing Trip Data...")
     for i in range(len(df)):
@@ -32,10 +29,6 @@ def clean_trips_data():
         timestamp = int((pd.to_datetime(obs["Trip Start Timestamp"]) - pd.Timestamp(YEAR, MONTH, DATE, 0)) / pd.to_timedelta(1, unit='m'))
         timestamp = timestamp + round(random.uniform(0, 15))
         d["Time"].append(timestamp)
-
-        #weekday
-        date = int(obs["Trip Start Timestamp"].split('/')[1])
-        d["Weekday"].append(datetime.date(YEAR,MONTH,date).weekday())
 
         # zone id
         d["Pickup"].append(int(obs["Pickup Community Area"]))
