@@ -2,19 +2,20 @@ from simulator.rider import Rider
 
 class Driver:
 
-    __slots__ = ["_id", "_zid", "_wake_up_time", "_rider", "_total_relocate_effort"]
+    __slots__ = ["_id", "_zid", "_wake_up_time", "_rider", "_on_line", "_total_relocate_effort"]
 
     def __init__(self, wID, pos):
         self._id = wID
         self._zid = pos
 
+        self._on_line = True
         self._wake_up_time = 0 # the time when driver wake up from offline to online
         self._rider = None
         self._total_relocate_effort = 0
 
     def __repr__(self):
         message = "cls:" + type(self).__name__ + ", id:" + str(self._id) +", wake_up_time:" + str(self._wake_up_time) + \
-                  ", pos:" + str(self._zid) + ", total_relocate_effort: " + str(self._total_relocate_effort)
+                  ", pos:" + str(self._zid) + ", on_line: " + str(self._on_line) + ", total_relocate_effort: " + str(self._total_relocate_effort)
         return message+", rider info: ["+str(self._rider)+"]" if self._rider is not None else message
 
     @property
@@ -28,6 +29,14 @@ class Driver:
     @zid.setter
     def zid(self, p):
         self._zid = p
+
+    @property
+    def on_line(self):
+        return self._on_line
+
+    @on_line.setter
+    def on_line(self, s):
+        self._on_line = s
 
     @property
     def wake_up_time(self):

@@ -161,6 +161,7 @@ class Env:
         for zid in self._graph.keys():
             for did, d in self._graph[zid].drivers_off_line.copy().items():
                 assert d.zid == zid
+                assert d.on_line is False
                 if d.wake_up_time == Timer.get_time():
                     d.finish_rider()
                     self._graph[zid].drivers_off_line.pop(did)
@@ -170,6 +171,7 @@ class Env:
         for zid in self._graph.keys():
             for did, d in self._graph[zid].drivers_on_line.copy().items():
                 assert d.zid == zid
+                assert d.on_line is True
                 act = actions[did]
                 if act >= len(self._graph[zid].neighbod_zones):
                     continue
@@ -183,6 +185,8 @@ class Env:
             while len(self._graph[zid].drivers_on_line)>0 and len(self._graph[zid].riders_on_call)>0:
                 rider = self._graph[zid].pop_first_riders()
                 driver = self._graph[zid].pop_driver_on_line_by_random()
+                assert driver.zid == zid
+                assert driver.on_line is True
                 driver.pair_rider(rider)
                 driver.wake_up_time = Timer.get_time() + rider.trip_duration
                 self._graph[rider.end_zone].add_driver_off_line(driver)
