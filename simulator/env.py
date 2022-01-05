@@ -104,8 +104,7 @@ class Env:
 
         for d in self._monitor_drivers.values():
             all_driver_relocate_effort += d.total_relocate_effort
-        print(all_success_order_num)
-        print(all_fail_order_num)
+
         message += "all total order num: "+str(all_total_order_num)+"\n"
         message += "success rate: "+str(round(all_success_order_num/all_total_order_num,2)*100)+"%\n"
         message += "fail rate: " + str(round(all_fail_order_num/all_total_order_num,2) * 100) + "%\n"
@@ -177,8 +176,9 @@ class Env:
                     continue
                 zid_to_go = list(self._graph[zid].neighbod_zones.keys())[act]
                 d.tick_relocate_effort()
+                d.wake_up_time = Timer.get_time() + 1
                 self._graph[zid].pop_driver_on_line_by_id(did)
-                self._graph[zid_to_go].add_driver_on_line(d)
+                self._graph[zid_to_go].add_driver_off_line(d)
 
     def _dispatch_drivers_for_riders(self):
         for zid in self._graph.keys():

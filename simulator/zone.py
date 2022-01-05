@@ -9,7 +9,7 @@ class Zone:
         self._id = zID
         self._neighbor_zones = {}
         self._drivers_on_line = {}  #drivers that are available
-        self._drivers_off_line = {}  #drivers in PICKUP, DROPOFF, and the zone is the destination
+        self._drivers_off_line = {}  #drivers in PICKUP, DROPOFF, move and the zone is the destination
         self._riders_on_call = []
         self._total_order_num = 0
         self._success_order_num = 0
