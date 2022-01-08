@@ -1,20 +1,20 @@
 import math
 
 from data.graph import AdjList_Chicago
-from simulator.objects import Trips
+from simulator.objects import Trips, UniformDistribution
 from simulator.zone import Zone
 from simulator.driver import Driver
 from simulator.timer import Timer
 
 #driver
-LOW_BOUND = 10
-HIGH_BOUND = 20
+LOW_BOUND = 90
+HIGH_BOUND = 100
 
 class Env:
     def __init__(self):
         self._graph = {}
         self._trips = Trips()
-        self._trips.read_trips_from_csv(row=7)
+        self._trips.read_trips_from_csv()
         self._monitor_drivers = {}
 
     def reset(self):
@@ -88,7 +88,7 @@ class Env:
         return message
 
     def show_metrics_in_summary(self):
-        message = "Message In Summary:\n"
+        message = "Metrics In Summary:\n"
 
         all_total_order_num = 0
         all_success_order_num = 0
@@ -106,6 +106,7 @@ class Env:
             all_driver_relocate_effort += d.total_relocate_effort
 
         message += "all total order num: "+str(all_total_order_num)+"\n"
+        message += "all total driver num: "+str(len(self._monitor_drivers))+"\n"
         message += "success rate: "+str(round(all_success_order_num/all_total_order_num,2)*100)+"%\n"
         message += "fail rate: " + str(round(all_fail_order_num/all_total_order_num,2) * 100) + "%\n"
         message += "average rider call time: " + str(round(all_rider_call_time / all_total_order_num, 2)) + "\n"
@@ -115,6 +116,10 @@ class Env:
 
     def get_drivers_length(self):
         return len(self._monitor_drivers)
+
+    @property
+    def monitor_drivers(self):
+        return self._monitor_drivers
 
     def _create_graph(self):
         #inititial each node
@@ -132,7 +137,7 @@ class Env:
             self._graph[rider.start_zone].add_riders(rider)
 
     def _add_drivers_on_line(self):
-        num_drivers = 1 #UniformDistribution(LOW_BOUND, HIGH_BOUND).sample()
+        num_drivers = UniformDistribution(LOW_BOUND, HIGH_BOUND).sample()
         id = 0
         for zid in self._graph.keys():
             for _ in range(num_drivers):
@@ -171,6 +176,7 @@ class Env:
             for did, d in self._graph[zid].drivers_on_line.copy().items():
                 assert d.zid == zid
                 assert d.on_line is True
+                assert d.rider is None
                 act = actions[did]
                 if act >= len(self._graph[zid].neighbod_zones):
                     continue
@@ -187,6 +193,7 @@ class Env:
                 driver = self._graph[zid].pop_driver_on_line_by_random()
                 assert driver.zid == zid
                 assert driver.on_line is True
+                assert driver.rider is None
                 driver.pair_rider(rider)
                 driver.wake_up_time = Timer.get_time() + rider.trip_duration
                 self._graph[rider.end_zone].add_driver_off_line(driver)
