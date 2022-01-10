@@ -55,6 +55,7 @@ class Driver:
         self._rider = rider
 
     def finish_rider(self):
+        self._rider.reset_call_taxi_duration()
         self._rider = None
 
     @property

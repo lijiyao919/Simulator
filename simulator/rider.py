@@ -56,6 +56,9 @@ class Rider:
     def tick_call_taxi_duration(self):
         self._call_taxi_duration += 1
 
+    def reset_call_taxi_duration(self):
+        self._call_taxi_duration = 0
+
     @property
     def wait_pick_duration(self):
         return self._wait_pick_duration
@@ -64,6 +67,8 @@ class Rider:
     def wait_pick_duration(self, duration):
         self._wait_pick_duration = duration
 
+    def reset_pick_duration(self, duration):
+        self._wait_pick_duration = 0
 
 if __name__ == "__main__":
     rider = Rider(1, 10, 23, 12, 40, 10, 20)
@@ -77,6 +82,8 @@ if __name__ == "__main__":
     print("give up time: "+str(rider.give_up_time))
     rider.tick_call_taxi_duration()
     print("call taxi duration: "+str(rider.call_taxi_duration))
+    rider.reset_call_taxi_duration()
+    print("call taxi duration: " + str(rider.call_taxi_duration))
     rider.wait_pick_duration =3
     print("wait pick duration: " + str(rider.wait_pick_duration))
 

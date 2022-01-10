@@ -6,6 +6,8 @@ from simulator.zone import Zone
 from simulator.driver import Driver
 from simulator.timer import Timer
 
+TOTAL_TIME_STEP = 44645
+
 #driver
 LOW_BOUND = 90
 HIGH_BOUND = 100
@@ -16,15 +18,20 @@ class Env:
         self._trips = Trips()
         self._trips.read_trips_from_csv()
         self._monitor_drivers = {}
+        self._state = None
+        self._reward = None
+        self._done = False
+        self._info = None
 
     def reset(self):
         self._create_graph()
         self._add_drivers_on_line()
         self._trips.reset_index()
         Timer.reset_time()
+        self._done = False
 
     def step(self, actions):
-        print("The current time stamp: ", Timer.get_time())
+        #print("The current time stamp: ", Timer.get_time())
 
         #put current timestamp trips to each zone
         self._add_riders()
@@ -45,6 +52,12 @@ class Env:
         self._iterate_drivers_on_line_for_move(actions)
 
         Timer.tick_time()
+
+        if Timer.get_time() == TOTAL_TIME_STEP:
+            self._done = True
+
+        return self._state, self._reward, self._done, self._info
+
 
     def show_graph(self):
         message = "Graph:\n"+"{\n"
@@ -151,6 +164,7 @@ class Env:
             while len(self._graph[zid].riders_on_call) > 0:
                 r = self._graph[zid].riders_on_call[0]
                 if r.give_up_time == Timer.get_time():
+                    r.reset_call_taxi_duration()
                     self._graph[zid].pop_first_riders()
                     self._graph[zid].tick_fail_order_num()
                 else:
@@ -167,7 +181,8 @@ class Env:
                 assert d.zid == zid
                 assert d.on_line is False
                 if d.wake_up_time == Timer.get_time():
-                    d.finish_rider()
+                    if d.rider is not None:
+                        d.finish_rider()
                     self._graph[zid].drivers_off_line.pop(did)
                     self._graph[zid].add_driver_on_line(d)
 
