@@ -51,11 +51,10 @@ class Driver:
         return self._rider
 
     def pair_rider(self, rider):
-        assert rider is not None
+        assert type(rider).__name__=="Rider"
         self._rider = rider
 
     def finish_rider(self):
-        self._rider.reset_call_taxi_duration()
         self._rider = None
 
     @property

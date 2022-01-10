@@ -181,7 +181,8 @@ class Env:
                 assert d.zid == zid
                 assert d.on_line is False
                 if d.wake_up_time == Timer.get_time():
-                    if d.rider is not None:
+                    if d.rider is not None:           # not idle move
+                        d.rider.reset_call_taxi_duration()
                         d.finish_rider()
                     self._graph[zid].drivers_off_line.pop(did)
                     self._graph[zid].add_driver_on_line(d)
