@@ -122,7 +122,7 @@ class Env:
         message += "all total driver num: "+str(len(self._monitor_drivers))+"\n"
         message += "success rate: "+str(round(all_success_order_num/all_total_order_num,2)*100)+"%\n"
         message += "fail rate: " + str(round(all_fail_order_num/all_total_order_num,2) * 100) + "%\n"
-        message += "average rider call time: " + str(round(all_rider_call_time / all_total_order_num, 2)) + "\n"
+        message += "average rider call time: " + str(round(all_rider_call_time / all_success_order_num, 2)) + "\n"
         message += "average driver relocate effort: " + str(round(all_driver_relocate_effort/len(self._monitor_drivers),2)) + "\n"
 
         return message
@@ -164,9 +164,9 @@ class Env:
             while len(self._graph[zid].riders_on_call) > 0:
                 r = self._graph[zid].riders_on_call[0]
                 if r.give_up_time == Timer.get_time():
-                    r.reset_call_taxi_duration()
-                    self._graph[zid].pop_first_riders()
+                    self._graph[zid].pop_first_riders(give_up=True)
                     self._graph[zid].tick_fail_order_num()
+                    r.reset_call_taxi_duration()
                 else:
                     break
 

@@ -82,10 +82,10 @@ class Zone:
         self._total_order_num += 1
         self._riders_on_call.append(rider)
 
-    def pop_first_riders(self):
+    def pop_first_riders(self, give_up=False):
         if len(self._riders_on_call) != 0:
             r = self._riders_on_call.pop(0)
-            self._riders_call_time += r.call_taxi_duration
+            if not give_up: self._riders_call_time += r.call_taxi_duration
             return r
         else:
             return None
