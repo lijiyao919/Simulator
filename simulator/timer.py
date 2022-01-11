@@ -1,14 +1,38 @@
+import datetime
+
+TOTAL_MINUTES_ONE_DAY = 1440
+YEAR = 2019
+MONTH = 8
+
 class Timer:
-    _time = 0
+    _time_step = 0
+
+    @staticmethod
+    def get_time_step():
+        return Timer._time_step
+
+    @staticmethod
+    def tick_time_step():
+        Timer._time_step += 1
+
+    @staticmethod
+    def reset_time_step():
+        Timer._time_step = 0
 
     @staticmethod
     def get_time():
-        return Timer._time
+        return Timer._time_step % TOTAL_MINUTES_ONE_DAY
 
     @staticmethod
-    def tick_time():
-        Timer._time += 1
+    def get_day():
+        date = (Timer._time_step//TOTAL_MINUTES_ONE_DAY)+1
+        return datetime.date(YEAR, MONTH, date).isoweekday()
 
-    @staticmethod
-    def reset_time():
-        Timer._time = 0
+if __name__ == "__main__":
+    Timer._time_step = 2881
+    print("time step: ", Timer.get_time_step())
+    Timer.tick_time_step()
+    print("time step: ", Timer.get_time_step())
+    print("time: ", Timer.get_time())
+    print("day: ", Timer.get_day())
+

@@ -1,5 +1,4 @@
 import math
-
 from data.graph import AdjList_Chicago
 from simulator.objects import Trips, UniformDistribution
 from simulator.zone import Zone
@@ -27,11 +26,11 @@ class Env:
         self._create_graph()
         self._add_drivers_on_line()
         self._trips.reset_index()
-        Timer.reset_time()
+        Timer.reset_time_step()
         self._done = False
 
     def step(self, actions):
-        if Timer.get_time()%1000==0: print("The current time stamp: ", Timer.get_time())
+        if Timer.get_time_step()%1000==0: print("The current time stamp: ", Timer.get_time_step())
 
         # move on line drivers to seek
         self._iterate_drivers_on_line_for_move(actions)
@@ -51,9 +50,9 @@ class Env:
         # iterate on call riders to update call time
         self._iterate_riders_on_call_for_update_call_time()
 
-        Timer.tick_time()
+        Timer.tick_time_step()
 
-        if Timer.get_time() == TOTAL_TIME_STEP:
+        if Timer.get_time_step() == TOTAL_TIME_STEP:
             self._done = True
 
         return self._state, self._reward, self._done, self._info
@@ -145,7 +144,7 @@ class Env:
                 self._graph[zid].add_neighbor_zones(self._graph[adj_id])
 
     def _add_riders(self):
-        while self._trips.is_valid() and self._trips.get_trip().start_time == Timer.get_time():
+        while self._trips.is_valid() and self._trips.get_trip().start_time == Timer.get_time_step():
             rider = self._trips.pop_trip()
             self._graph[rider.start_zone].add_riders(rider)
 
@@ -163,7 +162,7 @@ class Env:
         for zid in self._graph.keys():
             while len(self._graph[zid].riders_on_call) > 0:
                 r = self._graph[zid].riders_on_call[0]
-                if r.give_up_time == Timer.get_time():
+                if r.give_up_time == Timer.get_time_step():
                     self._graph[zid].pop_first_riders(give_up=True)
                     self._graph[zid].tick_fail_order_num()
                     r.reset_call_taxi_duration()
@@ -180,7 +179,7 @@ class Env:
             for did, d in self._graph[zid].drivers_off_line.copy().items():
                 assert d.zid == zid
                 assert d.on_line is False
-                if d.wake_up_time == Timer.get_time():
+                if d.wake_up_time == Timer.get_time_step():
                     if d.rider is not None:           # not idle move
                         d.rider.reset_call_taxi_duration()
                         d.finish_rider()
@@ -198,7 +197,7 @@ class Env:
                     continue
                 zid_to_go = list(self._graph[zid].neighbod_zones.keys())[act]
                 d.tick_relocate_effort()
-                d.wake_up_time = Timer.get_time() + 1
+                d.wake_up_time = Timer.get_time_step() + 1
                 self._graph[zid].pop_driver_on_line_by_id(did)
                 self._graph[zid_to_go].add_driver_off_line(d)
 
@@ -211,7 +210,7 @@ class Env:
                 assert driver.on_line is True
                 assert driver.rider is None
                 driver.pair_rider(rider)
-                driver.wake_up_time = Timer.get_time() + rider.trip_duration
+                driver.wake_up_time = Timer.get_time_step() + rider.trip_duration
                 self._graph[rider.end_zone].add_driver_off_line(driver)
                 self._graph[zid].tick_success_order_num()
 
