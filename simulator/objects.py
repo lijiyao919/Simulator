@@ -3,8 +3,7 @@ import numpy as np
 import pandas as pd
 from simulator.rider import Rider
 import math
-
-FILE_NAME = "C:/Users/Jiyao/PycharmProjects/Simulator/data/Taxi_Trips_Chicago_08_2019_clean.csv"
+from simulator.config import *
 
 class Distribution(ABC):
     @abstractmethod

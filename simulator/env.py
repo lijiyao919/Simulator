@@ -4,12 +4,7 @@ from simulator.objects import Trips, UniformDistribution
 from simulator.zone import Zone
 from simulator.driver import Driver
 from simulator.timer import Timer
-
-TOTAL_TIME_STEP = 44645
-
-#driver
-LOW_BOUND = 90
-HIGH_BOUND = 100
+from simulator.config import *
 
 class Env:
     def __init__(self):

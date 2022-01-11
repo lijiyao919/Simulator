@@ -1,8 +1,5 @@
 import datetime
-
-TOTAL_MINUTES_ONE_DAY = 1440
-YEAR = 2019
-MONTH = 8
+from simulator.config import *
 
 class Timer:
     _time_step = 0
