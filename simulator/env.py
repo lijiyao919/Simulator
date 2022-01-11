@@ -31,7 +31,10 @@ class Env:
         self._done = False
 
     def step(self, actions):
-        #print("The current time stamp: ", Timer.get_time())
+        if Timer.get_time()%1000==0: print("The current time stamp: ", Timer.get_time())
+
+        # move on line drivers to seek
+        self._iterate_drivers_on_line_for_move(actions)
 
         #put current timestamp trips to each zone
         self._add_riders()
@@ -47,9 +50,6 @@ class Env:
 
         # iterate on call riders to update call time
         self._iterate_riders_on_call_for_update_call_time()
-
-        #move on line drivers to seek
-        self._iterate_drivers_on_line_for_move(actions)
 
         Timer.tick_time()
 
