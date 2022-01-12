@@ -17,19 +17,20 @@ class Timer:
         Timer._time_step = 0
 
     @staticmethod
-    def get_time():
-        return Timer._time_step % TOTAL_MINUTES_ONE_DAY
+    def get_time(time):
+        return time % TOTAL_MINUTES_ONE_DAY
 
     @staticmethod
-    def get_day():
-        date = (Timer._time_step//TOTAL_MINUTES_ONE_DAY)+1
+    def get_day(time):
+        date = (time//TOTAL_MINUTES_ONE_DAY)+1
         return datetime.date(YEAR, MONTH, date).isoweekday()
 
 if __name__ == "__main__":
-    Timer._time_step = 2881
     print("time step: ", Timer.get_time_step())
     Timer.tick_time_step()
     print("time step: ", Timer.get_time_step())
-    print("time: ", Timer.get_time())
-    print("day: ", Timer.get_day())
+    Timer.reset_time_step()
+    print("time step: ", Timer.get_time_step())
+    print("time: ", Timer.get_time(2882))
+    print("day: ", Timer.get_day(2882))
 
