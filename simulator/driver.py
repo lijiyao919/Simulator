@@ -2,20 +2,22 @@ from simulator.rider import Rider
 
 class Driver:
 
-    __slots__ = ["_id", "_zid", "_wake_up_time", "_rider", "_on_line", "_total_relocate_effort"]
+    __slots__ = ["_id", "_zid", "_wake_up_time", "_rider", "_on_line", "_in_service", "_total_relocate_effort"]
 
     def __init__(self, wID, pos):
         self._id = wID
         self._zid = pos
 
-        self._on_line = True
+        self._on_line = True   # available or not, offline means unavailable
+        self._in_service = False # delivering riders or not
         self._wake_up_time = 0 # the time when driver wake up from offline to online
         self._rider = None
         self._total_relocate_effort = 0
 
     def __repr__(self):
         message = "cls:" + type(self).__name__ + ", id:" + str(self._id) +", wake_up_time:" + str(self._wake_up_time) + \
-                  ", pos:" + str(self._zid) + ", on_line: " + str(self._on_line) + ", total_relocate_effort: " + str(self._total_relocate_effort)
+                  ", pos:" + str(self._zid) + ", on_line: " + str(self._on_line) + ", in_service: " + str(self._in_service) + \
+                  ", total_relocate_effort: " + str(self._total_relocate_effort)
         return message+", rider info: ["+str(self._rider)+"]" if self._rider is not None else message
 
     @property
@@ -39,6 +41,10 @@ class Driver:
         self._on_line = s
 
     @property
+    def in_service(self):
+        return self._in_service
+
+    @property
     def wake_up_time(self):
         return self._wake_up_time
 
@@ -53,9 +59,11 @@ class Driver:
     def pair_rider(self, rider):
         assert type(rider).__name__=="Rider"
         self._rider = rider
+        self._in_service = True
 
     def finish_rider(self):
         self._rider = None
+        self._in_service = False
 
     @property
     def total_relocate_effort(self):
@@ -79,6 +87,8 @@ if __name__ == "__main__":
     print("pos: ", driver.zid)
     driver.wake_up_time = 60
     print("wake up time: ", driver.wake_up_time)
+    driver.finish_rider()
+    print(driver)
 
 
 

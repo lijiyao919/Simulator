@@ -36,14 +36,14 @@ class Env:
         #iterate on call riders to find give ups
         self._iterate_riders_on_call_for_give_up()
 
+        # iterate all off-line drivers in each zone (for next time_step use)
+        self._iterate_drivers_off_line_for_wake_up()
+
         # match drivers and riders at each zone
         self._dispatch_drivers_for_riders()
 
         # iterate on call riders to update call time
         self._iterate_riders_on_call_for_update_call_time()
-
-        # iterate all off-line drivers in each zone (for next time_step use)
-        self._iterate_drivers_off_line_for_wake_up()
 
         Timer.tick_time_step()
 
@@ -174,8 +174,9 @@ class Env:
             for did, d in self._graph[zid].drivers_off_line.copy().items():
                 assert d.zid == zid
                 assert d.on_line is False
-                if d.wake_up_time == Timer.get_time_step() + 1:
+                if d.wake_up_time == Timer.get_time_step():
                     if d.rider is not None:           # not idle move
+                        assert d.in_service is True
                         d.rider.reset_call_taxi_duration()
                         d.finish_rider()
                     self._graph[zid].drivers_off_line.pop(did)
@@ -187,7 +188,9 @@ class Env:
                 assert d.zid == zid
                 assert d.on_line is True
                 assert d.rider is None
+                assert d.in_service is False
                 act = actions[did]
+                assert act != -1
                 if act >= len(self._graph[zid].neighbod_zones):
                     continue
                 zid_to_go = list(self._graph[zid].neighbod_zones.keys())[act]
@@ -204,6 +207,7 @@ class Env:
                 assert driver.zid == zid
                 assert driver.on_line is True
                 assert driver.rider is None
+                assert driver.in_service is False
                 driver.pair_rider(rider)
                 driver.wake_up_time = Timer.get_time_step() + rider.trip_duration
                 self._graph[rider.end_zone].add_driver_off_line(driver)
