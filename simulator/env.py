@@ -1,16 +1,18 @@
-import math
 from data.graph import AdjList_Chicago
-from simulator.objects import Trips, UniformDistribution
+from simulator.objects import Trips
 from simulator.zone import Zone
 from simulator.driver import Driver
 from simulator.timer import Timer
 from simulator.config import *
+import random
+
+random.seed(SEED)
 
 class Env:
     def __init__(self):
         self._graph = {}
         self._trips = Trips()
-        self._trips.read_trips_from_csv()
+        self._trips.read_trips_from_csv(row=RIDER_NUM)
         self._monitor_drivers = {}
         self._state = None
         self._reward = None
@@ -45,13 +47,17 @@ class Env:
         # iterate on call riders to update call time
         self._iterate_riders_on_call_for_update_call_time()
 
+        rewards = self._iterate_drivers_reward(actions) if self._reward is not None else None
+
         Timer.tick_time_step()
 
-        if Timer.get_time_step() == TOTAL_TIME_STEP:
+        if Timer.get_time_step() == TOTAL_TIME_STEP_ONE_EPISODE:
             self._done = True
 
-        return self._state, self._reward, self._done, self._info
+        return self._state, rewards, self._done, self._info
 
+    def set_reward_scheme(self, r):
+        self._reward = r
 
     def show_graph(self):
         message = "Graph:\n"+"{\n"
@@ -144,7 +150,7 @@ class Env:
             self._graph[rider.start_zone].add_riders(rider)
 
     def _add_drivers_on_line(self):
-        num_drivers = UniformDistribution(LOW_BOUND, HIGH_BOUND).sample()
+        num_drivers = int(random.uniform(LOW_BOUND, HIGH_BOUND))
         id = 0
         for zid in self._graph.keys():
             for _ in range(num_drivers):
@@ -213,6 +219,13 @@ class Env:
                 self._graph[rider.end_zone].add_driver_off_line(driver)
                 self._graph[zid].tick_success_order_num()
 
+    def _iterate_drivers_reward(self, actions):
+        assert self._reward is not None
+        rewards = [None]*self.get_drivers_length()
+        for did, driver in self._monitor_drivers.items():
+            if actions[did] != -1: # make sure driver take action
+                rewards[did] = self._reward.reward_scheme(driver)
+        return rewards
 
 
 
