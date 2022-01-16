@@ -40,6 +40,8 @@ class Env:
 
         # iterate all off-line drivers in each zone (for next time_step use)
         self._iterate_drivers_off_line_for_wake_up()
+        #if Timer.get_time_step() % 1000 == 0:
+            #print(self.show_drivers_num_in_spatial())
 
         # match drivers and riders at each zone
         self._dispatch_drivers_for_riders()
@@ -74,6 +76,19 @@ class Env:
         message += "}"
         return message
 
+    def show_drivers_num_in_spatial(self):
+        message = "Driver NUM Dist:" + "{"
+        for zid in self._graph.keys():
+            message += str(zid) + ": " + str(len(self._graph[zid].drivers_on_line)) + "/" + str(len(self._graph[zid].drivers_off_line))+", "
+        message += "}"
+        return message
+
+    def show_offline_driver_status_in_specific_zone(self, zid):
+        message = str(zid) + ":\n"
+        for driver in self._graph[zid].drivers_off_line.values():
+            message += str(driver)+"\n"
+        return message
+
     def show_riders_in_spatial(self):
         message = "Riders Dist:\n" + "{\n"
         for zid in self._graph.keys():
@@ -84,19 +99,10 @@ class Env:
         message += "}"
         return message
 
-    def show_metrics_in_spatial(self):
-        message = "Metrics:\n" + "{\n"
+    def show_fail_riders_num_in_spatial(self):
+        message = "Fail Riders Num Dist:" + "{"
         for zid in self._graph.keys():
-            message += str(zid) + ": { "
-            message += "total order num: "+str(self._graph[zid].total_order_num)+" success num: "+str(self._graph[zid].success_order_num) +\
-                       " fail num: "+str(self._graph[zid].fail_order_num)+" total call time: "+str(self._graph[zid].riders_call_time) + "}\n"
-        message += "}"
-        return message
-
-    def show_metrics_each_driver(self):
-        message = "Driver:\n" + "{\n"
-        for d in self._monitor_drivers.values():
-            message += str(d.id)+": "+"relocate effort: "+str(d.total_relocate_effort) + "\n"
+            message += str(zid) + ": "+str(self._graph[zid].fail_order_num)+", "
         message += "}"
         return message
 
@@ -180,6 +186,7 @@ class Env:
             for did, d in self._graph[zid].drivers_off_line.copy().items():
                 assert d.zid == zid
                 assert d.on_line is False
+                assert d.wake_up_time >= Timer.get_time_step()
                 if d.wake_up_time == Timer.get_time_step():
                     if d.rider is not None:           # not idle move
                         assert d.in_service is True
@@ -238,5 +245,5 @@ if __name__ == "__main__":
         env.step(None)
         #print(env.show_riders_in_spatial())
         #print(env.show_drivers_in_spatial())
-    print(env.show_metrics_in_spatial())
+
 
