@@ -23,7 +23,7 @@ class Timer:
     @staticmethod
     def get_day(time):
         date = (time//TOTAL_MINUTES_ONE_DAY)+1
-        return datetime.date(YEAR, MONTH, date).isoweekday()
+        return datetime.date(YEAR, MONTH, date).isoweekday() if date<=ALL_DAYS_IN_MONTH else datetime.date(YEAR, MONTH+1, 1).isoweekday()
 
 if __name__ == "__main__":
     print("time step: ", Timer.get_time_step())
@@ -32,5 +32,5 @@ if __name__ == "__main__":
     Timer.reset_time_step()
     print("time step: ", Timer.get_time_step())
     print("time: ", Timer.get_time(2882))
-    print("day: ", Timer.get_day(2882))
+    print("day: ", Timer.get_day(44640))
 
