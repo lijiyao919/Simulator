@@ -6,6 +6,7 @@ CLEAN_FILE_NAME = "Taxi_Trips_Chicago_08_2019_clean.csv"
 YEAR = 2019
 MONTH = 8
 DATE = 1
+TOTAL_TIME_STEP_ONE_EPISODE = 44640
 
 def clean_trips_data():
     df = pd.read_csv(FILE_NAME)
@@ -28,14 +29,21 @@ def clean_trips_data():
         #time
         timestamp = int((pd.to_datetime(obs["Trip Start Timestamp"]) - pd.Timestamp(YEAR, MONTH, DATE, 0)) / pd.to_timedelta(1, unit='m'))
         timestamp = timestamp + round(random.uniform(0, 15))
+        assert 0<=timestamp<=TOTAL_TIME_STEP_ONE_EPISODE
         d["Time"].append(timestamp)
 
         # zone id
-        d["Pickup"].append(int(obs["Pickup Community Area"]))
-        d["Dropoff"].append(int(obs["Dropoff Community Area"]))
+        pickup_zone = int(obs["Pickup Community Area"])
+        dropoff_zone = int(obs["Dropoff Community Area"])
+        assert 1<=pickup_zone<=77
+        assert 1<=dropoff_zone<=77
+        d["Pickup"].append(pickup_zone)
+        d["Dropoff"].append(dropoff_zone)
 
         #Duration
-        d["Duration"].append(int(float(obs["Trip Seconds"])/60))
+        trip_duration_in_minute = 1 if int(float(obs["Trip Seconds"])/60)==0 else int(float(obs["Trip Seconds"])/60)
+        assert trip_duration_in_minute != 0
+        d["Duration"].append(trip_duration_in_minute)
 
         #Price
         d["Fare"].append(float(obs["Trip Total"]))
