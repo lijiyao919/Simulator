@@ -9,8 +9,8 @@ MONTH = 8
 TOTAL_TIME_STEP_ONE_EPISODE = 44638
 
 #driver generator
-LOW_BOUND = 90
-HIGH_BOUND = 100
+LOW_BOUND = 4
+HIGH_BOUND = 4
 
 #rider
 RIDER_NUM = None #None means import all riders
