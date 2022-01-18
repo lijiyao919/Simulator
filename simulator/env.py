@@ -27,7 +27,7 @@ class Env:
         self._done = False
 
     def step(self, actions):
-        if Timer.get_time_step()%1000==0: print("The current time stamp: ", Timer.get_time_step())
+        if Timer.get_time_step()%TOTAL_MINUTES_ONE_DAY==0: print("The current time stamp: ", Timer.get_time_step())
 
         # move on line drivers to seek
         self._iterate_drivers_on_line_for_move(actions)
