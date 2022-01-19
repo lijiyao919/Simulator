@@ -14,9 +14,9 @@ class Reward_ICAART(Reward):
         if driver.in_service is True:
             return 2
         elif driver.on_line is True:
-            return -2
-        elif driver.on_line is False:
             return -1
+        elif driver.on_line is False:
+            return -2
         else:
             raise Exception("wrong reward")
 
