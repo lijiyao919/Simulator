@@ -27,8 +27,6 @@ class Env:
         self._done = False
 
     def step(self, actions):
-        if Timer.get_time_step()%TOTAL_MINUTES_ONE_DAY==0: print("The current time stamp: ", Timer.get_time_step())
-
         # move on line drivers to seek
         self._iterate_drivers_on_line_for_move(actions)
 
@@ -126,10 +124,10 @@ class Env:
 
         message += "all total order num: "+str(all_total_order_num)+"\n"
         message += "all total driver num: "+str(len(self._monitor_drivers))+"\n"
-        message += "success rate: "+str(round(all_success_order_num/all_total_order_num,2)*100)+"%\n"
-        message += "fail rate: " + str(round(all_fail_order_num/all_total_order_num,2) * 100) + "%\n"
+        message += "success rate: "+str(round(all_success_order_num/all_total_order_num,6)*100)+"%\n"
+        message += "fail rate: " + str(round(all_fail_order_num/all_total_order_num,6) * 100) + "%\n"
         message += "average rider call time: " + str(round(all_rider_call_time / all_success_order_num, 2)) + "\n"
-        message += "average driver relocate effort: " + str(round(all_driver_relocate_effort/len(self._monitor_drivers),2)) + "\n"
+        message += "average reposition times: " + str(round(all_driver_relocate_effort/len(self._monitor_drivers),2)) + "\n"
 
         return message
 
