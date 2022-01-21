@@ -14,7 +14,6 @@ class Env:
         self._trips = Trips()
         self._trips.read_trips_from_csv(row=RIDER_NUM)
         self._monitor_drivers = {}
-        self._state = None
         self._reward = None
         self._done = False
         self._info = None
@@ -25,6 +24,7 @@ class Env:
         self._trips.reset_index()
         Timer.reset_time_step()
         self._done = False
+        return self._state()
 
     def step(self, actions):
         # move on line drivers to seek
@@ -54,7 +54,7 @@ class Env:
         if Timer.get_time_step() == TOTAL_TIME_STEP_ONE_EPISODE:
             self._done = True
 
-        return self._state, rewards, self._done, self._info
+        return self._state(), rewards, self._done, self._info
 
     def set_reward_scheme(self, r):
         self._reward = r
@@ -148,6 +148,15 @@ class Env:
             for adj_id in AdjList_Chicago[zid]:
                 self._graph[zid].add_neighbor_zones(self._graph[adj_id])
 
+    def _state(self):
+        state = {"driver_locs":[0]*self.get_drivers_length(), "on_call_rider_num":[0]*(TOTAL_ZONES+1), "online_driver_num":[0]*(TOTAL_ZONES+1)}
+        for did, driver in self._monitor_drivers.items():
+            state["driver_locs"][did] = driver.zid
+        for zid, zone in self._graph.items():
+            state["on_call_rider_num"][zid] = len(self._graph[zid].riders_on_call)
+            state["online_driver_num"][zid] = len(self._graph[zid].drivers_on_line)
+        return state
+
     def _add_riders(self):
         while self._trips.is_valid() and self._trips.get_trip().start_time == Timer.get_time_step():
             rider = self._trips.pop_trip()
@@ -233,14 +242,14 @@ class Env:
         return rewards
 
 
-
 if __name__ == "__main__":
     env = Env()
-    env.reset()
+    obs = env.reset()
+    print(obs)
     #print(env.show_graph())
     #print(env.show_drivers_in_spatial())
-    for _ in range(22):
-        env.step(None)
+    #for _ in range(22):
+        #env.step(None)
         #print(env.show_riders_in_spatial())
         #print(env.show_drivers_in_spatial())
 

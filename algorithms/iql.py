@@ -13,7 +13,7 @@ EPS_DECAY = 20
 N_ACTIONS = 10
 
 class IQL_Agent:
-    def __init__(self, drivers_num):
+    def __init__(self):
         self.Q = defaultdict(lambda : np.zeros(N_ACTIONS))
 
 
@@ -22,13 +22,6 @@ class IQL_Agent:
             return (Timer.get_time(driver.wake_up_time), Timer.get_day(driver.wake_up_time), driver.zid)
         else:
             return (Timer.get_time(Timer.get_time_step()), Timer.get_day(Timer.get_time_step()), driver.zid)
-
-    def record_current_loc(self, drivers):
-        locs = [-1]*len(drivers)
-        for did, driver in drivers.items():
-            if driver.on_line is True:
-                locs[did] = driver.zid
-        return locs
 
     def select_action(self, drivers, steps_done):
         actions = [-1] * len(drivers)
@@ -66,5 +59,5 @@ class IQL_Agent:
 
 
 if __name__ == "__main__":
-    agent=IQL_Agent(100)
+    agent=IQL_Agent()
     print(agent.Q)

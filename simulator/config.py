@@ -1,6 +1,9 @@
 #clean order file
 FILE_NAME = "C:/Users/Jiyao/PycharmProjects/Simulator/data/Taxi_Trips_Chicago_08_2019_clean.csv"
 
+#map
+TOTAL_ZONES = 77
+
 #time
 #simulation step is per minute
 TOTAL_MINUTES_ONE_DAY = 1440
