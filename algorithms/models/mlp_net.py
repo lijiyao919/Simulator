@@ -9,6 +9,7 @@ class MLP_Network(nn.Module):
         super(MLP_Network, self).__init__()
         self.fc1 = nn.Linear(input_dims, fc1_dims)
         self.fc3 = nn.Linear(fc1_dims, n_actions)
+        self.elu = nn.ELU()
 
         self.optimizer = optim.RMSprop(self.parameters(), lr=eta)    #0.0001
         # self.optimizer = optim.SGD(self.__policy.parameters(), lr=0.0001)  # 0.01 for method2, 3, online learn
@@ -19,8 +20,10 @@ class MLP_Network(nn.Module):
 
     def forward(self, x):
         x = self.fc1(x)
+        x = self.elu(x)
         #x = T.sigmoid(x)
-        x = T.tanh(x)
+        #x = T.tanh(x)
+        #x = F.relu(x)
         action_scores = self.fc3(x)
         return action_scores
 

@@ -15,10 +15,10 @@ device = T.device('cuda' if T.cuda.is_available() else 'cpu')
 print('The device is: ', device)
 
 #Double DQN
-DDQN = True
+DDQN = False
 
 #Dueling DQN
-DUELING = True
+DUELING = False
 
 Transition = namedtuple('Transition', ('state', 'action', 'reward', 'next_state')) #Transition is a class, not object
 
@@ -55,27 +55,49 @@ class IDQN_Agent(object):
 
         self.q_arr = deque(maxlen=10)
 
-    def _get_next_state(self, driver):
+    @staticmethod
+    def _binary_encode(x, length):
+        return [int(d) for d in str(bin(x))[2:].zfill(length)]
+
+    @staticmethod
+    def _one_hot_encode(x, length):
+        code = [0]*length
+        code[x] = 1
+        return code
+
+    @classmethod
+    def _get_state(cls, time, day, zone_id):
+        #time_bin = np.array(cls._binary_encode(time, 11))
+        time_code = np.array(cls._one_hot_encode(time, 1440))
+        #day_bin = np.array(cls._binary_encode(day, 3))
+        day_code = np.array(cls._one_hot_encode(day-1, 7))
+        #zid_bin = np.array(cls._binary_encode(zone_id, 7))
+        zone_code = np.array(cls._one_hot_encode(zone_id - 1, 77))
+        '''print(time_code)
+        print(day_code)
+        print(zone_code)
+        print(np.concatenate([time_code, day_code, zone_code]))'''
+        return np.concatenate([time_code, day_code, zone_code])
+
+    @classmethod
+    def _get_next_state(cls, driver):
         if driver.in_service:
-            return np.array([Timer.get_time(driver.wake_up_time), Timer.get_day(driver.wake_up_time), driver.zid])
+            return cls._get_state(Timer.get_time(driver.wake_up_time), Timer.get_day(driver.wake_up_time), driver.zid)
         else:
-            return np.array([Timer.get_time(Timer.get_time_step()), Timer.get_day(Timer.get_time_step()), driver.zid])
+            return cls._get_state(Timer.get_time(Timer.get_time_step()), Timer.get_day(Timer.get_time_step()), driver.zid)
 
     def store_exp(self, drivers, obs, actions, rewards, next_obs):
         time = Timer.get_time(Timer.get_time_step()-1)
         day = Timer.get_day(Timer.get_time_step()-1)
-        next_time = Timer.get_time(Timer.get_time_step())
-        next_day = Timer.get_day(Timer.get_time_step())
         assert 0 <= time <= 1440
         assert 1 <= day <= 7
-        assert 0 <= next_time <= 1440
-        assert 1 <= next_day <= 7
 
         for did, driver in drivers.items():
             A = actions[did]
             if A != -1:
                 assert rewards[did] is not None
-                state = np.array([time, day, obs["driver_locs"][did]])
+                assert next_obs["driver_locs"][did] == driver.zid
+                state = IDQN_Agent._get_state(time, day, obs["driver_locs"][did])
                 state_tensor = T.from_numpy(np.expand_dims(state.astype(np.float32), axis=0)).to(device)
                 action_torch = T.tensor([[A]], device=device)
                 reward = rewards[did]
@@ -99,7 +121,7 @@ class IDQN_Agent(object):
                 assert obs["driver_locs"][did] == driver.zid
                 if random_num > eps_thredhold:
                     with T.no_grad():
-                        state = np.array([time, day, driver.zid])
+                        state = IDQN_Agent._get_state(time, day, driver.zid)
                         state_tensor = T.from_numpy(np.expand_dims(state.astype(np.float32), axis=0)).to(device)
                         actions[did] = self.policy_net(state_tensor).max(1)[1].item()
                 else:
@@ -116,20 +138,18 @@ class IDQN_Agent(object):
         state_batch = T.cat(batch.state).to(device)
         action_batch = T.cat(batch.action)
         reward_batch = T.cat(batch.reward)
-
-        non_final_mask = T.tensor(tuple(map(lambda x: x is not None, batch.next_state)), device=device, dtype=T.bool)
-
-        non_final_next_state_batch = T.cat([s for s in batch.next_state if s is not None]).to(device)
+        next_state_batch = T.cat(batch.next_state).to(device)
 
         #compute state action values
         state_action_values = self.policy_net(state_batch).gather(1, action_batch)
-        next_state_action_values = T.zeros(self.batch_size, device=device)
+        #next_state_action_values = T.zeros(self.batch_size, device=device)
         if DDQN:
-            max_act = self.policy_net(non_final_next_state_batch).max(1)[1].view(non_final_next_state_batch.size()[0], 1)
-            next_state_action_values[non_final_mask] = self.target_net(non_final_next_state_batch).gather(1, max_act).detach().view(max_act.size()[0])
+            max_act = self.policy_net(next_state_batch).max(1)[1].view(next_state_batch.size()[0], 1)
+            next_state_action_values = self.target_net(next_state_batch).gather(1, max_act).detach().view(max_act.size()[0])
         else:
-            next_state_action_values[non_final_mask] = self.target_net(non_final_next_state_batch).max(1)[0].detach()
+            next_state_action_values = self.target_net(next_state_batch).max(1)[0].detach()
         target_state_action_values = next_state_action_values*self.gamma+reward_batch
+
 
         #compute huber loss and optimize
         criterion = nn.SmoothL1Loss()
@@ -147,13 +167,11 @@ class IDQN_Agent(object):
             self.policy_net.save_checkpoint()'''
 
         #trace Q value and other parameters
-        '''self.record_Q_value(state_action_values, step)
-        if step % log_feq == 0:
-            self.writer.add_scalar("Loss/train", loss, step)
-            self.writer.add_scalar("The Average Q value", mean(self.q_arr), step)
+        #self.record_Q_value(state_action_values, step)
+        if step % 1000 == 0:
             self.policy_net.traceWeight(step)
             self.policy_net.traceBias(step)
-            self.policy_net.traceGrad(step)'''
+            self.policy_net.traceGrad(step)
 
 
     '''def record_Q_value(self, q_values, step):
@@ -171,3 +189,7 @@ class IDQN_Agent(object):
     def test_mode(self):
         self.policy_net.eval()
 
+
+if __name__ == '__main__':
+    print(IDQN_Agent._get_state(1439, 2, 3))
+    print(IDQN_Agent._get_state(10, 7, 77))
