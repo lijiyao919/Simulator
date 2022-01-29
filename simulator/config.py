@@ -10,14 +10,14 @@ TOTAL_MINUTES_ONE_DAY = 1440
 YEAR = 2019
 MONTH = 8
 ALL_DAYS_IN_MONTH = 31
-TOTAL_TIME_STEP_ONE_EPISODE = 44660
+TOTAL_TIME_STEP_ONE_EPISODE = 44660 #1460(one day)
 
 #driver generator
 LOW_BOUND = 4
 HIGH_BOUND = 4
 
 #rider
-RIDER_NUM = None #None means import all riders
+RIDER_NUM = None #45924 (one day) #None means import all riders
 
 #random
 SEED = 100
