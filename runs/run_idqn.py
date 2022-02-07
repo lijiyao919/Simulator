@@ -4,7 +4,7 @@ from simulator.objects import Reward_ICAART
 from simulator.config import *
 from algorithms.idqn import IDQN_Agent
 
-RUN_STEP = 5000000
+RUN_STEP = 178641
 
 def run_idqn():
     env = Env()
