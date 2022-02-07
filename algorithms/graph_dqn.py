@@ -71,9 +71,9 @@ class GDQN_Agent(object):
         #time_bin = np.array(cls._binary_encode(time, 11))
         time_code = np.array(cls._one_hot_encode(time, 1440))
         #day_bin = np.array(cls._binary_encode(day, 3))
-        day_code = np.array(cls._one_hot_encode(day-1, 7))
+        day_code = np.array(cls._one_hot_encode(day-1, 7))           #Mon(1), encode as 0 here, [1,0,0,0,...]
         #zid_bin = np.array(cls._binary_encode(zone_id, 7))
-        zone_code = np.array(cls._one_hot_encode(zone_id - 1, 77))
+        zone_code = np.array(cls._one_hot_encode(zone_id - 1, 77))    #id 1, endcode as 0 here [1,0,0,0,....]
         '''print(time_code)
         print(day_code)
         print(zone_code)
