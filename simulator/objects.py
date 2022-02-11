@@ -5,14 +5,26 @@ from simulator.config import *
 
 class Reward(ABC):
     @abstractmethod
-    def reward_scheme(self, driver):
+    def reward_scheme(self, driver, diff):
         pass
 
 #from ICAART2022 paper
 class Reward_ICAART(Reward):
-    def reward_scheme(self, driver):
+    def reward_scheme(self, driver, diff):
         if driver.in_service is True:
             return 2
+        elif driver.on_line is True:
+            return -1
+        elif driver.on_line is False:
+            return -2
+        else:
+            raise Exception("wrong reward")
+
+class Reward_Distribution(Reward):
+    def reward_scheme(self, driver, diff):
+        if driver.in_service is True:
+            assert driver.rider is not None
+            return (PATIENCE_TIME - driver.rider.call_taxi_duration) #+ 0.001*diff
         elif driver.on_line is True:
             return -1
         elif driver.on_line is False:
@@ -41,7 +53,7 @@ class Trips:
             dropoff_zone = int(obs["Dropoff"])
             trip_duration = int(obs["Duration"])
             trip_fare = float(obs["Fare"])
-            self._trips.append(Rider(trip_id, timestamp, pickup_zone, dropoff_zone, trip_duration, trip_fare, 20))
+            self._trips.append(Rider(trip_id, timestamp, pickup_zone, dropoff_zone, trip_duration, trip_fare, PATIENCE_TIME))
         print("Done.")
 
     def pop_trip(self):

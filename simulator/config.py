@@ -18,6 +18,7 @@ HIGH_BOUND = 4
 
 #rider
 RIDER_NUM = None #45924 (one day) #None means import all riders
+PATIENCE_TIME = 20
 
 #random
 SEED = 100
