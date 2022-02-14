@@ -2,14 +2,14 @@ from simulator.env import Env
 from simulator.timer import Timer
 from simulator.objects import Reward_ICAART, Reward_Distribution
 from simulator.config import *
-from algorithms.graph_dqn import GDQN_Agent
+from algorithms.das_dqn import DAS_DQN_Agent
 
 RUN_STEP = 178641
 
-def run_gdqn():
+def run_das_dqn():
     env = Env()
     env.set_reward_scheme(Reward_Distribution())
-    agent = GDQN_Agent(1524, 10, 256, 0.0001)
+    agent = DAS_DQN_Agent(1524, 10, 256, 0.0001)
     agent.train_mode()
     i_step = 0
 
@@ -33,4 +33,4 @@ def run_gdqn():
 
 
 if __name__ == '__main__':
-    run_gdqn()
+    run_das_dqn()
