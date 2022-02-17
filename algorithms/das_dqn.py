@@ -158,19 +158,23 @@ class DAS_DQN_Agent(object):
         state_action_values = self.policy_net(state_batch).gather(1, action_batch)
         #next_state_action_values = T.zeros(self.batch_size, device=device)
         if DDQN:
-            max_act = self.policy_net(next_state_batch).max(1)[1].view(next_state_batch.size()[0], 1)
-            next_state_action_values = self.target_net(next_state_batch).gather(1, max_act).detach().view(max_act.size()[0])
+            target_output = self.policy_net(next_state_batch)
         else:
             #print(self.target_net(next_state_batch))
             target_output = self.target_net(next_state_batch)
-            for i in range(len(target_output)):
-                adj_num = self.get_adj_zone_num(next_zid_batch[i])
-                for j in range(len(target_output[0])):
-                    if j > adj_num:
-                        target_output[i][j] = float("-inf")
+        for i in range(len(target_output)):
+            adj_num = self.get_adj_zone_num(next_zid_batch[i])
+            for j in range(len(target_output[0])):
+                if j > adj_num:
+                    target_output[i][j] = float("-inf")
+        if DDQN:
+            max_act = target_output.max(1)[1].view(next_state_batch.size()[0], 1)
+            next_state_action_values = self.target_net(next_state_batch).gather(1, max_act).detach().view(max_act.size()[0])
+        else:
             #print(target_output)
             next_state_action_values = target_output.max(1)[0].detach()
             #print(next_state_action_values)
+
         target_state_action_values = next_state_action_values*self.gamma+reward_batch
         #print(target_state_action_values)
 
