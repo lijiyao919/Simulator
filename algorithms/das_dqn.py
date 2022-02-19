@@ -18,9 +18,6 @@ print('The device is: ', device)
 #Double DQN
 DDQN = False
 
-#Dueling DQN
-DUELING = False
-
 Transition = namedtuple('Transition', ('state', 'action', 'reward', 'next_state', 'next_zid')) #Transition is a class, not object
 
 class ReplayBuffer(object):
@@ -196,10 +193,10 @@ class DAS_DQN_Agent(object):
 
         #trace Q value and other parameters
         #self.record_Q_value(state_action_values, step)
-        if step % 1000 == 0:
+        '''if step % 1000 == 0:
             self.policy_net.traceWeight(step)
             self.policy_net.traceBias(step)
-            self.policy_net.traceGrad(step)
+            self.policy_net.traceGrad(step)'''
 
 
     '''def record_Q_value(self, q_values, step):
