@@ -30,7 +30,7 @@ class IQL_Agent:
         assert 0<=time<=1440
         assert 1<=day<=7
 
-        eps_threshold = EPS_END + (EPS_START - EPS_END) * math.exp(-1. * steps_done / EPS_DECAY)
+        eps_threshold = 0.1 #EPS_END + (EPS_START - EPS_END) * math.exp(-1. * steps_done / EPS_DECAY)
         for did, driver in drivers.items():
             if driver.on_line is True:
                 if random.random() > eps_threshold:

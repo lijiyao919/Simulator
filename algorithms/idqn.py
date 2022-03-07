@@ -115,7 +115,7 @@ class IDQN_Agent(object):
         assert 1 <= day <= 7
 
         random_num = random.random()
-        eps_thredhold = self.eps_end + (self.eps_start-self.eps_end)*math.exp(-1 * steps_done / self.eps_decay)
+        eps_thredhold = 0.1 #self.eps_end + (self.eps_start-self.eps_end)*math.exp(-1 * steps_done / self.eps_decay)
         for did, driver in drivers.items():
             if driver.on_line is True:
                 assert obs["driver_locs"][did] == driver.zid
@@ -168,10 +168,10 @@ class IDQN_Agent(object):
 
         #trace Q value and other parameters
         #self.record_Q_value(state_action_values, step)
-        if step % 1000 == 0:
+        '''if step % 1000 == 0:
             self.policy_net.traceWeight(step)
             self.policy_net.traceBias(step)
-            self.policy_net.traceGrad(step)
+            self.policy_net.traceGrad(step)'''
 
 
     '''def record_Q_value(self, q_values, step):
