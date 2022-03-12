@@ -44,7 +44,7 @@ class IDQN_Agent(object):
         self.target_update = target_update_feq
 
         self.writer = SummaryWriter()
-        self.policy_net = MLP_Network(input_dims, n_actions, fc1_dims, eta, self.writer).to(device)
+        self.policy_net = MLP_Network(input_dims, n_actions, fc1_dims, eta, self.writer, chkpt_file='dqn_nwk.pth').to(device)
         self.target_net = MLP_Network(input_dims, n_actions, fc1_dims, eta, self.writer).to(device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.target_net.eval()

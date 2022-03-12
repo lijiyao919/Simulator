@@ -7,7 +7,7 @@ import torch.nn.functional as F
 DUELING = False
 
 class MLP_Network(nn.Module):
-    def __init__(self, input_dims, n_actions, fc1_dims, eta, tb_writer, chkpt_dir='checkpoints'):
+    def __init__(self, input_dims, n_actions, fc1_dims, eta, tb_writer, chkpt_dir='checkpoints', chkpt_file='mlp_nwk.pth'):
         super(MLP_Network, self).__init__()
         self.fc1 = nn.Linear(input_dims, fc1_dims)
         self.elu = nn.ELU()
@@ -23,7 +23,7 @@ class MLP_Network(nn.Module):
         # self.optimizer = optim.SGD(self.__policy.parameters(), lr=0.0001)  # 0.01 for method2, 3, online learn
         self.optimizer.zero_grad()
 
-        self.checkpoint_file = os.path.join(chkpt_dir, 'mlp_dqn.pth')
+        self.checkpoint_file = os.path.join(chkpt_dir, chkpt_file)
         self.writer = tb_writer
 
     def forward(self, x):

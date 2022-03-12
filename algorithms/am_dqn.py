@@ -33,7 +33,7 @@ class ReplayBuffer(object):
     def __len__(self):
         return len(self.buffer)
 
-class DAS_DQN_Agent(object):
+class AM_DQN_Agent(object):
     def __init__(self, input_dims, n_actions, fc1_dims, eta, buffer_size=10000, batch_size=32, gamma=0.99, target_update_feq=1000, eps_end=0.1, eps_decay=20):
         self.replay_buffer = ReplayBuffer(buffer_size)
         self.n_actions = n_actions
@@ -42,7 +42,7 @@ class DAS_DQN_Agent(object):
         self.target_update = target_update_feq
 
         self.writer = SummaryWriter()
-        self.policy_net = MLP_Network(input_dims, n_actions, fc1_dims, eta, self.writer).to(device)
+        self.policy_net = MLP_Network(input_dims, n_actions, fc1_dims, eta, self.writer, chkpt_file='am_dqn_nwk.pth').to(device)
         self.target_net = MLP_Network(input_dims, n_actions, fc1_dims, eta, self.writer).to(device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.target_net.eval()
@@ -98,7 +98,7 @@ class DAS_DQN_Agent(object):
             if A != -1:
                 assert rewards[did] is not None
                 assert next_obs["driver_locs"][did] == driver.zid
-                state = DAS_DQN_Agent.get_state(time, day, obs["driver_locs"][did])
+                state = AM_DQN_Agent.get_state(time, day, obs["driver_locs"][did])
                 state_tensor = T.from_numpy(np.expand_dims(state.astype(np.float32), axis=0)).to(device)
                 action_torch = T.tensor([[A]], device=device)
                 reward = rewards[did]
@@ -123,7 +123,7 @@ class DAS_DQN_Agent(object):
                 adj_num = self.get_adj_zone_num(driver.zid)
                 if random_num > eps_thredhold:
                     with T.no_grad():
-                        state = DAS_DQN_Agent.get_state(time, day, driver.zid)
+                        state = AM_DQN_Agent.get_state(time, day, driver.zid)
                         state_tensor = T.from_numpy(np.expand_dims(state.astype(np.float32), axis=0)).to(device)
                         actions[did] = np.argmax(self.policy_net(state_tensor)[0][0:adj_num + 1].cpu().numpy())
                         '''print(driver.zid)
@@ -216,5 +216,5 @@ class DAS_DQN_Agent(object):
 
 
 if __name__ == '__main__':
-    print(DAS_DQN_Agent.get_state(1439, 2, 3))
-    print(DAS_DQN_Agent.get_state(10, 7, 77))
+    print(AM_DQN_Agent.get_state(1439, 2, 3))
+    print(AM_DQN_Agent.get_state(10, 7, 77))
