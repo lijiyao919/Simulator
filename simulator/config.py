@@ -11,6 +11,7 @@ YEAR = 2019
 MONTH = 8
 ALL_DAYS_IN_MONTH = 31
 TOTAL_TIME_STEP_ONE_EPISODE = 44660 #1460 #(one day)
+ON_MONITOR = True
 
 #driver generator
 LOW_BOUND = 5

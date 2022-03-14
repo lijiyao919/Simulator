@@ -4,6 +4,7 @@ from simulator.zone import Zone
 from simulator.driver import Driver
 from simulator.timer import Timer
 from simulator.config import *
+from simulator.monitor import Monitor
 import random
 
 random.seed(SEED)
@@ -17,6 +18,10 @@ class Env:
         self._reward = None
         self._done = False
         self._info = None
+        if ON_MONITOR:
+            self._call_now_num = []
+            self._available_driver_num = []
+            self._match_num = []
 
     def reset(self):
         self._create_graph()
@@ -24,6 +29,11 @@ class Env:
         self._trips.reset_index()
         Timer.reset_time_step()
         self._done = False
+        if ON_MONITOR:
+            Monitor.init()
+            self._call_now_num = []
+            self._available_driver_num = []
+            self._match_num = []
         return self._state()
 
     def step(self, actions):
@@ -36,10 +46,12 @@ class Env:
         #iterate on call riders to find give ups
         self._iterate_riders_on_call_for_give_up()
 
-        # iterate all off-line drivers in each zone (for next time_step use)
+        # iterate all off-line drivers in each zone
         self._iterate_drivers_off_line_for_wake_up()
-        #if Timer.get_time_step() % 1000 == 0:
-            #print(self.show_drivers_num_in_spatial())
+
+        # for tracking on call rider_num and available driver num
+        if ON_MONITOR:
+            self._iterate_call_driver_num()
 
         # match drivers and riders at each zone
         self._dispatch_drivers_for_riders()
@@ -47,14 +59,21 @@ class Env:
         # iterate on call riders to update call time
         self._iterate_riders_on_call_for_update_call_time()
 
+        # tracking shown
+        if ON_MONITOR:
+            Monitor.plot_success_match(self._call_now_num, self._available_driver_num, self._match_num)
+
         rewards = self._iterate_drivers_reward(actions) if self._reward is not None else None
 
         Timer.tick_time_step()
 
         if Timer.get_time_step() == TOTAL_TIME_STEP_ONE_EPISODE:
             self._done = True
+            if ON_MONITOR:
+                Monitor.close()
 
         return self._state(), rewards, self._done, self._info
+
 
     def set_reward_scheme(self, r):
         self._reward = r
@@ -220,6 +239,7 @@ class Env:
                 self._graph[zid_to_go].add_driver_off_line(d)
 
     def _dispatch_drivers_for_riders(self):
+        match_cnt = 0
         for zid in self._graph.keys():
             while len(self._graph[zid].drivers_on_line)>0 and len(self._graph[zid].riders_on_call)>0:
                 rider = self._graph[zid].pop_first_riders()
@@ -232,6 +252,8 @@ class Env:
                 driver.wake_up_time = Timer.get_time_step() + rider.trip_duration
                 self._graph[rider.end_zone].add_driver_off_line(driver)
                 self._graph[zid].tick_success_order_num()
+                match_cnt += 1
+        self._match_num.append(match_cnt)
 
     def _iterate_drivers_reward(self, actions):
         assert self._reward is not None
@@ -240,6 +262,17 @@ class Env:
             if actions[did] != -1: # make sure driver take action
                 rewards[did] = self._reward.reward_scheme(driver)
         return rewards
+
+    def _iterate_call_driver_num(self):
+        on_call_rider_num = 0
+        available_driver_num = 0
+
+        for zid in self._graph.keys():
+            on_call_rider_num += len(self._graph[zid].riders_on_call)
+            available_driver_num += len(self._graph[zid].drivers_on_line)
+
+        self._call_now_num.append(on_call_rider_num)
+        self._available_driver_num.append(available_driver_num)
 
 
 if __name__ == "__main__":
