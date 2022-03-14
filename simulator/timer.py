@@ -23,11 +23,11 @@ class Timer:
     @staticmethod
     def get_date(time):
         # have bug in transition from 30/31 to 1st next month, but now just for print out shown
-        return (time//TOTAL_MINUTES_ONE_DAY)+1
+        return (time//TOTAL_MINUTES_ONE_DAY)+DATE
 
     @staticmethod
     def get_day(time):
-        date = (time//TOTAL_MINUTES_ONE_DAY)+1
+        date = (time//TOTAL_MINUTES_ONE_DAY)+DATE
         return datetime.date(YEAR, MONTH, date).isoweekday() if date<=ALL_DAYS_IN_MONTH else datetime.date(YEAR, MONTH+1, 1).isoweekday()
 
 if __name__ == "__main__":
