@@ -253,7 +253,8 @@ class Env:
                 self._graph[rider.end_zone].add_driver_off_line(driver)
                 self._graph[zid].tick_success_order_num()
                 match_cnt += 1
-        self._match_num.append(match_cnt)
+        if ON_MONITOR:
+            self._match_num.append(match_cnt)
 
     def _iterate_drivers_reward(self, actions):
         assert self._reward is not None
