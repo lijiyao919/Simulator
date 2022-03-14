@@ -17,8 +17,8 @@ print('The device is: ', device)
 #Double DQN
 DDQN = False
 
-#Dueling DQN
-DUELING = False
+#Load checkpoints file
+LOAD = True
 
 Transition = namedtuple('Transition', ('state', 'action', 'reward', 'next_state')) #Transition is a class, not object
 
@@ -46,6 +46,10 @@ class IDQN_Agent(object):
         self.writer = SummaryWriter()
         self.policy_net = MLP_Network(input_dims, n_actions, fc1_dims, eta, self.writer, chkpt_file='dqn_nwk.pth').to(device)
         self.target_net = MLP_Network(input_dims, n_actions, fc1_dims, eta, self.writer).to(device)
+
+        if LOAD:
+            print("Load from: dqn_nwk.pth")
+            self.policy_net.load_checkpoint()
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.target_net.eval()
 

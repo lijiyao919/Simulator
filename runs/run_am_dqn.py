@@ -8,7 +8,7 @@ RUN_STEP = 1027180
 
 def run_am_dqn():
     env = Env()
-    env.set_reward_scheme(Reward_ICAART())
+    env.set_reward_scheme(Reward_Distribution())
     agent = AM_DQN_Agent(1524, 10, 256, 0.0001)
     agent.train_mode()
     i_step = 0

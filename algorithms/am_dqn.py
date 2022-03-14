@@ -18,6 +18,9 @@ print('The device is: ', device)
 #Double DQN
 DDQN = False
 
+#Load checkpoints file
+LOAD = True
+
 Transition = namedtuple('Transition', ('state', 'action', 'reward', 'next_state', 'next_zid')) #Transition is a class, not object
 
 class ReplayBuffer(object):
@@ -44,6 +47,10 @@ class AM_DQN_Agent(object):
         self.writer = SummaryWriter()
         self.policy_net = MLP_Network(input_dims, n_actions, fc1_dims, eta, self.writer, chkpt_file='am_dqn_nwk.pth').to(device)
         self.target_net = MLP_Network(input_dims, n_actions, fc1_dims, eta, self.writer).to(device)
+
+        if LOAD:
+            print("Load from: am_dqn_nwk.pth")
+            self.policy_net.load_checkpoint()
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.target_net.eval()
 
