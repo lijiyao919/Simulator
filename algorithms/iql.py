@@ -2,6 +2,7 @@ from simulator.timer import Timer
 from collections import defaultdict
 import numpy as np
 import random
+import json
 import math
 
 EPSILON= 0.1
@@ -12,10 +13,13 @@ EPS_END = 0.1
 EPS_DECAY = 20
 N_ACTIONS = 10
 
+LOAD = True
+
 class IQL_Agent:
     def __init__(self):
         self.Q = defaultdict(lambda : np.zeros(N_ACTIONS))
-
+        if LOAD:
+            self.load()
 
     def _get_next_state(self, driver):
         if driver.in_service:
@@ -56,6 +60,24 @@ class IQL_Agent:
                 R = rewards[did]
                 #print(did, S, S_pi, R)
                 self.Q[S][A] = self.Q[S][A] + ALPHA * (R + GAMMA * np.max(self.Q[S_pi]) - self.Q[S][A])
+
+    def save(self):
+        print('Saving......')
+        data = [{'key': k, 'value': v.tolist()} for k, v in self.Q.items()]
+        #print('save:', data)
+        with open('checkpoints/qleaning.json', 'w') as fp:
+            json.dump(data, fp)
+        print('Save Done!')
+
+    def load(self):
+        print('Loading......')
+        with open('checkpoints/qleaning.json', 'r') as fp:
+            data=json.load(fp)
+        for elem in data:
+            S=tuple(elem['key'])
+            self.Q[S]=np.array(elem['value'])
+        #print('load:',self.Q)
+        print('Load Done!')
 
 
 if __name__ == "__main__":
