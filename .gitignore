@@ -1,4 +1,7 @@
 .idea
 __pycache__
 runs/runs
+data/Taxi_Trips_Chicago_08_2019.csv
+data/Taxi_Trips_Chicago_09_23_29_2019.csv
+
 
