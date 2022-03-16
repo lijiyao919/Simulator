@@ -26,8 +26,8 @@ def run_iql():
             obs, rewards, done, _ = env.step(actions)
             agent.update(env.monitor_drivers, actions, rewards, locs)
             i_step += 1
-        print("save Json")
-        agent.save()
+        #print("save Json")
+        #agent.save()
         print("Episode end:")
         print("The current step: ", i_step)
         print(env.show_metrics_in_summary())

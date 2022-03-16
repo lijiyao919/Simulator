@@ -2,6 +2,7 @@ from simulator.env import Env
 from simulator.timer import Timer
 from simulator.objects import Reward_ICAART, Reward_Distribution
 from simulator.config import *
+from simulator.monitor import Monitor
 from algorithms.am_dqn import AM_DQN_Agent
 
 RUN_STEP = 1027180
@@ -17,19 +18,19 @@ def run_am_dqn():
         obs = env.reset()
         done = False
         while not done:
-            if Timer.get_time_step() != 0 and Timer.get_time_step() % TOTAL_MINUTES_ONE_DAY == 0:
+            '''if Timer.get_time_step() != 0 and Timer.get_time_step() % TOTAL_MINUTES_ONE_DAY == 0:
                 print("The current step: ", i_step)
                 print("The current time stamp: ", Timer.get_time_step())
                 print("The current date: ", Timer.get_date(Timer.get_time_step()))
-                print(env.show_metrics_in_summary())
+                print(env.show_metrics_in_summary())'''
             actions = agent.select_action(obs, env.monitor_drivers, i_step)
             next_obs, rewards, done, _ = env.step(actions)
             agent.store_exp(env.monitor_drivers, obs, actions, rewards, next_obs)
             agent.update(i_step)
             obs = next_obs
             i_step += 1
-        print("save checkpoint")
-        agent.policy_net.save_checkpoint()
+        #print("save checkpoint")
+        #agent.policy_net.save_checkpoint()
         print("Episode end:")
         print("The current step: ", i_step)
         print(env.show_metrics_in_summary())
