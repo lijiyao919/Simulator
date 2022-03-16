@@ -13,7 +13,7 @@ EPS_END = 0.1
 EPS_DECAY = 20
 N_ACTIONS = 10
 
-LOAD = True
+LOAD = False
 
 class IQL_Agent:
     def __init__(self):

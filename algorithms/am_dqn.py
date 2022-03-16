@@ -19,7 +19,7 @@ print('The device is: ', device)
 DDQN = False
 
 #Load checkpoints file
-LOAD = True
+LOAD = False
 
 Transition = namedtuple('Transition', ('state', 'action', 'reward', 'next_state', 'next_zid')) #Transition is a class, not object
 
