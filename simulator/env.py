@@ -14,7 +14,7 @@ class Env:
         self._graph = {}
         self._trips = Trips()
         self._trips.read_trips_from_csv(row=RIDER_NUM)
-        self._monitor_drivers = {}
+        self._drivers_tracker = {}
         self._reward = None
         self._done = False
         self._info = None
@@ -138,24 +138,24 @@ class Env:
             all_fail_order_num += self._graph[zid].fail_order_num
             all_rider_call_time += self._graph[zid].riders_call_time
 
-        for d in self._monitor_drivers.values():
+        for d in self._drivers_tracker.values():
             all_driver_relocate_effort += d.total_relocate_effort
 
         message += "all total order num: "+str(all_total_order_num)+"\n"
-        message += "all total driver num: "+str(len(self._monitor_drivers))+"\n"
+        message += "all total driver num: " + str(len(self._drivers_tracker)) + "\n"
         message += "success rate: "+str(round(all_success_order_num/all_total_order_num,6)*100)+"%\n"
         message += "fail rate: " + str(round(all_fail_order_num/all_total_order_num,6) * 100) + "%\n"
         message += "average rider call time: " + str(round(all_rider_call_time / all_success_order_num, 2)) + "\n"
-        message += "average reposition times: " + str(round(all_driver_relocate_effort/len(self._monitor_drivers),2)) + "\n"
+        message += "average reposition times: " + str(round(all_driver_relocate_effort / len(self._drivers_tracker), 2)) + "\n"
 
         return message
 
     def get_drivers_length(self):
-        return len(self._monitor_drivers)
+        return len(self._drivers_tracker)
 
     @property
     def monitor_drivers(self):
-        return self._monitor_drivers
+        return self._drivers_tracker
 
     def _create_graph(self):
         #inititial each node
@@ -169,7 +169,7 @@ class Env:
 
     def _state(self):
         state = {"driver_locs":[0]*self.get_drivers_length(), "on_call_rider_num":[0]*(TOTAL_ZONES+1), "online_driver_num":[0]*(TOTAL_ZONES+1)}
-        for did, driver in self._monitor_drivers.items():
+        for did, driver in self._drivers_tracker.items():
             state["driver_locs"][did] = driver.zid
         for zid, zone in self._graph.items():
             state["on_call_rider_num"][zid] = len(self._graph[zid].riders_on_call)
@@ -188,7 +188,7 @@ class Env:
             for _ in range(num_drivers):
                 d = Driver(id, zid)
                 self._graph[zid].add_driver_on_line(d)
-                self._monitor_drivers[id] = d
+                self._drivers_tracker[id] = d
                 id+=1
 
     def _iterate_riders_on_call_for_give_up(self):
@@ -259,7 +259,7 @@ class Env:
     def _iterate_drivers_reward(self, actions):
         assert self._reward is not None
         rewards = [None]*self.get_drivers_length()
-        for did, driver in self._monitor_drivers.items():
+        for did, driver in self._drivers_tracker.items():
             if actions[did] != -1: # make sure driver take action
                 rewards[did] = self._reward.reward_scheme(driver)
         return rewards
