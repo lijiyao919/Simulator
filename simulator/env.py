@@ -51,7 +51,7 @@ class Env:
 
         # for tracking on call rider_num and available driver num
         if ON_MONITOR:
-            self._iterate_call_driver_num()
+            self._iterate_call_driver_num_for_monitor()
 
         # match drivers and riders at each zone
         self._dispatch_drivers_for_riders()
@@ -61,6 +61,7 @@ class Env:
 
         # tracking shown
         if ON_MONITOR:
+            self._iterate_drivers_in_service_for_monitor()
             Monitor.plot_success_match(self._call_now_num, self._available_driver_num, self._match_num)
 
         rewards = self._iterate_drivers_reward(actions) if self._reward is not None else None
@@ -239,7 +240,6 @@ class Env:
                 self._graph[zid_to_go].add_driver_off_line(d)
 
     def _dispatch_drivers_for_riders(self):
-        match_cnt = 0
         for zid in self._graph.keys():
             while len(self._graph[zid].drivers_on_line)>0 and len(self._graph[zid].riders_on_call)>0:
                 rider = self._graph[zid].pop_first_riders()
@@ -252,9 +252,6 @@ class Env:
                 driver.wake_up_time = Timer.get_time_step() + rider.trip_duration
                 self._graph[rider.end_zone].add_driver_off_line(driver)
                 self._graph[zid].tick_success_order_num()
-                match_cnt += 1
-        if ON_MONITOR:
-            self._match_num.append(match_cnt)
 
     def _iterate_drivers_reward(self, actions):
         assert self._reward is not None
@@ -264,7 +261,7 @@ class Env:
                 rewards[did] = self._reward.reward_scheme(driver)
         return rewards
 
-    def _iterate_call_driver_num(self):
+    def _iterate_call_driver_num_for_monitor(self):
         on_call_rider_num = 0
         available_driver_num = 0
 
@@ -274,6 +271,13 @@ class Env:
 
         self._call_now_num.append(on_call_rider_num)
         self._available_driver_num.append(available_driver_num)
+
+    def _iterate_drivers_in_service_for_monitor(self):
+        cnt = 0
+        for d in self._drivers_tracker.values():
+            if d.in_service:
+                cnt += 1
+        self._match_num.append(cnt)
 
 
 if __name__ == "__main__":
