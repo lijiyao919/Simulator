@@ -15,8 +15,8 @@ TOTAL_TIME_STEP_ONE_EPISODE = 44660 #1460 #(one day)
 ON_MONITOR = False
 
 #driver generator
-LOW_BOUND = 5
-HIGH_BOUND = 5
+LOW_BOUND = 8
+HIGH_BOUND = 8
 
 #rider
 RIDER_NUM = None #45924 #(one day) #None means import all riders
@@ -24,3 +24,10 @@ PATIENCE_TIME = 20
 
 #random
 SEED = 100
+
+
+#for the test in Sep 23-29
+#FILE_NAME = "C:/Users/Jiyao/PycharmProjects/Simulator/data/Taxi_Trips_Chicago_09_23_29_2019_clean.csv"
+#MONTH = 9
+#DATE = 23
+#TOTAL_TIME_STEP_ONE_EPISODE = 10100 #(one week)
