@@ -22,6 +22,8 @@ class Env:
             self._call_now_num = []
             self._available_driver_num = []
             self._match_num = []
+            self._call_now_num_zones = []
+            self._available_driver_num_zones = []
 
     def reset(self):
         self._create_graph()
@@ -34,6 +36,8 @@ class Env:
             self._call_now_num = []
             self._available_driver_num = []
             self._match_num = []
+            self._call_now_num_zones = []
+            self._available_driver_num_zones = []
         return self._state()
 
     def step(self, actions):
@@ -52,6 +56,8 @@ class Env:
         # for tracking on call rider_num and available driver num
         if ON_MONITOR:
             self._iterate_call_driver_num_for_monitor()
+            self._iterate_call_driver_num_by_zone_for_monitor()
+            Monitor.plot_rider_driver_num_by_zone(self._call_now_num_zones, self._available_driver_num_zones)
 
         # match drivers and riders at each zone
         self._dispatch_drivers_for_riders()
@@ -62,7 +68,8 @@ class Env:
         # tracking shown
         if ON_MONITOR:
             self._iterate_drivers_in_service_for_monitor()
-            Monitor.plot_success_match(self._call_now_num, self._available_driver_num, self._match_num)
+            Monitor.plot_rider_driver_num_by_time(self._call_now_num, self._available_driver_num, self._match_num)
+
 
         rewards = self._iterate_drivers_reward(actions) if self._reward is not None else None
 
@@ -271,6 +278,13 @@ class Env:
 
         self._call_now_num.append(on_call_rider_num)
         self._available_driver_num.append(available_driver_num)
+
+    def _iterate_call_driver_num_by_zone_for_monitor(self):
+        self._call_now_num_zones = []
+        self._available_driver_num_zones = []
+        for zid in self._graph.keys():
+            self._call_now_num_zones.append(len(self._graph[zid].riders_on_call))
+            self._available_driver_num_zones.append(len(self._graph[zid].drivers_on_line))
 
     def _iterate_drivers_in_service_for_monitor(self):
         cnt = 0
