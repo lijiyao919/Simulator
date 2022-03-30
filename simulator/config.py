@@ -1,5 +1,8 @@
 #clean order file
-FILE_NAME = "C:/Users/Jiyao/PycharmProjects/Simulator/data/Taxi_Trips_Chicago_08_2019_clean.csv"
+FILE_NAME = "../data/Taxi_Trips_Chicago_08_2019_clean.csv"
+
+#Images Folder
+IMGS_FOLDER = "./img/"
 
 #map
 TOTAL_ZONES = 77
