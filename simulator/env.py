@@ -18,12 +18,6 @@ class Env:
         self._reward = None
         self._done = False
         self._info = None
-        if ON_MONITOR:
-            self._call_now_num = []
-            self._available_driver_num = []
-            self._match_num = []
-            self._call_now_num_zones = []
-            self._available_driver_num_zones = []
 
     def reset(self):
         self._create_graph()
@@ -32,12 +26,7 @@ class Env:
         Timer.reset_time_step()
         self._done = False
         if ON_MONITOR:
-            Monitor.init()
-            self._call_now_num = []
-            self._available_driver_num = []
-            self._match_num = []
-            self._call_now_num_zones = []
-            self._available_driver_num_zones = []
+            Monitor.init(self._graph, self._drivers_tracker)
         return self._state()
 
     def step(self, actions):
@@ -55,9 +44,7 @@ class Env:
 
         # for tracking on call rider_num and available driver num
         if ON_MONITOR:
-            self._iterate_call_driver_num_for_monitor()
-            self._iterate_call_driver_num_by_zone_for_monitor()
-            Monitor.plot_rider_driver_num_by_zone(self._call_now_num_zones, self._available_driver_num_zones)
+            Monitor.plot_supply_demand_by_zone()
 
         # match drivers and riders at each zone
         self._dispatch_drivers_for_riders()
@@ -66,10 +53,8 @@ class Env:
         self._iterate_riders_on_call_for_update_call_time()
 
         # tracking shown
-        if ON_MONITOR:
-            self._iterate_drivers_in_service_for_monitor()
-            Monitor.plot_rider_driver_num_by_time(self._call_now_num, self._available_driver_num, self._match_num)
-
+        #if ON_MONITOR:
+            #Monitor.plot_supply_demand_by_time()
 
         rewards = self._iterate_drivers_reward(actions) if self._reward is not None else None
 
@@ -77,8 +62,6 @@ class Env:
 
         if Timer.get_time_step() == TOTAL_TIME_STEP_ONE_EPISODE:
             self._done = True
-            if ON_MONITOR:
-                Monitor.close()
 
         return self._state(), rewards, self._done, self._info
 
@@ -268,30 +251,7 @@ class Env:
                 rewards[did] = self._reward.reward_scheme(driver)
         return rewards
 
-    def _iterate_call_driver_num_for_monitor(self):
-        on_call_rider_num = 0
-        available_driver_num = 0
 
-        for zid in self._graph.keys():
-            on_call_rider_num += len(self._graph[zid].riders_on_call)
-            available_driver_num += len(self._graph[zid].drivers_on_line)
-
-        self._call_now_num.append(on_call_rider_num)
-        self._available_driver_num.append(available_driver_num)
-
-    def _iterate_call_driver_num_by_zone_for_monitor(self):
-        self._call_now_num_zones = []
-        self._available_driver_num_zones = []
-        for zid in self._graph.keys():
-            self._call_now_num_zones.append(len(self._graph[zid].riders_on_call))
-            self._available_driver_num_zones.append(len(self._graph[zid].drivers_on_line))
-
-    def _iterate_drivers_in_service_for_monitor(self):
-        cnt = 0
-        for d in self._drivers_tracker.values():
-            if d.in_service:
-                cnt += 1
-        self._match_num.append(cnt)
 
 
 if __name__ == "__main__":
