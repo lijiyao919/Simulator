@@ -18,13 +18,13 @@ def run_am_dqn():
         obs = env.reset()
         done = False
         while not done:
-            if Timer.get_time_step() != 0 and Timer.get_time_step() % TOTAL_MINUTES_ONE_DAY == 0:
+            '''if Timer.get_time_step() != 0 and Timer.get_time_step() % TOTAL_MINUTES_ONE_DAY == 0:
                 print("The current step: ", i_step)
                 print("The current time stamp: ", Timer.get_time_step())
                 print("The current date: ", Timer.get_date(Timer.get_time_step()))
                 print(env.show_metrics_in_summary())
                 if ON_MONITOR:
-                    Monitor.reset_by_time()
+                    Monitor.reset_by_time()'''
             actions = agent.select_action(obs, env.monitor_drivers, i_step)
             next_obs, rewards, done, _ = env.step(actions)
             if ON_MONITOR:
@@ -36,6 +36,7 @@ def run_am_dqn():
         #print("save checkpoint")
         #agent.policy_net.save_checkpoint()
         print("Episode end:")
+        print("The current time stamp: ", Timer.get_time_step())
         print("The current step: ", i_step)
         print(env.show_metrics_in_summary())
 
