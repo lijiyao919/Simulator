@@ -9,6 +9,7 @@ import torch as T
 import random
 import math
 import torch.nn as nn
+from collections import defaultdict
 from statistics import mean
 
 # Device configuration
@@ -141,7 +142,59 @@ class AM_DQN_Agent(object):
                         print("\n")'''
                 else:
                     actions[did] = random.randrange(adj_num+1)
+
+        self._elimilate_actions_by_context(drivers, actions)
         return actions
+
+    def _elimilate_actions_by_context(self, drivers, actions):
+        trip_info = defaultdict(list)
+
+        for did, driver in drivers.items():
+            source = driver.zid
+            # offline driver or stay still
+            if actions[did] == -1 or actions[did]>=len(AdjList_Chicago[source]):
+                continue
+            destination = AdjList_Chicago[source][actions[did]]
+            trip_key = str(source)+"->"+str(destination)
+            trip_info[trip_key].append(did)
+
+        #print(trip_info)
+        for trip_key in trip_info.keys():
+            source, destination = trip_key.split("->")
+            col_trip_key = str(destination)+"->"+str(source)
+
+            if col_trip_key not in trip_info.keys():
+                continue
+
+            #print(trip_key + ": " + str(trip_info[trip_key]))
+            #print(col_trip_key + ": " + str(trip_info[col_trip_key]))
+
+            if len(trip_info[trip_key]) == 0 or len(trip_info[col_trip_key]) == 0:
+                continue
+            if len(trip_info[trip_key]) == len(trip_info[col_trip_key]):
+                #print("equal")
+                for did in trip_info[trip_key]:
+                    actions[did] = 9
+                for did in trip_info[col_trip_key]:
+                    actions[did] = 9
+            elif len(trip_info[trip_key]) > len(trip_info[col_trip_key]):
+                #print(">col")
+                for did in trip_info[col_trip_key]:
+                    actions[did] = 9
+                for i in range(len(trip_info[col_trip_key])):
+                    actions[trip_info[trip_key][i]] = 9
+            elif len(trip_info[trip_key]) < len(trip_info[col_trip_key]):
+                #print("<col")
+                for did in trip_info[trip_key]:
+                    actions[did] = 9
+                for i in range(len(trip_info[trip_key])):
+                    actions[trip_info[col_trip_key][i]] = 9
+            else:
+                raise Exception("action process mistakes.")
+            trip_info[trip_key] = []
+            trip_info[col_trip_key] = []
+
+
 
     def update(self, step):
         if len(self.replay_buffer) < self.batch_size:
