@@ -34,7 +34,7 @@ class AS_DQN_Agent(IDQN_Agent):
                 assert obs["driver_locs"][did] == driver.zid
                 if random_num > eps_thredhold:
                     with T.no_grad():
-                        state = IDQN_Agent._get_state(time, day, driver.zid)
+                        state = IDQN_Agent.get_state(time, day, driver.zid)
                         state_tensor = T.from_numpy(np.expand_dims(state.astype(np.float32), axis=0)).to(device)
                         if SAMPLE == "softmax":
                             #print("softmax")

@@ -2,6 +2,8 @@ from collections import namedtuple
 from collections import deque
 from torch.utils.tensorboard import SummaryWriter
 from algorithms.models.mlp_net import MLP_Network
+from algorithms.agent import Agent
+from algorithms.agent import device
 from simulator.timer import Timer
 from data.graph import AdjList_Chicago
 import numpy as np
@@ -9,12 +11,7 @@ import torch as T
 import random
 import math
 import torch.nn as nn
-from collections import defaultdict
-from statistics import mean
 
-# Device configuration
-device = T.device('cuda' if T.cuda.is_available() else 'cpu')
-print('The device is: ', device)
 
 #Double DQN
 DDQN = False
@@ -37,7 +34,7 @@ class ReplayBuffer(object):
     def __len__(self):
         return len(self.buffer)
 
-class AM_DQN_Agent(object):
+class AM_DQN_Agent(Agent):
     def __init__(self, input_dims, n_actions, fc1_dims, eta, buffer_size=10000, batch_size=32, gamma=0.99, target_update_feq=1000, eps_end=0.1, eps_decay=20):
         self.replay_buffer = ReplayBuffer(buffer_size)
         self.n_actions = n_actions
@@ -60,37 +57,6 @@ class AM_DQN_Agent(object):
         self.eps_decay = eps_decay
 
         self.q_arr = deque(maxlen=10)
-
-    @staticmethod
-    def _binary_encode(x, length):
-        return [int(d) for d in str(bin(x))[2:].zfill(length)]
-
-    @staticmethod
-    def _one_hot_encode(x, length):
-        code = [0]*length
-        code[x] = 1
-        return code
-
-    @classmethod
-    def get_state(cls, time, day, zone_id):
-        #time_bin = np.array(cls._binary_encode(time, 11))
-        time_code = np.array(cls._one_hot_encode(time, 1440))
-        #day_bin = np.array(cls._binary_encode(day, 3))
-        day_code = np.array(cls._one_hot_encode(day-1, 7))           #Mon(1), encode as 0 here, [1,0,0,0,...]
-        #zid_bin = np.array(cls._binary_encode(zone_id, 7))
-        zone_code = np.array(cls._one_hot_encode(zone_id - 1, 77))    #id 1, endcode as 0 here [1,0,0,0,....]
-        '''print(time_code)
-        print(day_code)
-        print(zone_code)
-        print(np.concatenate([time_code, day_code, zone_code]))'''
-        return np.concatenate([time_code, day_code, zone_code])
-
-    @classmethod
-    def get_next_state(cls, driver):
-        if driver.in_service:
-            return cls.get_state(Timer.get_time(driver.wake_up_time), Timer.get_day(driver.wake_up_time), driver.zid)
-        else:
-            return cls.get_state(Timer.get_time(Timer.get_time_step()), Timer.get_day(Timer.get_time_step()), driver.zid)
 
     def get_adj_zone_num(self, zid):
         return len(AdjList_Chicago[zid])
@@ -143,58 +109,8 @@ class AM_DQN_Agent(object):
                 else:
                     actions[did] = random.randrange(adj_num+1)
 
-        self._elimilate_actions_by_context(drivers, actions)
+        self.elimilate_actions_by_context(drivers, actions)
         return actions
-
-    def _elimilate_actions_by_context(self, drivers, actions):
-        trip_info = defaultdict(list)
-
-        for did, driver in drivers.items():
-            source = driver.zid
-            # offline driver or stay still
-            if actions[did] == -1 or actions[did]>=len(AdjList_Chicago[source]):
-                continue
-            destination = AdjList_Chicago[source][actions[did]]
-            trip_key = str(source)+"->"+str(destination)
-            trip_info[trip_key].append(did)
-
-        #print(trip_info)
-        for trip_key in trip_info.keys():
-            source, destination = trip_key.split("->")
-            col_trip_key = str(destination)+"->"+str(source)
-
-            if col_trip_key not in trip_info.keys():
-                continue
-
-            #print(trip_key + ": " + str(trip_info[trip_key]))
-            #print(col_trip_key + ": " + str(trip_info[col_trip_key]))
-
-            if len(trip_info[trip_key]) == 0 or len(trip_info[col_trip_key]) == 0:
-                continue
-            if len(trip_info[trip_key]) == len(trip_info[col_trip_key]):
-                #print("equal")
-                for did in trip_info[trip_key]:
-                    actions[did] = 9
-                for did in trip_info[col_trip_key]:
-                    actions[did] = 9
-            elif len(trip_info[trip_key]) > len(trip_info[col_trip_key]):
-                #print(">col")
-                for did in trip_info[col_trip_key]:
-                    actions[did] = 9
-                for i in range(len(trip_info[col_trip_key])):
-                    actions[trip_info[trip_key][i]] = 9
-            elif len(trip_info[trip_key]) < len(trip_info[col_trip_key]):
-                #print("<col")
-                for did in trip_info[trip_key]:
-                    actions[did] = 9
-                for i in range(len(trip_info[trip_key])):
-                    actions[trip_info[col_trip_key][i]] = 9
-            else:
-                raise Exception("action process mistakes.")
-            trip_info[trip_key] = []
-            trip_info[col_trip_key] = []
-
-
 
     def update(self, step):
         if len(self.replay_buffer) < self.batch_size:
@@ -247,23 +163,6 @@ class AM_DQN_Agent(object):
 
         if step % self.target_update == 0:
             self.target_net.load_state_dict(self.policy_net.state_dict())
-
-        '''if step % log_feq*10 == 0:
-            self.policy_net.save_checkpoint()'''
-
-        #trace Q value and other parameters
-        #self.record_Q_value(state_action_values, step)
-        '''if step % 1000 == 0:
-            self.policy_net.traceWeight(step)
-            self.policy_net.traceBias(step)
-            self.policy_net.traceGrad(step)'''
-
-
-    '''def record_Q_value(self, q_values, step):
-        mean_q_value = T.mean(T.cat(tuple(q_values.detach()))).item()
-        self.q_arr.append(mean_q_value)'''
-
-
 
     def flushTBSummary(self):
         self.writer.flush()
