@@ -36,7 +36,10 @@ class Agent(object):
     @classmethod
     def get_next_state(cls, driver):
         if driver.in_service:
-            return cls.get_state(Timer.get_time(driver.wake_up_time), Timer.get_day(driver.wake_up_time), driver.zid)
+            #S_t+n transition
+            #return cls.get_state(Timer.get_time(driver.wake_up_time), Timer.get_day(driver.wake_up_time), driver.zid)
+            #final transition
+            return None
         else:
             return cls.get_state(Timer.get_time(Timer.get_time_step()), Timer.get_day(Timer.get_time_step()), driver.zid)
 

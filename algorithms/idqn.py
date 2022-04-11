@@ -72,7 +72,13 @@ class IDQN_Agent(Agent):
                 reward = rewards[did]
                 reward_torch = T.tensor([reward], device=device)
                 next_state = self.get_next_state(driver)
-                next_state_tensor = T.from_numpy(np.expand_dims(next_state.astype(np.float32), axis=0)).to(device)
+                #S_t+n transition
+                #next_state_tensor = T.from_numpy(np.expand_dims(next_state.astype(np.float32), axis=0)).to(device)
+                #final None transition
+                if next_state is not None:
+                    next_state_tensor = T.from_numpy(np.expand_dims(next_state.astype(np.float32), axis=0)).to(device)
+                else:
+                    next_state_tensor = None
 
                 self.replay_buffer.push(state_tensor, action_torch, reward_torch, next_state_tensor)
 
@@ -107,18 +113,22 @@ class IDQN_Agent(Agent):
         state_batch = T.cat(batch.state).to(device)
         action_batch = T.cat(batch.action)
         reward_batch = T.cat(batch.reward)
-        next_state_batch = T.cat(batch.next_state).to(device)
+        #S_t+n transition
+        #next_state_batch = T.cat(batch.next_state).to(device)
+        #final None trasition
+        non_final_mask = T.tensor(tuple(map(lambda x: x is not None, batch.next_state)), device=device, dtype=T.bool)
+        non_final_next_state_batch = T.cat([s for s in batch.next_state if s is not None]).to(device)
 
         #compute state action values
         state_action_values = self.policy_net(state_batch).gather(1, action_batch)
-        #next_state_action_values = T.zeros(self.batch_size, device=device)
-        if DDQN:
-            max_act = self.policy_net(next_state_batch).max(1)[1].view(next_state_batch.size()[0], 1)
-            next_state_action_values = self.target_net(next_state_batch).gather(1, max_act).detach().view(max_act.size()[0])
-        else:
-            next_state_action_values = self.target_net(next_state_batch).max(1)[0].detach()
-        target_state_action_values = next_state_action_values*self.gamma+reward_batch
+        # S_t+n transition
+        #next_state_action_values = self.target_net(next_state_batch).max(1)[0].detach()
+        # final None trasition
+        next_state_action_values = T.zeros(self.batch_size, device=device)
+        next_state_action_values[non_final_mask] = self.target_net(non_final_next_state_batch).max(1)[0].detach()
 
+        #target Q value
+        target_state_action_values = next_state_action_values*self.gamma+reward_batch
 
         #compute huber loss and optimize
         criterion = nn.SmoothL1Loss()
