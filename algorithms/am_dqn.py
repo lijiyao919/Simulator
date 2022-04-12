@@ -78,7 +78,13 @@ class AM_DQN_Agent(Agent):
                 reward = rewards[did]
                 reward_torch = T.tensor([reward], device=device)
                 next_state = self.get_next_state(driver)
-                next_state_tensor = T.from_numpy(np.expand_dims(next_state.astype(np.float32), axis=0)).to(device)
+                # S_t+n transition
+                #next_state_tensor = T.from_numpy(np.expand_dims(next_state.astype(np.float32), axis=0)).to(device)
+                # final None transition
+                if next_state is not None:
+                    next_state_tensor = T.from_numpy(np.expand_dims(next_state.astype(np.float32), axis=0)).to(device)
+                else:
+                    next_state_tensor = None
 
                 self.replay_buffer.push(state_tensor, action_torch, reward_torch, next_state_tensor, driver.zid)
 
@@ -122,34 +128,31 @@ class AM_DQN_Agent(Agent):
         state_batch = T.cat(batch.state).to(device)
         action_batch = T.cat(batch.action)
         reward_batch = T.cat(batch.reward)
-        next_state_batch = T.cat(batch.next_state).to(device)
         next_zid_batch = batch.next_zid
-        #print(reward_batch)
-        #print(next_zid_batch)
+        # S_t+n transition
+        # next_state_batch = T.cat(batch.next_state).to(device)
+        # final None transition
+        non_final_mask = T.tensor(tuple(map(lambda x: x is not None, batch.next_state)), device=device, dtype=T.bool)
+        non_final_next_state_batch = T.cat([s for s in batch.next_state if s is not None]).to(device)
 
         #compute state action values
         state_action_values = self.policy_net(state_batch).gather(1, action_batch)
-        #next_state_action_values = T.zeros(self.batch_size, device=device)
+        next_state_action_values = T.zeros(self.batch_size, device=device)    # final None transition
         if DDQN:
-            target_output = self.policy_net(next_state_batch)
+            target_output = self.policy_net(non_final_next_state_batch)
         else:
-            #print(self.target_net(next_state_batch))
-            target_output = self.target_net(next_state_batch)
+            target_output = self.target_net(non_final_next_state_batch)
         for i in range(len(target_output)):
             adj_num = self.get_adj_zone_num(next_zid_batch[i])
             for j in range(len(target_output[0])):
                 if j > adj_num:
                     target_output[i][j] = float("-inf")
-        if DDQN:
-            max_act = target_output.max(1)[1].view(next_state_batch.size()[0], 1)
-            next_state_action_values = self.target_net(next_state_batch).gather(1, max_act).detach().view(max_act.size()[0])
-        else:
-            #print(target_output)
-            next_state_action_values = target_output.max(1)[0].detach()
-            #print(next_state_action_values)
-
+        #if DDQN:
+        #    max_act = target_output.max(1)[1].view(next_state_batch.size()[0], 1)
+        #    next_state_action_values = self.target_net(next_state_batch).gather(1, max_act).detach().view(max_act.size()[0])
+        #else:
+        next_state_action_values[non_final_mask] = target_output.max(1)[0].detach()
         target_state_action_values = next_state_action_values*self.gamma+reward_batch
-        #print(target_state_action_values)
 
 
         #compute huber loss and optimize
