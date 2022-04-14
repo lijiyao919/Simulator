@@ -135,8 +135,8 @@ class Env:
         message += "all total order num: "+str(all_total_order_num)+"\n"
         message += "all total driver num: " + str(len(self._drivers_tracker)) + "\n"
         message += "success rate: "+str(round(all_success_order_num/all_total_order_num,6)*100)+"%\n"
-        message += "fail rate: " + str(round(all_fail_order_num/all_total_order_num,6) * 100) + "%\n"
         message += "average rider call time: " + str(round(all_rider_call_time / all_success_order_num, 2)) + "\n"
+        message += "average reposition times before pick: " + str(round(all_driver_relocate_effort / all_success_order_num, 2)) + "\n"
         message += "average reposition times: " + str(round(all_driver_relocate_effort / len(self._drivers_tracker), 2)) + "\n"
 
         return message
