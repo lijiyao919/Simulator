@@ -72,12 +72,14 @@ class AM_DQN_Agent(Agent):
             if A != -1:
                 assert rewards[did] is not None
                 assert next_obs["driver_locs"][did] == driver.zid
+                # state = AM_DQN_Agent.get_state_dist(time, day, obs["driver_locs"][did], obs["on_call_rider_num"], obs["online_driver_num"])
                 state = AM_DQN_Agent.get_state(time, day, obs["driver_locs"][did])
                 state_tensor = T.from_numpy(np.expand_dims(state.astype(np.float32), axis=0)).to(device)
                 action_torch = T.tensor([[A]], device=device)
                 reward = rewards[did]
                 reward_torch = T.tensor([reward], device=device)
-                next_state = self.get_next_state(driver)
+                # next_state = AM_DQN_Agent.get_next_state_dist(driver, next_obs["on_call_rider_num"], next_obs["online_driver_num"])
+                next_state = AM_DQN_Agent.get_next_state(driver)
                 # S_t+n transition
                 #next_state_tensor = T.from_numpy(np.expand_dims(next_state.astype(np.float32), axis=0)).to(device)
                 # final None transition
@@ -103,6 +105,7 @@ class AM_DQN_Agent(Agent):
                 adj_num = self.get_adj_zone_num(driver.zid)
                 if random_num > eps_thredhold:
                     with T.no_grad():
+                        #state = AM_DQN_Agent.get_state_dist(time, day, driver.zid, obs["on_call_rider_num"], obs["online_driver_num"])
                         state = AM_DQN_Agent.get_state(time, day, driver.zid)
                         state_tensor = T.from_numpy(np.expand_dims(state.astype(np.float32), axis=0)).to(device)
                         actions[did] = np.argmax(self.policy_net(state_tensor)[0][0:adj_num + 1].cpu().numpy())

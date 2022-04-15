@@ -43,6 +43,28 @@ class Agent(object):
         else:
             return cls.get_state(Timer.get_time(Timer.get_time_step()), Timer.get_day(Timer.get_time_step()), driver.zid)
 
+    @classmethod
+    def get_state_dist(cls, time, day, zone_id, demand_dist, supply_dist):
+        time_code = np.array(cls._one_hot_encode(time, 1440))
+        day_code = np.array(cls._one_hot_encode(day - 1, 7))  # Mon(1), encode as 0 here, [1,0,0,0,...]
+        zone_code = np.array(cls._one_hot_encode(zone_id - 1, 77))  # id 1, endcode as 0 here [1,0,0,0,....]
+        # dist_diff = np.array(demand_dist) - np.array(supply_dist)
+        # dist_diff = np.delete(dist_diff / max(dist_diff.min(), dist_diff.max(), key=abs), [0])
+        if max(np.array(demand_dist)) != 0:
+            d_dist = np.delete(np.array(demand_dist) / max(np.array(demand_dist)), [0])
+        else:
+            d_dist = np.delete(np.array(demand_dist), [0])
+        s_dist = np.delete(np.array(supply_dist) / max(np.array(supply_dist)), [0])
+        return np.concatenate([time_code, day_code, zone_code, d_dist, s_dist])
+
+    @classmethod
+    def get_next_state_dist(cls, driver, demand_dist, supply_dist):
+        if driver.in_service:
+            return None
+        else:
+            return cls.get_state_dist(Timer.get_time(Timer.get_time_step()), Timer.get_day(Timer.get_time_step()),
+                                      driver.zid, demand_dist, supply_dist)
+
     def elimilate_actions_by_context(self, drivers, actions):
         trip_info = defaultdict(list)
 
