@@ -3,6 +3,7 @@ import numpy as np
 from simulator.timer import Timer
 from simulator.config import *
 import os
+import datetime
 
 class Monitor:
     _graph = None
@@ -71,7 +72,7 @@ class Monitor:
         zones = np.arange(1,78)
         Monitor._iterate_on_call_rider_by_zone()
         Monitor._iterate_available_driver_num_by_zone()
-        plt.title("Date:" + str(Timer.get_date(Timer.get_time_step())) +"   "+'Time:' + str(Timer.get_time(Timer.get_time_step())))
+        plt.title("Date:" + str(Timer.get_date(Timer.get_time_step())) +"   "+'Time:' + str(datetime.timedelta(minutes=Timer.get_time(Timer.get_time_step()))))
         plt.xticks([i for i in range(1, 78, 2)])
         plt.xlabel('Zones')
         plt.ylabel('Number#')

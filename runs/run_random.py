@@ -1,5 +1,6 @@
 from simulator.env import Env
 from simulator.timer import Timer
+from simulator.monitor import Monitor
 from simulator.config import *
 import random
 
@@ -21,6 +22,8 @@ def run_random():
                 print(env.show_metrics_in_summary())'''
             actions = [random.randrange(N_ACTIONS) for _ in range(env.get_drivers_length())]
             _, _, done, _ = env.step(actions)
+            if ON_MONITOR:
+                Monitor.reset_by_zone()
             i_step += 1
         print("Episode end:")
         print("The current step: ", i_step)
