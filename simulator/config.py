@@ -18,12 +18,12 @@ TOTAL_TIME_STEP_ONE_EPISODE = 44660 #1460 #(one day)
 ON_MONITOR = False
 
 #driver generator
-LOW_BOUND = 8
-HIGH_BOUND = 8
+LOW_BOUND = 10
+HIGH_BOUND = 10
 
 #rider
 RIDER_NUM = None #45924 #(one day) #None means import all riders
-PATIENCE_TIME = 20
+PATIENCE_TIME = 21
 
 #random
 SEED = 100
