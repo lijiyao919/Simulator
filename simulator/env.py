@@ -52,6 +52,9 @@ class Env:
         # iterate on call riders to update call time
         self._iterate_riders_on_call_for_update_call_time()
 
+        # iterate idle driver to update idle time
+        self._iterate_drivers_for_update_idle_time()
+
         # tracking shown
         #if ON_MONITOR:
             #Monitor.plot_supply_demand_by_time()
@@ -122,6 +125,7 @@ class Env:
         all_fail_order_num = 0
         all_rider_call_time = 0
         all_driver_relocate_effort = 0
+        all_driver_idle_time = 0
 
         for zid in self._graph.keys():
             all_total_order_num += self._graph[zid].total_order_num
@@ -131,13 +135,16 @@ class Env:
 
         for d in self._drivers_tracker.values():
             all_driver_relocate_effort += d.total_relocate_effort
+            all_driver_idle_time += d.total_idle_time
 
         message += "all total order num: "+str(all_total_order_num)+"\n"
         message += "all total driver num: " + str(len(self._drivers_tracker)) + "\n"
         message += "success rate: "+str(round(all_success_order_num/all_total_order_num,6)*100)+"%\n"
         message += "average rider call time: " + str(round(all_rider_call_time / all_success_order_num, 2)) + "\n"
+        message += "average idle time before pick: " + str(round(all_driver_idle_time / all_success_order_num, 2)) + "\n"
+        message += "average idle time per driver: " + str(round(all_driver_idle_time / len(self._drivers_tracker), 2)) + "\n"
         message += "average reposition times before pick: " + str(round(all_driver_relocate_effort / all_success_order_num, 2)) + "\n"
-        message += "average reposition times: " + str(round(all_driver_relocate_effort / len(self._drivers_tracker), 2)) + "\n"
+        message += "average reposition times per driver: " + str(round(all_driver_relocate_effort / len(self._drivers_tracker), 2)) + "\n"
 
         return message
 
@@ -197,6 +204,11 @@ class Env:
         for zid in self._graph.keys():
             for r in self._graph[zid].riders_on_call:
                 r.tick_call_taxi_duration()
+
+    def _iterate_drivers_for_update_idle_time(self):
+        for d in self._drivers_tracker.values():
+            if not d.in_service:
+                d.tick_idle_time()
 
     def _iterate_drivers_off_line_for_wake_up(self):
         for zid in self._graph.keys():

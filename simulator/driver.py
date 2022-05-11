@@ -2,7 +2,7 @@ from simulator.rider import Rider
 
 class Driver:
 
-    __slots__ = ["_id", "_zid", "_wake_up_time", "_rider", "_on_line", "_in_service", "_total_relocate_effort"]
+    __slots__ = ["_id", "_zid", "_wake_up_time", "_rider", "_on_line", "_in_service", "_total_relocate_effort", "_total_idle_time"]
 
     def __init__(self, wID, pos):
         self._id = wID
@@ -13,6 +13,7 @@ class Driver:
         self._wake_up_time = 0 # the time when driver wake up from offline to online
         self._rider = None
         self._total_relocate_effort = 0
+        self._total_idle_time = 0
 
     def __repr__(self):
         message = "cls:" + type(self).__name__ + ", id:" + str(self._id) +", wake_up_time:" + str(self._wake_up_time) + \
@@ -73,11 +74,22 @@ class Driver:
         assert self._rider is None
         self._total_relocate_effort += 1
 
+    @property
+    def total_idle_time(self):
+        return self._total_idle_time
+
+    def tick_idle_time(self):
+        assert self._rider is None
+        self._total_idle_time += 1
+
 if __name__ == "__main__":
     driver = Driver(1, 30)
     print(driver)
     driver.tick_relocate_effort()
-    print("total relocate effort: ", driver._total_relocate_effort)
+    print("total relocate effort: ", driver.total_relocate_effort)
+    driver.tick_idle_time()
+    print("total idle time: ", driver.total_idle_time)
+
 
     rider = Rider(1, 10, 23, 12, 40, 10, 20)
     driver.pair_rider(rider)
