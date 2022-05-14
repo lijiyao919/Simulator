@@ -2,11 +2,12 @@ from simulator.rider import Rider
 
 class Driver:
 
-    __slots__ = ["_id", "_zid", "_wake_up_time", "_rider", "_on_line", "_in_service", "_total_relocate_effort", "_total_idle_time"]
+    __slots__ = ["_id", "_zid", "_wake_up_time", "_rider", "_on_line", "_in_service", "_total_relocate_effort", "_total_idle_time", "_reward_zid"]
 
     def __init__(self, wID, pos):
         self._id = wID
         self._zid = pos
+        self._reward_zid = pos
 
         self._on_line = True   # available or not, offline means unavailable
         self._in_service = False # delivering riders or not
@@ -17,7 +18,7 @@ class Driver:
 
     def __repr__(self):
         message = "cls:" + type(self).__name__ + ", id:" + str(self._id) +", wake_up_time:" + str(self._wake_up_time) + \
-                  ", pos:" + str(self._zid) + ", on_line: " + str(self._on_line) + ", in_service: " + str(self._in_service) + \
+                  ", pos:" + str(self.zid) + ", reward_pos:" + str(self.reward_zid) + ", on_line: " + str(self._on_line) + ", in_service: " + str(self._in_service) + \
                   ", total_relocate_effort: " + str(self._total_relocate_effort)
         return message+", rider info: ["+str(self._rider)+"]" if self._rider is not None else message
 
@@ -32,6 +33,14 @@ class Driver:
     @zid.setter
     def zid(self, p):
         self._zid = p
+
+    @property
+    def reward_zid(self):
+        return self._reward_zid
+
+    @reward_zid.setter
+    def reward_zid(self, p):
+        self._reward_zid = p
 
     @property
     def on_line(self):
@@ -101,6 +110,8 @@ if __name__ == "__main__":
     print("wake up time: ", driver.wake_up_time)
     driver.finish_rider()
     print(driver)
+    driver.reward_zid = 50
+    print("reward pos: ", driver.reward_zid)
 
 
 
