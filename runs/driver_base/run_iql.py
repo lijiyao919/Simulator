@@ -1,8 +1,6 @@
 from simulator.env import Env
-from simulator.timer import Timer
-from simulator.config import *
 from simulator.objects import Reward_ICAART
-from algorithms.iql import IQL_Agent
+from algorithms.driver_base.iql import IQL_Agent
 
 RUN_STEP = 1027180
 

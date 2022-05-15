@@ -1,17 +1,13 @@
 from simulator.env import Env
-from simulator.timer import Timer
-from simulator.objects import Reward_ICAART, Reward_Distribution, Reward_Distribution_v2
-from simulator.config import *
-from simulator.monitor import Monitor
-from algorithms.demand_dqn import DEMAND_DQN_Agent
+from simulator.objects import Reward_ICAART
+from algorithms.driver_base.idqn import IDQN_Agent
 
 RUN_STEP = 1027180
 
-def run_demand_dqn():
+def run_idqn():
     env = Env()
-    env.set_reward_scheme(Reward_Distribution_v2())
-    #agent = DEMAND_DQN_Agent(1678, 10, 256, 0.0001)  #dist
-    agent = DEMAND_DQN_Agent(1524, 10, 256, 0.0001)
+    env.set_reward_scheme(Reward_ICAART())
+    agent = IDQN_Agent(1524, 10, 256, 0.0001, batch_size=32, target_update_feq=1000, eps_end=0.1, eps_decay=20, buffer_size=10000)
     agent.train_mode()
     i_step = 0
 
@@ -23,24 +19,19 @@ def run_demand_dqn():
                 print("The current step: ", i_step)
                 print("The current time stamp: ", Timer.get_time_step())
                 print("The current date: ", Timer.get_date(Timer.get_time_step()))
-                print(env.show_metrics_in_summary())
-                if ON_MONITOR:
-                    Monitor.reset_by_time()'''
+                print(env.show_metrics_in_summary())'''
             actions = agent.select_action(obs, env.monitor_drivers, i_step)
             next_obs, rewards, done, _ = env.step(actions)
-            if ON_MONITOR:
-                Monitor.reset_by_zone()
             agent.store_exp(env.monitor_drivers, obs, actions, rewards, next_obs)
             agent.update(i_step)
             obs = next_obs
             i_step += 1
-        #print("save checkpoint")
-        #agent.policy_net.save_checkpoint()
+        print("save checkpoint")
+        agent.policy_net.save_checkpoint()
         print("Episode end:")
-        print("The current time stamp: ", Timer.get_time_step())
         print("The current step: ", i_step)
         print(env.show_metrics_in_summary())
 
 
 if __name__ == '__main__':
-    run_demand_dqn()
+    run_idqn()

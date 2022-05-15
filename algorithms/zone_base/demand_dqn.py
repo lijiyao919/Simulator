@@ -1,6 +1,5 @@
-from algorithms.idqn import IDQN_Agent
-from algorithms.am_dqn import AM_DQN_Agent
-from algorithms.agent import device
+from algorithms.driver_base.idqn import IDQN_Agent
+from algorithms.driver_base.agent import device
 from simulator.timer import Timer
 import torch.nn.functional as F
 import torch as T
@@ -25,8 +24,7 @@ class DEMAND_DQN_Agent(IDQN_Agent):
             if driver.on_line is True:
                 assert obs["driver_locs"][did] == driver.zid
                 with T.no_grad():
-                    #state = DEMAND_DQN_Agent.get_state_dist(time, day, driver.zid, obs["on_call_rider_num"], obs["online_driver_num"]) #dist
-                    state = IDQN_Agent.get_state(time, day, obs["driver_locs"][did])
+                    state = DEMAND_DQN_Agent.get_state_local_dist(driver.zid, obs["on_call_rider_num"], obs["online_driver_num"]) #dist
                     state_tensor = T.from_numpy(np.expand_dims(state.astype(np.float32), axis=0)).to(device)
                     if SAMPLE == "softmax":
                         #print("softmax")

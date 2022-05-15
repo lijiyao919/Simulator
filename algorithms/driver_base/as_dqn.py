@@ -1,5 +1,5 @@
-from algorithms.idqn import IDQN_Agent
-from algorithms.idqn import device
+from algorithms.driver_base.idqn import IDQN_Agent
+from algorithms.driver_base.idqn import device
 from simulator.timer import Timer
 import torch.nn.functional as F
 import torch as T

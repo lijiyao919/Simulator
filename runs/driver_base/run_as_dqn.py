@@ -1,17 +1,16 @@
 from simulator.env import Env
 from simulator.timer import Timer
-from simulator.objects import Reward_ICAART, Reward_Distribution, Reward_Distribution_v2
+from simulator.objects import Reward_ICAART
 from simulator.config import *
 from simulator.monitor import Monitor
-from algorithms.am_dqn import AM_DQN_Agent
+from algorithms.driver_base.as_dqn import AS_DQN_Agent
 
 RUN_STEP = 1027180
 
-def run_am_dqn():
+def run_ds_dqn():
     env = Env()
-    env.set_reward_scheme(Reward_Distribution_v2())
-    agent = AM_DQN_Agent(1678, 10, 256, 0.0001)
-    #agent = AM_DQN_Agent(1524, 10, 256, 0.0001)
+    env.set_reward_scheme(Reward_ICAART())
+    agent = AS_DQN_Agent(1524, 10, 256, 0.0001)
     agent.train_mode()
     i_step = 0
 
@@ -19,8 +18,8 @@ def run_am_dqn():
         obs = env.reset()
         done = False
         while not done:
-            '''if Timer.get_time_step() != 0 and Timer.get_time_step() % TOTAL_MINUTES_ONE_DAY == 0:
-                print("The current step: ", i_step)
+            if Timer.get_time_step() != 0 and Timer.get_time_step() % TOTAL_MINUTES_ONE_DAY == 0:
+                '''print("The current step: ", i_step)
                 print("The current time stamp: ", Timer.get_time_step())
                 print("The current date: ", Timer.get_date(Timer.get_time_step()))
                 print(env.show_metrics_in_summary())
@@ -43,4 +42,4 @@ def run_am_dqn():
 
 
 if __name__ == '__main__':
-    run_am_dqn()
+    run_ds_dqn()
