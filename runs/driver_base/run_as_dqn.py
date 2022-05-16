@@ -1,6 +1,6 @@
 from simulator.env import Env
 from simulator.timer import Timer
-from simulator.objects import Reward_ICAART
+from algorithms.driver_base.rewards import Reward_ICAART
 from simulator.config import *
 from simulator.monitor import Monitor
 from algorithms.driver_base.as_dqn import AS_DQN_Agent
@@ -9,8 +9,8 @@ RUN_STEP = 1027180
 
 def run_ds_dqn():
     env = Env()
-    env.set_reward_scheme(Reward_ICAART())
     agent = AS_DQN_Agent(1524, 10, 256, 0.0001)
+    agent.set_reward_scheme(Reward_ICAART())
     agent.train_mode()
     i_step = 0
 
@@ -26,9 +26,10 @@ def run_ds_dqn():
                 if ON_MONITOR:
                     Monitor.reset_by_time()'''
             actions = agent.select_action(obs, env.monitor_drivers, i_step)
-            next_obs, rewards, done, _ = env.step(actions)
+            next_obs, _, done, _ = env.step(actions)
             if ON_MONITOR:
                 Monitor.reset_by_zone()
+            rewards = agent.iterate_drivers_reward(env.monitor_drivers, actions)
             agent.store_exp(env.monitor_drivers, obs, actions, rewards, next_obs)
             agent.update(i_step)
             obs = next_obs

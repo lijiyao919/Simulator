@@ -36,6 +36,7 @@ class ReplayBuffer(object):
 
 class AM_DQN_Agent(Agent):
     def __init__(self, input_dims, n_actions, fc1_dims, eta, buffer_size=10000, batch_size=32, gamma=0.99, target_update_feq=1000, eps_end=0.1, eps_decay=20):
+        super(AM_DQN_Agent, self).__init__()
         self.replay_buffer = ReplayBuffer(buffer_size)
         self.n_actions = n_actions
         self.gamma = gamma

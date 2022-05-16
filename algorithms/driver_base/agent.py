@@ -9,6 +9,20 @@ device = T.device('cuda' if T.cuda.is_available() else 'cpu')
 print('The device is: ', device)
 
 class Agent(object):
+    def __init__(self):
+        self._reward_maker = None
+
+    def set_reward_scheme(self, scheme):
+        self._reward_maker = scheme
+
+    def iterate_drivers_reward(self, drivers, actions):
+        assert self._reward_maker is not None
+        rewards = [None]*len(drivers)
+        for did, driver in drivers.items():
+            if actions[did] != -1: # make sure driver take action
+                rewards[did] = self._reward_maker.reward_scheme(driver)
+        return rewards
+
     @staticmethod
     def _binary_encode(x, length):
         return [int(d) for d in str(bin(x))[2:].zfill(length)]

@@ -15,7 +15,6 @@ class Env:
         self._trips = Trips()
         self._trips.read_trips_from_csv(row=RIDER_NUM)
         self._drivers_tracker = {}
-        self._reward = None
         self._done = False
         self._info = None
 
@@ -59,18 +58,12 @@ class Env:
         #if ON_MONITOR:
             #Monitor.plot_supply_demand_by_time()
 
-        rewards = self._iterate_drivers_reward(actions) if self._reward is not None else None
-
         Timer.tick_time_step()
 
         if Timer.get_time_step() == TOTAL_TIME_STEP_ONE_EPISODE:
             self._done = True
 
-        return self._state(), rewards, self._done, self._info
-
-
-    def set_reward_scheme(self, r):
-        self._reward = r
+        return self._state(), None, self._done, self._info
 
     def show_graph(self):
         message = "Graph:\n"+"{\n"
@@ -255,17 +248,6 @@ class Env:
                 driver.wake_up_time = Timer.get_time_step() + rider.trip_duration
                 self._graph[rider.end_zone].add_driver_off_line(driver)
                 self._graph[zid].tick_success_order_num()
-
-    def _iterate_drivers_reward(self, actions):
-        assert self._reward is not None
-        rewards = [None]*self.get_drivers_length()
-        for did, driver in self._drivers_tracker.items():
-            if actions[did] != -1: # make sure driver take action
-                rewards[did] = self._reward.reward_scheme(driver)
-        return rewards
-
-
-
 
 if __name__ == "__main__":
     env = Env()

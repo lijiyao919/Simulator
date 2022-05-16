@@ -1,5 +1,6 @@
 from simulator.timer import Timer
 from collections import defaultdict
+from algorithms.driver_base.agent import Agent
 import numpy as np
 import random
 import json
@@ -15,8 +16,9 @@ N_ACTIONS = 10
 
 LOAD = False
 
-class IQL_Agent:
+class IQL_Agent(Agent):
     def __init__(self):
+        super(IQL_Agent, self).__init__()
         self.Q = defaultdict(lambda : np.zeros(N_ACTIONS))
         if LOAD:
             self.load()
