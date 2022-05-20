@@ -8,9 +8,8 @@ from torch.distributions import Categorical
 import torch as T
 import torch.nn.functional as F
 from simulator.timer import Timer
-import random
 
-THRED_HOLD = 1
+POLICY = "greedy"
 
 def select_action(obs, drivers):
     actions = [-1] * len(drivers)
@@ -26,13 +25,15 @@ def select_action(obs, drivers):
                 else:
                     adj_zone = AdjList_Chicago[driver.zid][i]
                     choices[i] = obs["on_call_rider_num"][adj_zone] - obs["online_driver_num"][adj_zone]
-            #probs = F.softmax(T.tensor([choices], dtype=float), dim=1)
-            #m = Categorical(probs)
-            #action = m.sample()
-            if random.random()>THRED_HOLD:
+            if POLICY=="softmax":
+                probs = F.softmax(T.tensor([choices], dtype=float), dim=1)
+                m = Categorical(probs)
+                actions[did] = m.sample()
+            elif POLICY=="greedy":
                 actions[did] = np.argmax(choices)
             else:
-                actions[did] = random.randrange(choice_num)
+                raise Exception("No such policy.")
+
     return actions
 
 def run_demand_base():
