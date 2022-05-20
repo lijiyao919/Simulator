@@ -231,7 +231,7 @@ class Env:
                     continue
                 zid_to_go = list(self._graph[zid].neighbod_zones.keys())[act]
                 d.tick_relocate_effort()
-                d.wake_up_time = Timer.get_time_step() + 1
+                d.wake_up_time = Timer.get_time_step() + TIME_TO_NEIGHBOR
                 self._graph[zid].pop_driver_on_line_by_id(did)
                 self._graph[zid_to_go].add_driver_off_line(d)
 

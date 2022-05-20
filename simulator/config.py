@@ -20,6 +20,7 @@ ON_MONITOR = False
 #driver generator
 LOW_BOUND = 10
 HIGH_BOUND = 10
+TIME_TO_NEIGHBOR = 1
 
 #rider
 RIDER_NUM = None #45924 #(one day) #None means import all riders
