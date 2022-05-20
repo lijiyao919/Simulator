@@ -1,16 +1,16 @@
 from simulator.env import Env
 from simulator.timer import Timer
-from simulator.objects import Zone_Reward
+from algorithms.zone_base.rewards import Zone_Reward
 from simulator.config import *
 from simulator.monitor import Monitor
-from algorithms.zone_base.demand_dqn import DEMAND_DQN_Agent
+from algorithms.zone_base.dqn import DQN_Agent
 
 RUN_STEP = 1027180
 
-def run_demand_dqn():
+def run_dqn():
     env = Env()
-    env.set_reward_scheme(Zone_Reward())
-    agent = DEMAND_DQN_Agent(87, 10, 128, 0.0001)
+    agent = DQN_Agent(87, 10, 128, 0.0001)
+    agent.set_reward_scheme(Zone_Reward())
     agent.train_mode()
     i_step = 0
 
@@ -25,11 +25,12 @@ def run_demand_dqn():
                 print(env.show_metrics_in_summary())
                 if ON_MONITOR:
                     Monitor.reset_by_time()'''
-            actions = agent.select_action(obs, env.monitor_drivers, i_step)
-            next_obs, rewards, done, _ = env.step(actions)
+            driver_actions = agent.select_actions(env.monitor_drivers, obs)
+            next_obs, rewards, done, _ = env.step(driver_actions)
             if ON_MONITOR:
                 Monitor.reset_by_zone()
-            agent.store_exp(env.monitor_drivers, obs, actions, rewards, next_obs)
+            rewards = agent.iterate_zones_reward(env.monitor_drivers)
+            agent.store_exp(obs, rewards, next_obs)
             agent.update(i_step)
             obs = next_obs
             i_step += 1
@@ -42,4 +43,4 @@ def run_demand_dqn():
 
 
 if __name__ == '__main__':
-    run_demand_dqn()
+    run_dqn()
