@@ -18,8 +18,8 @@ TOTAL_TIME_STEP_ONE_EPISODE = 44660 #1460 #(one day)
 ON_MONITOR = False
 
 #driver generator
-LOW_BOUND = 10
-HIGH_BOUND = 10
+LOW_BOUND = 3
+HIGH_BOUND = 3
 TIME_TO_NEIGHBOR = 1
 
 #rider
