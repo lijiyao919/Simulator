@@ -1,13 +1,13 @@
 from simulator.env import Env
-from algorithms.driver_base.rewards import Reward_ICAART
+from algorithms.driver_base.rewards import Reward_ICAART, Reward_SD_DIST
 from algorithms.driver_base.iql import IQL_Agent
 
-RUN_STEP = 1027180
+RUN_STEP = 3027180
 
 def run_iql():
     env = Env()
     agent = IQL_Agent()
-    agent.set_reward_scheme(Reward_ICAART())
+    agent.set_reward_scheme(Reward_SD_DIST())
     i_step = 0
 
     while i_step < RUN_STEP:
@@ -22,7 +22,7 @@ def run_iql():
             locs = obs["driver_locs"]
             actions = agent.select_action(env.monitor_drivers, i_step)
             obs, _, done, _ = env.step(actions)
-            rewards = agent.iterate_drivers_reward(env.monitor_drivers, actions)
+            rewards = agent.iterate_drivers_reward(env.monitor_drivers, actions, obs)
             agent.update(env.monitor_drivers, actions, rewards, locs)
             i_step += 1
         #print("save Json")

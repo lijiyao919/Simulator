@@ -15,12 +15,12 @@ class Agent(object):
     def set_reward_scheme(self, scheme):
         self._reward_maker = scheme
 
-    def iterate_drivers_reward(self, drivers, actions):
+    def iterate_drivers_reward(self, drivers, actions, obs=None):
         assert self._reward_maker is not None
         rewards = [None]*len(drivers)
         for did, driver in drivers.items():
             if actions[did] != -1: # make sure driver take action
-                rewards[did] = self._reward_maker.reward_scheme(driver)
+                rewards[did] = self._reward_maker.reward_scheme(driver, obs)
         return rewards
 
     @staticmethod
