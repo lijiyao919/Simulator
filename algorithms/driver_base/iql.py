@@ -25,7 +25,7 @@ class IQL_Agent(Agent):
 
     def _get_next_state(self, driver):
         if driver.in_service:
-            return (Timer.get_time(driver.wake_up_time), Timer.get_day(driver.wake_up_time), driver.zid)
+            return None
         else:
             return (Timer.get_time(Timer.get_time_step()), Timer.get_day(Timer.get_time_step()), driver.zid)
 
@@ -60,8 +60,10 @@ class IQL_Agent(Agent):
                 S = (time, day, locs[did])
                 S_pi = self._get_next_state(driver)
                 R = rewards[did]
-                #print(did, S, S_pi, R)
-                self.Q[S][A] = self.Q[S][A] + ALPHA * (R + GAMMA * np.max(self.Q[S_pi]) - self.Q[S][A])
+                if S_pi is not None:
+                    self.Q[S][A] = self.Q[S][A] + ALPHA * (R + GAMMA * np.max(self.Q[S_pi]) - self.Q[S][A])
+                else:
+                    self.Q[S][A] = self.Q[S][A] + ALPHA * (R - self.Q[S][A])
 
     def save(self):
         print('Saving......')
