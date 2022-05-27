@@ -1,6 +1,9 @@
 from simulator.timer import Timer
 from collections import defaultdict
 from algorithms.driver_base.agent import Agent
+import torch.nn.functional as F
+from torch.distributions import Categorical
+import torch as T
 import numpy as np
 import random
 import json
@@ -29,7 +32,7 @@ class IQL_Agent(Agent):
         else:
             return (Timer.get_time(Timer.get_time_step()), Timer.get_day(Timer.get_time_step()), driver.zid)
 
-    def select_action(self, drivers, steps_done):
+    def select_action_argmax(self, drivers, steps_done):
         actions = [-1] * len(drivers)
         time = Timer.get_time(Timer.get_time_step())
         day = Timer.get_day(Timer.get_time_step())
@@ -43,6 +46,22 @@ class IQL_Agent(Agent):
                     actions[did] = np.argmax(self.Q[(time, day, driver.zid)])
                 else:
                     actions[did] = random.randrange(N_ACTIONS)
+        return actions
+
+    def select_action_softmax(self, drivers, steps_done):
+        actions = [-1] * len(drivers)
+        time = Timer.get_time(Timer.get_time_step())
+        day = Timer.get_day(Timer.get_time_step())
+        assert 0<=time<=1440
+        assert 1<=day<=7
+
+        eps_threshold = 0.1 #EPS_END + (EPS_START - EPS_END) * math.exp(-1. * steps_done / EPS_DECAY)
+        for did, driver in drivers.items():
+            if driver.on_line is True:
+                probs = F.softmax(T.tensor(self.Q[(time, day, driver.zid)]), dim=0)
+                m = Categorical(probs)
+                action = m.sample()
+                actions[did] = action.item()
         return actions
 
 

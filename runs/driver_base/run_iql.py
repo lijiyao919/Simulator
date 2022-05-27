@@ -20,7 +20,7 @@ def run_iql():
                 print("The current date: ", Timer.get_date(Timer.get_time_step()))
                 print(env.show_metrics_in_summary())'''
             locs = obs["driver_locs"]
-            actions = agent.select_action(env.monitor_drivers, i_step)
+            actions = agent.select_action_softmax(env.monitor_drivers, i_step)
             obs, _, done, _ = env.step(actions)
             rewards = agent.iterate_drivers_reward(env.monitor_drivers, actions, obs)
             agent.update(env.monitor_drivers, actions, rewards, locs)
