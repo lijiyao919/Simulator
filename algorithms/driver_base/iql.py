@@ -63,6 +63,22 @@ class IQL_Agent(Agent):
                 actions[did] = action.item()
         return actions
 
+    def select_action_softmax_mask(self, drivers, steps_done):
+        actions = [-1] * len(drivers)
+        time = Timer.get_time(Timer.get_time_step())
+        day = Timer.get_day(Timer.get_time_step())
+        assert 0<=time<=1440
+        assert 1<=day<=7
+
+        for did, driver in drivers.items():
+            if driver.on_line is True:
+                adj_num = self.get_adj_zone_num(driver.zid)
+                probs = F.softmax(T.tensor(self.Q[(time, day, driver.zid)][0:adj_num+1]), dim=0)
+                m = Categorical(probs)
+                action = m.sample()
+                actions[did] = action.item()
+        return actions
+
 
     def update(self, drivers, actions, rewards, locs):
         assert len(actions) == len(rewards)

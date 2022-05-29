@@ -23,6 +23,9 @@ class Agent(object):
                 rewards[did] = self._reward_maker.reward_scheme(driver, obs)
         return rewards
 
+    def get_adj_zone_num(self, zid):
+        return len(AdjList_Chicago[zid])
+
     @staticmethod
     def _binary_encode(x, length):
         return [int(d) for d in str(bin(x))[2:].zfill(length)]

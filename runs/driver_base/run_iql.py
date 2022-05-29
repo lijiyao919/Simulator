@@ -2,6 +2,8 @@ from simulator.env import Env
 from algorithms.driver_base.rewards import Reward_ICAART, Reward_SD_DIST
 from algorithms.driver_base.iql import IQL_Agent
 
+ACT_SELECT="softmax_mask"
+
 RUN_STEP = 3027180
 
 def run_iql():
@@ -20,7 +22,14 @@ def run_iql():
                 print("The current date: ", Timer.get_date(Timer.get_time_step()))
                 print(env.show_metrics_in_summary())'''
             locs = obs["driver_locs"]
-            actions = agent.select_action_softmax(env.monitor_drivers, i_step)
+            if ACT_SELECT=="argmin":
+                actions = agent.select_action_argmax(env.monitor_drivers, i_step)
+            elif ACT_SELECT=="softmax":
+                actions = agent.select_action_softmax(env.monitor_drivers, i_step)
+            elif ACT_SELECT=="softmax_mask":
+                actions = agent.select_action_softmax_mask(env.monitor_drivers, i_step)
+            else:
+                raise Exception("No such action.")
             obs, _, done, _ = env.step(actions)
             rewards = agent.iterate_drivers_reward(env.monitor_drivers, actions, obs)
             agent.update(env.monitor_drivers, actions, rewards, locs)
