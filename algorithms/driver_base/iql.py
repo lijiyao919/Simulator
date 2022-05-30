@@ -103,13 +103,13 @@ class IQL_Agent(Agent):
         print('Saving......')
         data = [{'key': k, 'value': v.tolist()} for k, v in self.Q.items()]
         #print('save:', data)
-        with open('checkpoints/qleaning.json', 'w') as fp:
+        with open('../checkpoints/qleaning.json', 'w') as fp:
             json.dump(data, fp)
         print('Save Done!')
 
     def load(self):
         print('Loading......')
-        with open('checkpoints/qleaning.json', 'r') as fp:
+        with open('../checkpoints/qleaning.json', 'r') as fp:
             data=json.load(fp)
         for elem in data:
             S=tuple(elem['key'])
