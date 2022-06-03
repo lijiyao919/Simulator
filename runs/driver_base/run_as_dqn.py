@@ -27,8 +27,6 @@ def run_ds_dqn():
                     Monitor.reset_by_time()'''
             actions = agent.select_action(obs, env.monitor_drivers, i_step)
             next_obs, _, done, _ = env.step(actions)
-            if ON_MONITOR:
-                Monitor.reset_by_zone()
             rewards = agent.iterate_drivers_reward(env.monitor_drivers, actions)
             agent.store_exp(env.monitor_drivers, obs, actions, rewards, next_obs)
             agent.update(i_step)

@@ -50,8 +50,6 @@ def run_demand_base():
             print(env.show_metrics_in_summary())'''
         actions = select_action(obs, env.monitor_drivers)
         next_obs, _, done, _ = env.step(actions)
-        if ON_MONITOR:
-            Monitor.reset_by_zone()
         obs = next_obs
         i_step += 1
     print("Episode end:")
