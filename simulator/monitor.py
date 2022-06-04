@@ -8,12 +8,18 @@ import datetime
 class Monitor:
     _graph = None
     _drivers_tracker = None
-    _on_call_rider_total_num = []
-    _available_driver_total_num = []
-    _in_service_driver_total_num = []
-    _service_rate_till_now = []
-    _on_call_rider_num_by_zone = []
-    _available_driver_num_by_zone = []
+    _upcoming_rider_num_per_cycle_by_zone = []    #from zone dynamic
+    _online_rider_num_per_cycle_by_zone = []
+    _online_driver_num_per_cycle_by_zone = []
+    _left_driver_num_per_cycle_by_zone = []
+    _success_rider_num_per_cycle_by_zone = []             #from zone dynamic
+    _lost_rider_num_per_cycle_by_zone = []                #from zone dynamic
+
+    _upcoming_rider_num_per_cycle_by_time = []
+    _online_rider_num_per_cycle_by_time = []
+    _left_driver_num_per_cycle_by_time = []
+    _success_rate_rider_per_cycle_by_time = []
+    _lost_rider_rate_per_cycle_by_time = []
 
     @staticmethod
     def init(graph, drivers_tracker):
@@ -22,113 +28,128 @@ class Monitor:
         Monitor._drivers_tracker = drivers_tracker
 
     @staticmethod
-    def reset_by_time():
-        Monitor._on_call_rider_total_num = []
-        Monitor._available_driver_total_num = []
-        Monitor._in_service_driver_total_num = []
-        Monitor._service_rate_till_now = []
+    def plot_metrics_by_time():
+        plt.figure(1)
+        plt.clf()
+        plt.subplot(411)
+        plt.title("Date:" + str(Timer.get_date(Timer.get_time_step())) +"   "+'Time:' + str(datetime.timedelta(minutes=Timer.get_time(Timer.get_time_step()))))
+        plt.ylabel('#')
+        plt.plot(Monitor._upcoming_rider_num_per_cycle_by_time, label="UPCOMING_R#")
+        plt.legend()
+        plt.subplot(412)
+        plt.ylabel('#')
+        plt.plot(Monitor._online_rider_num_per_cycle_by_time, label="ONLINE_R#")
+        plt.legend()
+        plt.subplot(413)
+        plt.ylabel('#')
+        plt.plot(Monitor._left_driver_num_per_cycle_by_time, label="LEFT_D#")
+        plt.legend()
+        plt.subplot(414)
+        plt.ylabel('%')
+        plt.plot(Monitor._lost_rider_rate_per_cycle_by_time, label="LOST%")
+        plt.xlabel('Time')
+        plt.legend()
+        plt.pause(0.001)  # pause a bit so that plots are updated
+        figManager = plt.get_current_fig_manager()
+        figManager.window.showMaximized()
+
         folder_path = os.path.join(IMGS_FOLDER, 'time')
         os.makedirs(folder_path, exist_ok=True)
-        path = os.path.join(folder_path, str(Timer.get_date(Timer.get_time_step())-1))
+        path = os.path.join(folder_path, str(Timer.get_time_step()))
         plt.savefig(path)
 
+        if Timer.get_time(Timer.get_time_step()) == TOTAL_MINUTES_ONE_DAY-1:
+            Monitor._upcoming_rider_num_per_cycle_by_time = []
+            Monitor._online_rider_num_per_cycle_by_time = []
+            Monitor._left_driver_num_per_cycle_by_zone = []
+            Monitor._lost_rider_rate_per_cycle_by_time = []
+
+
+
     @staticmethod
-    def reset_by_zone():
-        Monitor._on_call_rider_num_by_zone = []
-        Monitor._available_driver_num_by_zone = []
+    def plot_metrics_by_zone():
+        plt.figure(2)
+        plt.clf()
+        zones = np.arange(1,78)
+        plt.subplot(211)
+        plt.ylabel('Number#')
+        plt.title("Date:" + str(Timer.get_date(Timer.get_time_step())) +"   "+'Time:' + str(datetime.timedelta(minutes=Timer.get_time(Timer.get_time_step()))))
+        plt.xticks([i for i in range(1, 78, 2)])
+        plt.bar(zones - 0.1, Monitor._online_rider_num_per_cycle_by_zone, width=0.3, label="CALL_R#")
+        plt.bar(zones + 0.2, Monitor._online_driver_num_per_cycle_by_zone, width=0.3, label="AVAIL_D#")
+        plt.legend()
+        plt.subplot(212)
+        plt.ylabel('Number#')
+        plt.xlabel('Zones')
+        plt.xticks([i for i in range(1, 78, 2)])
+        plt.bar(zones - 0.1, Monitor._success_rider_num_per_cycle_by_zone, width=0.3, label="SUC_R#")
+        plt.bar(zones + 0.2, Monitor._lost_rider_num_per_cycle_by_zone, width=0.3, label="LOST_R#")
+        plt.legend()
+        plt.pause(0.001)  # pause a bit so that plots are updated
+
         folder_path = os.path.join(IMGS_FOLDER, 'zone')
         os.makedirs(folder_path, exist_ok=True)
-        path = os.path.join(folder_path, str(Timer.get_time(Timer.get_time_step())))
+        path = os.path.join(folder_path, str(Timer.get_time_step()))
         figManager = plt.get_current_fig_manager()
         figManager.window.showMaximized()
         plt.savefig(path)
 
     @staticmethod
-    def plot_supply_demand_by_time():
-        plt.figure(1)
-        plt.clf()
-        Monitor._on_call_rider_total_num.append(Monitor._calc_on_call_rider_total_num())
-        Monitor._available_driver_total_num.append(Monitor._calc_available_driver_total_num())
-        Monitor._in_service_driver_total_num.append(Monitor._calc_in_service_driver_total_num())
-        plt.subplot(211)
-        plt.title("Date: " + str(Timer.get_date(Timer.get_time_step())))
-        plt.ylabel('Number#')
-        plt.plot(Monitor._on_call_rider_total_num, label="CALL_R#")
-        plt.plot(Monitor._available_driver_total_num, label="AVAIL_D#")
-        plt.plot(Monitor._in_service_driver_total_num, label="IN_SERVICE_D#")
-        plt.legend()
-        plt.subplot(212)
-        plt.xlabel('Time')
-        plt.ylabel('%')
-        Monitor._service_rate_till_now.append(Monitor._calc_service_rate_till_now())
-        plt.plot(Monitor._service_rate_till_now, label="SR_till_now")
-        plt.legend()
-        plt.pause(0.001)  # pause a bit so that plots are updated
+    def collect_metrics_before_matching():
+        Monitor._iterate_upcoming_rider_num_by_zone()
+        Monitor._iterate_online_rider_by_zone()
+        Monitor._iterate_online_driver_num_by_zone()
+
+        Monitor._upcoming_rider_num_per_cycle_by_time.append(sum(Monitor._upcoming_rider_num_per_cycle_by_zone))
+        Monitor._online_rider_num_per_cycle_by_time.append(sum(Monitor._online_rider_num_per_cycle_by_zone))
 
     @staticmethod
-    def plot_supply_demand_by_zone():
-        plt.figure(2)
-        plt.clf()
-        zones = np.arange(1,78)
-        Monitor._iterate_on_call_rider_by_zone()
-        Monitor._iterate_available_driver_num_by_zone()
-        plt.title("Date:" + str(Timer.get_date(Timer.get_time_step())) +"   "+'Time:' + str(datetime.timedelta(minutes=Timer.get_time(Timer.get_time_step()))))
-        plt.xticks([i for i in range(1, 78, 2)])
-        plt.xlabel('Zones')
-        plt.ylabel('Number#')
-        plt.bar(zones - 0.1, Monitor._on_call_rider_num_by_zone, width=0.3, label="CALL_R#")
-        plt.bar(zones + 0.2, Monitor._available_driver_num_by_zone, width=0.3, label="AVAIL_D#")
-        plt.legend()
-        plt.pause(0.001)  # pause a bit so that plots are updated
+    def collect_metrics_after_matching():
+        Monitor._iterate_success_rider_num_by_zone()
+        Monitor._iterate_lost_rider_num_by_zone()
+        Monitor._iterate_left_driver_num_by_zone()
+
+        success_rate = (sum(Monitor._success_rider_num_per_cycle_by_zone) / sum(Monitor._online_rider_num_per_cycle_by_zone)) * 100 if sum(Monitor._online_rider_num_per_cycle_by_zone) != 0 else 0
+        lost_rate = (sum(Monitor._lost_rider_num_per_cycle_by_zone) / sum(Monitor._online_rider_num_per_cycle_by_zone)) * 100 if sum(Monitor._online_rider_num_per_cycle_by_zone) != 0 else 0
+        Monitor._success_rate_rider_per_cycle_by_time.append(success_rate)
+        Monitor._lost_rider_rate_per_cycle_by_time.append(lost_rate)
+        Monitor._left_driver_num_per_cycle_by_time.append(sum(Monitor._left_driver_num_per_cycle_by_zone))
 
     @staticmethod
-    def _calc_on_call_rider_total_num():
-        on_call_rider_num = 0
+    def _iterate_upcoming_rider_num_by_zone():
+        Monitor._upcoming_rider_num_per_cycle_by_zone = []
         for zid in Monitor._graph.keys():
-            on_call_rider_num += len(Monitor._graph[zid].riders_on_call)
-        return on_call_rider_num
+            Monitor._upcoming_rider_num_per_cycle_by_zone.append(Monitor._graph[zid].upcoming_order_num_per_cycle)
 
     @staticmethod
-    def _calc_available_driver_total_num():
-        available_driver_num = 0
+    def _iterate_online_rider_by_zone():
+        Monitor._online_rider_num_per_cycle_by_zone = []
         for zid in Monitor._graph.keys():
-            available_driver_num += len(Monitor._graph[zid].drivers_on_line)
-        return available_driver_num
+            Monitor._online_rider_num_per_cycle_by_zone.append(len(Monitor._graph[zid].riders_on_call))
 
     @staticmethod
-    def _calc_in_service_driver_total_num():
-        not_available_driver_num = 0
-        for d in Monitor._drivers_tracker.values():
-            if d.in_service:
-                not_available_driver_num += 1
-        return not_available_driver_num
-
-    @staticmethod
-    def _calc_service_rate_till_now():
-        total_success_num = 0
-        total_num = 0
-
+    def _iterate_online_driver_num_by_zone():
+        Monitor._online_driver_num_per_cycle_by_zone = []
         for zid in Monitor._graph.keys():
-            total_num += Monitor._graph[zid].total_order_num
-            total_success_num += Monitor._graph[zid].success_order_num
-
-        return (total_success_num / total_num) * 100
+            Monitor._online_driver_num_per_cycle_by_zone.append(len(Monitor._graph[zid].drivers_on_line))
 
     @staticmethod
-    def _iterate_on_call_rider_by_zone():
-        Monitor._on_call_rider_num_by_zone = []
+    def _iterate_left_driver_num_by_zone():
+        Monitor._left_driver_num_per_cycle_by_zone = []
         for zid in Monitor._graph.keys():
-            Monitor._on_call_rider_num_by_zone.append(len(Monitor._graph[zid].riders_on_call))
+            Monitor._left_driver_num_per_cycle_by_zone.append(len(Monitor._graph[zid].drivers_on_line))
 
     @staticmethod
-    def _iterate_available_driver_num_by_zone():
-        Monitor._available_driver_num_by_zone = []
+    def _iterate_success_rider_num_by_zone():
+        Monitor._success_rider_num_per_cycle_by_zone = []
         for zid in Monitor._graph.keys():
-            Monitor._available_driver_num_by_zone.append(len(Monitor._graph[zid].drivers_on_line))
+            Monitor._success_rider_num_per_cycle_by_zone.append(Monitor._graph[zid].success_order_num_per_cycle)
 
     @staticmethod
-    def _calc_curr_service_rate():
-        pass
+    def _iterate_lost_rider_num_by_zone():
+        Monitor._lost_rider_num_per_cycle_by_zone = []
+        for zid in Monitor._graph.keys():
+            Monitor._lost_rider_num_per_cycle_by_zone.append(Monitor._graph[zid].lost_order_num_per_cycle)
 
 
 

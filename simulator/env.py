@@ -29,6 +29,9 @@ class Env:
         return self._state()
 
     def step(self, actions):
+        #reset dynamic metrics of each zones
+        self._iterate_reset_zone_metrics_per_cycle()
+
         # move on line drivers to seek
         self._iterate_drivers_on_line_for_move(actions)
 
@@ -41,9 +44,9 @@ class Env:
         # iterate all off-line drivers in each zone
         self._iterate_drivers_off_line_for_wake_up()
 
-        # for tracking on call rider_num and available driver num
+        # for tracking collection
         if ON_MONITOR:
-            Monitor.plot_supply_demand_by_zone()
+            Monitor.collect_metrics_before_matching()
 
         # match drivers and riders at each zone
         self._dispatch_drivers_for_riders()
@@ -54,9 +57,11 @@ class Env:
         # iterate idle driver to update idle time
         self._iterate_drivers_for_update_idle_time()
 
-        # tracking shown
-        #if ON_MONITOR:
-            #Monitor.plot_supply_demand_by_time()
+        # for tracking collection and shown
+        if ON_MONITOR:
+            Monitor.collect_metrics_after_matching()
+            Monitor.plot_metrics_by_zone()
+            Monitor.plot_metrics_by_time()
 
         Timer.tick_time_step()
 
@@ -181,6 +186,10 @@ class Env:
                 self._graph[zid].add_driver_on_line(d)
                 self._drivers_tracker[id] = d
                 id+=1
+
+    def _iterate_reset_zone_metrics_per_cycle(self):
+        for zid in self._graph.keys():
+            self._graph[zid].reset_metrics_per_cycle()
 
     def _iterate_riders_on_call_for_give_up(self):
         for zid in self._graph.keys():

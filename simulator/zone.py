@@ -4,7 +4,8 @@ from simulator.rider import Rider
 
 class Zone:
     __slots__ = ["_id", "_neighbor_zones", "_drivers_on_line", "_drivers_off_line",
-                 "_riders_on_call", "_total_order_num", "_success_order_num", "_fail_order_num", "_riders_call_time"]
+                 "_riders_on_call", "_total_order_num", "_success_order_num", "_fail_order_num", "_riders_call_time",
+                 "_lost_order_num_per_cycle", "_success_order_num_per_cycle", "_upcoming_order_num_per_cycle"]
     def __init__(self, zID):
         self._id = zID
         self._neighbor_zones = {}
@@ -15,6 +16,10 @@ class Zone:
         self._success_order_num = 0
         self._fail_order_num = 0
         self._riders_call_time = 0
+
+        self._lost_order_num_per_cycle = 0
+        self._success_order_num_per_cycle = 0
+        self._upcoming_order_num_per_cycle = 0
 
     def __repr__(self):
         message = "cls:" + type(self).__name__ + ", id:" + str(self._id) + ", neighbor_zones:" + str(self._neighbor_zones.keys()) + \
@@ -80,12 +85,17 @@ class Zone:
     def add_riders(self, rider):
         assert rider.start_zone == self._id
         self._total_order_num += 1
+        self._upcoming_order_num_per_cycle += 1
         self._riders_on_call.append(rider)
 
     def pop_first_riders(self, give_up=False):
         if len(self._riders_on_call) != 0:
             r = self._riders_on_call.pop(0)
-            if not give_up: self._riders_call_time += r.call_taxi_duration
+            if not give_up:
+                self._riders_call_time += r.call_taxi_duration
+                self._success_order_num_per_cycle += 1
+            else:
+                self._lost_order_num_per_cycle += 1
             return r
         else:
             return None
@@ -111,6 +121,23 @@ class Zone:
     @property
     def riders_call_time(self):
         return self._riders_call_time
+
+    @property
+    def lost_order_num_per_cycle(self):
+        return self._lost_order_num_per_cycle
+
+    @property
+    def success_order_num_per_cycle(self):
+        return self._success_order_num_per_cycle
+
+    @property
+    def upcoming_order_num_per_cycle(self):
+        return self._upcoming_order_num_per_cycle
+
+    def reset_metrics_per_cycle(self):
+        self._lost_order_num_per_cycle = 0
+        self._success_order_num_per_cycle = 0
+        self._upcoming_order_num_per_cycle = 0
 
 
 
@@ -157,8 +184,12 @@ if __name__ == "__main__":
     z1.pop_first_riders()
     print("riders on call: ", z1.riders_on_call)
 
-    z1.pop_first_riders()
+    z1.pop_first_riders(give_up=True)
     print("riders on call: ", z1.riders_on_call)
+
+    print("success rider num per cycle: ", z1.success_order_num_per_cycle)
+    print("lost rider num per cycle: ", z1.lost_order_num_per_cycle)
+    print("upcoming rider num per cycle: ", z1.upcoming_order_num_per_cycle)
 
     print("total riders number: "+str(z1.total_order_num))
 
