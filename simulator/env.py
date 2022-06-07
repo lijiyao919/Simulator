@@ -46,7 +46,7 @@ class Env:
 
         # for tracking collection
         if ON_MONITOR:
-            Monitor.collect_metrics_before_matching()
+            Monitor.collect_metrics_before_matching_from_env()
 
         # match drivers and riders at each zone
         self._dispatch_drivers_for_riders()
@@ -59,9 +59,7 @@ class Env:
 
         # for tracking collection and shown
         if ON_MONITOR:
-            Monitor.collect_metrics_after_matching()
-            Monitor.plot_metrics_by_zone()
-            Monitor.plot_metrics_by_time()
+            Monitor.collect_metrics_after_matching_from_env()
 
         Timer.tick_time_step()
 

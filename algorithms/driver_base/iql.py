@@ -1,4 +1,5 @@
 from simulator.timer import Timer
+from simulator.config import *
 from collections import defaultdict
 from algorithms.driver_base.agent import Agent
 import torch.nn.functional as F
@@ -23,6 +24,7 @@ class IQL_Agent(Agent):
     def __init__(self):
         super(IQL_Agent, self).__init__()
         self.Q = defaultdict(lambda : np.zeros(N_ACTIONS))
+        self.delta = defaultdict(lambda : 0)
         if LOAD:
             self.load()
 
@@ -95,8 +97,10 @@ class IQL_Agent(Agent):
                 S_pi = self._get_next_state(driver)
                 R = rewards[did]
                 if S_pi is not None:
+                    self.delta[S] = abs(R + GAMMA * np.max(self.Q[S_pi]) - self.Q[S][A])
                     self.Q[S][A] = self.Q[S][A] + ALPHA * (R + GAMMA * np.max(self.Q[S_pi]) - self.Q[S][A])
                 else:
+                    self.delta[S] = abs(R - self.Q[S][A])
                     self.Q[S][A] = self.Q[S][A] + ALPHA * (R - self.Q[S][A])
 
     def save(self):
@@ -117,7 +121,34 @@ class IQL_Agent(Agent):
         #print('load:',self.Q)
         print('Load Done!')
 
+    def get_value_function(self):
+        Vs = []
+        time = Timer.get_time(Timer.get_time_step()-1)
+        day = Timer.get_day(Timer.get_time_step()-1)
+
+        for zid in range(1, TOTAL_ZONES+1):
+            q_values = np.array(self.Q[(time, day, zid)])
+            probs = F.softmax(T.tensor(q_values), dim=0).numpy()
+            Vs.append(np.sum(q_values*probs))
+        return Vs
+
+    def get_delta_value(self):
+        delta = []
+        time = Timer.get_time(Timer.get_time_step() - 1)
+        day = Timer.get_day(Timer.get_time_step() - 1)
+
+        for zid in range(1, TOTAL_ZONES + 1):
+           delta.append(self.delta[(time, day, zid)])
+        return delta
+
 
 if __name__ == "__main__":
     agent=IQL_Agent()
-    print(agent.Q)
+    agent.load()
+    #print(agent.Q)
+
+    print(agent.get_value_function(5,4,7))
+
+
+
+

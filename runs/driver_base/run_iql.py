@@ -1,6 +1,8 @@
 from simulator.env import Env
 from algorithms.driver_base.rewards import Reward_ICAART, Reward_SD_DIST
 from algorithms.driver_base.iql import IQL_Agent
+from simulator.monitor import Monitor
+from simulator.config import *
 
 ACT_SELECT="softmax_mask"
 
@@ -33,6 +35,11 @@ def run_iql():
             obs, _, done, _ = env.step(actions)
             rewards = agent.iterate_drivers_reward(env.monitor_drivers, actions, obs)
             agent.update(env.monitor_drivers, actions, rewards, locs)
+            if ON_MONITOR:
+                Monitor.collect_value_function_by_zone(agent.get_value_function())
+                Monitor.collect_delta_by_zone(agent.get_delta_value())
+                Monitor.plot_metrics_by_zone()
+                #Monitor.plot_metrics_by_time()
             i_step += 1
         #print("save Json")
         #agent.save()

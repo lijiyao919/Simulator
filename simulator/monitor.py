@@ -14,6 +14,8 @@ class Monitor:
     _left_driver_num_per_cycle_by_zone = []
     _success_rider_num_per_cycle_by_zone = []             #from zone dynamic
     _lost_rider_num_per_cycle_by_zone = []                #from zone dynamic
+    _value_function_per_cycle_by_zone = []
+    _delta_per_cycle_by_zone = []
 
     _upcoming_rider_num_per_cycle_by_time = []
     _online_rider_num_per_cycle_by_time = []
@@ -71,19 +73,29 @@ class Monitor:
         plt.figure(2)
         plt.clf()
         zones = np.arange(1,78)
-        plt.subplot(211)
+        plt.subplot(411)
         plt.ylabel('Number#')
         plt.title("Date:" + str(Timer.get_date(Timer.get_time_step())) +"   "+'Time:' + str(datetime.timedelta(minutes=Timer.get_time(Timer.get_time_step()))))
         plt.xticks([i for i in range(1, 78, 2)])
         plt.bar(zones - 0.1, Monitor._online_rider_num_per_cycle_by_zone, width=0.3, label="CALL_R#")
         plt.bar(zones + 0.2, Monitor._online_driver_num_per_cycle_by_zone, width=0.3, label="AVAIL_D#")
         plt.legend()
-        plt.subplot(212)
+        plt.subplot(412)
         plt.ylabel('Number#')
-        plt.xlabel('Zones')
         plt.xticks([i for i in range(1, 78, 2)])
         plt.bar(zones - 0.1, Monitor._success_rider_num_per_cycle_by_zone, width=0.3, label="SUC_R#")
         plt.bar(zones + 0.2, Monitor._lost_rider_num_per_cycle_by_zone, width=0.3, label="LOST_R#")
+        plt.legend()
+        plt.subplot(413)
+        plt.ylabel('Value Func')
+        plt.xticks([i for i in range(1, 78, 2)])
+        plt.bar(zones, Monitor._value_function_per_cycle_by_zone, width=0.3, label="Vs")
+        plt.legend()
+        plt.subplot(414)
+        plt.ylabel('delta')
+        plt.xlabel('Zones')
+        plt.xticks([i for i in range(1, 78, 2)])
+        plt.bar(zones, Monitor._delta_per_cycle_by_zone, width=0.3, label="delta")
         plt.legend()
         plt.pause(0.001)  # pause a bit so that plots are updated
 
@@ -95,7 +107,7 @@ class Monitor:
         plt.savefig(path)
 
     @staticmethod
-    def collect_metrics_before_matching():
+    def collect_metrics_before_matching_from_env():
         Monitor._iterate_upcoming_rider_num_by_zone()
         Monitor._iterate_online_rider_by_zone()
         Monitor._iterate_online_driver_num_by_zone()
@@ -104,7 +116,7 @@ class Monitor:
         Monitor._online_rider_num_per_cycle_by_time.append(sum(Monitor._online_rider_num_per_cycle_by_zone))
 
     @staticmethod
-    def collect_metrics_after_matching():
+    def collect_metrics_after_matching_from_env():
         Monitor._iterate_success_rider_num_by_zone()
         Monitor._iterate_lost_rider_num_by_zone()
         Monitor._iterate_left_driver_num_by_zone()
@@ -114,6 +126,14 @@ class Monitor:
         Monitor._success_rate_rider_per_cycle_by_time.append(success_rate)
         Monitor._lost_rider_rate_per_cycle_by_time.append(lost_rate)
         Monitor._left_driver_num_per_cycle_by_time.append(sum(Monitor._left_driver_num_per_cycle_by_zone))
+
+    @staticmethod
+    def collect_value_function_by_zone(Vs):
+        Monitor._value_function_per_cycle_by_zone = Vs
+
+    @staticmethod
+    def collect_delta_by_zone(delta):
+        Monitor._delta_per_cycle_by_zone = delta
 
     @staticmethod
     def _iterate_upcoming_rider_num_by_zone():
