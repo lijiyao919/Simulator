@@ -9,6 +9,8 @@ import numpy as np
 import torch as T
 import random
 import torch.nn as nn
+from collections import defaultdict
+import math
 
 #Double DQN
 DDQN = False
@@ -90,16 +92,21 @@ class IDQN_Agent(Agent):
         assert 0 <= time <= 1440
         assert 1 <= day <= 7
 
+        cache = defaultdict(lambda:None)
         random_num = random.random()
         eps_thredhold = 0.1 #self.eps_end + (self.eps_start-self.eps_end)*math.exp(-1 * steps_done / self.eps_decay)
         for did, driver in drivers.items():
             if driver.on_line is True:
                 assert obs["driver_locs"][did] == driver.zid
                 if random_num > eps_thredhold:
-                    with T.no_grad():
-                        state = IDQN_Agent.get_state(time, day, driver.zid)
-                        state_tensor = T.from_numpy(np.expand_dims(state.astype(np.float32), axis=0)).to(device)
-                        actions[did] = self.policy_net(state_tensor).max(1)[1].item()
+                    if cache[driver.zid] is not None:
+                        actions[did] = cache[driver.zid]
+                    else:
+                        with T.no_grad():
+                            state = IDQN_Agent.get_state(time, day, driver.zid)
+                            state_tensor = T.from_numpy(np.expand_dims(state.astype(np.float32), axis=0)).to(device)
+                            actions[did] = self.policy_net(state_tensor).max(1)[1].item()
+                            cache[driver.zid] = actions[did]
                 else:
                     actions[did] = random.randrange(self.n_actions)
         return actions
