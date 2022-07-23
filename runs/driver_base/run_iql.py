@@ -4,14 +4,14 @@ from algorithms.driver_base.iql import IQL_Agent
 from simulator.monitor import Monitor
 from simulator.config import *
 
-ACT_SELECT="softmax_mask"
+ACT_SELECT="argmin"
 
 RUN_STEP = 3027180
 
 def run_iql():
     env = Env()
     agent = IQL_Agent()
-    agent.set_reward_scheme(Reward_SD_DIST())
+    agent.set_reward_scheme(Reward_ICAART())
     i_step = 0
 
     while i_step < RUN_STEP:

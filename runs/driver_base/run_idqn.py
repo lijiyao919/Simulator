@@ -1,5 +1,5 @@
 from simulator.env import Env
-from algorithms.driver_base.rewards import Reward_ICAART, Reward_SD_DIST
+from algorithms.driver_base.rewards import Reward_ICAART, Reward_Distribution
 from algorithms.driver_base.idqn import IDQN_Agent
 from simulator.timer import Timer
 from simulator.config import *
@@ -8,8 +8,8 @@ RUN_STEP = 1027180
 
 def run_idqn():
     env = Env()
-    agent = IDQN_Agent(1524, 10, 256, 0.000001, batch_size=32, target_update_feq=1000, eps_end=0.1, eps_decay=20, buffer_size=10000)
-    agent.set_reward_scheme(Reward_SD_DIST())
+    agent = IDQN_Agent(1524, 10, 256, 0.0001, batch_size=32, target_update_feq=10000, eps_end=0.1, eps_decay=20, buffer_size=1000)
+    agent.set_reward_scheme(Reward_ICAART())
     agent.train_mode()
     i_step = 0
 
