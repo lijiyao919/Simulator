@@ -9,7 +9,7 @@ RUN_STEP = 1027180
 
 def run_am_dqn():
     env = Env()
-    agent = AM_DQN_Agent(1678, 10, 256, 0.0001)
+    agent = AM_DQN_Agent(1678, 10, 256, 0.0001, target_update_feq=10000, buffer_size=1000)
     agent.set_reward_scheme(Reward_Distribution_v2())
     #agent = AM_DQN_Agent(1524, 10, 256, 0.0001)
     agent.train_mode()

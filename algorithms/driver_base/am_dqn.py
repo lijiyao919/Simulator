@@ -11,7 +11,7 @@ import torch as T
 import random
 import math
 import torch.nn as nn
-
+from collections import defaultdict
 
 #Double DQN
 DDQN = False
@@ -99,23 +99,22 @@ class AM_DQN_Agent(Agent):
         assert 1 <= day <= 7
 
         random_num = random.random()
+        cache = defaultdict(lambda: None)
         eps_thredhold = self.eps_end + (self.eps_start-self.eps_end)*math.exp(-1 * steps_done / self.eps_decay)
         for did, driver in drivers.items():
             if driver.on_line is True:
                 assert obs["driver_locs"][did] == driver.zid
                 adj_num = self.get_adj_zone_num(driver.zid)
                 if random_num > eps_thredhold:
-                    with T.no_grad():
-                        state = AM_DQN_Agent.get_state_dist(time, day, driver.zid, obs["on_call_rider_num"], obs["online_driver_num"])
-                        #state = AM_DQN_Agent.get_state(time, day, driver.zid)
-                        state_tensor = T.from_numpy(np.expand_dims(state.astype(np.float32), axis=0)).to(device)
-                        actions[did] = np.argmax(self.policy_net(state_tensor)[0][0:adj_num + 1].cpu().numpy())
-                        '''print(driver.zid)
-                        print(adj_num)
-                        print(self.policy_net(state_tensor)[0])
-                        print(self.policy_net(state_tensor)[0][0:adj_num+1].cpu().numpy())
-                        print(np.argmax(self.policy_net(state_tensor)[0][0:adj_num+1].cpu().numpy()))
-                        print("\n")'''
+                    if cache[driver.zid] is not None:
+                        actions[did] = cache[driver.zid]
+                    else:
+                        with T.no_grad():
+                            state = AM_DQN_Agent.get_state_dist(time, day, driver.zid, obs["on_call_rider_num"], obs["online_driver_num"])
+                            #state = AM_DQN_Agent.get_state(time, day, driver.zid)
+                            state_tensor = T.from_numpy(np.expand_dims(state.astype(np.float32), axis=0)).to(device)
+                            actions[did] = np.argmax(self.policy_net(state_tensor)[0][0:adj_num + 1].cpu().numpy())
+                            cache[driver.zid] = actions[did]
                 else:
                     actions[did] = random.randrange(adj_num+1)
 
