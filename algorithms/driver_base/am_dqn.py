@@ -62,17 +62,26 @@ class AM_DQN_Agent(Agent):
     def get_adj_zone_num(self, zid):
         return len(AdjList_Chicago[zid])
 
+    def get_key(self, zid, act, reward):
+        return str(zid)+":"+str(act)+":"+str(reward)
+
     def store_exp(self, drivers, obs, actions, rewards, next_obs):
         time = Timer.get_time(Timer.get_time_step()-1)
         day = Timer.get_day(Timer.get_time_step()-1)
         assert 0 <= time <= 1440
         assert 1 <= day <= 7
 
+        finger_print_set = set()
+
         for did, driver in drivers.items():
             A = actions[did]
             if A != -1:
                 assert rewards[did] is not None
                 assert next_obs["driver_locs"][did] == driver.zid
+                finger_print = self.get_key(driver.zid, A, rewards[did])
+                if finger_print in finger_print_set:
+                    continue
+                finger_print_set.add(finger_print)
                 state = AM_DQN_Agent.get_state_dist(time, day, obs["driver_locs"][did], obs["on_call_rider_num"], obs["online_driver_num"])
                 #state = AM_DQN_Agent.get_state(time, day, obs["driver_locs"][did])
                 state_tensor = T.from_numpy(np.expand_dims(state.astype(np.float32), axis=0)).to(device)
