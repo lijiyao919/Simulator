@@ -141,30 +141,32 @@ class AM_DQN_Agent(Agent):
         action_batch = T.cat(batch.action)
         reward_batch = T.cat(batch.reward)
         next_zid_batch = batch.next_zid
-        # S_t+n transition
-        # next_state_batch = T.cat(batch.next_state).to(device)
-        # final None transition
         non_final_mask = T.tensor(tuple(map(lambda x: x is not None, batch.next_state)), device=device, dtype=T.bool)
-        non_final_next_state_batch = T.cat([s for s in batch.next_state if s is not None]).to(device)
+        next_state_list = [s for s in batch.next_state if s is not None]
 
-        #compute state action values
+        # compute state action values
         state_action_values = self.policy_net(state_batch).gather(1, action_batch)
-        next_state_action_values = T.zeros(self.batch_size, device=device)    # final None transition
-        if DDQN:
-            target_output = self.policy_net(non_final_next_state_batch)
+
+        if len(next_state_list)!=0:
+            non_final_next_state_batch = T.cat(next_state_list).to(device)
+            next_state_action_values = T.zeros(self.batch_size, device=device)    # final None transition
+            if DDQN:
+                target_output = self.policy_net(non_final_next_state_batch)
+            else:
+                target_output = self.target_net(non_final_next_state_batch)
+            for i in range(len(target_output)):
+                adj_num = self.get_adj_zone_num(next_zid_batch[i])
+                for j in range(len(target_output[0])):
+                    if j > adj_num:
+                        target_output[i][j] = float("-inf")
+            #if DDQN:
+            #    max_act = target_output.max(1)[1].view(next_state_batch.size()[0], 1)
+            #    next_state_action_values = self.target_net(next_state_batch).gather(1, max_act).detach().view(max_act.size()[0])
+            #else:
+            next_state_action_values[non_final_mask] = target_output.max(1)[0].detach()
+            target_state_action_values = next_state_action_values*self.gamma+reward_batch
         else:
-            target_output = self.target_net(non_final_next_state_batch)
-        for i in range(len(target_output)):
-            adj_num = self.get_adj_zone_num(next_zid_batch[i])
-            for j in range(len(target_output[0])):
-                if j > adj_num:
-                    target_output[i][j] = float("-inf")
-        #if DDQN:
-        #    max_act = target_output.max(1)[1].view(next_state_batch.size()[0], 1)
-        #    next_state_action_values = self.target_net(next_state_batch).gather(1, max_act).detach().view(max_act.size()[0])
-        #else:
-        next_state_action_values[non_final_mask] = target_output.max(1)[0].detach()
-        target_state_action_values = next_state_action_values*self.gamma+reward_batch
+            target_state_action_values = reward_batch
 
 
         #compute huber loss and optimize
