@@ -82,13 +82,13 @@ class AM_DQN_Agent(Agent):
                 if finger_print in finger_print_set:
                     continue
                 finger_print_set.add(finger_print)
-                state = AM_DQN_Agent.get_state_dist(time, day, obs["driver_locs"][did], obs["on_call_rider_num"], obs["online_driver_num"])
+                state = AM_DQN_Agent.get_state_dist_cmp(time, day, obs["driver_locs"][did], obs["on_call_rider_num"], obs["online_driver_num"])
                 #state = AM_DQN_Agent.get_state(time, day, obs["driver_locs"][did])
                 state_tensor = T.from_numpy(np.expand_dims(state.astype(np.float32), axis=0)).to(device)
                 action_torch = T.tensor([[A]], device=device)
                 reward = rewards[did]
                 reward_torch = T.tensor([reward], device=device)
-                next_state = AM_DQN_Agent.get_next_state_dist(driver, next_obs["on_call_rider_num"], next_obs["online_driver_num"])
+                next_state = AM_DQN_Agent.get_next_state_dist_cmp(driver, next_obs["on_call_rider_num"], next_obs["online_driver_num"])
                 #next_state = AM_DQN_Agent.get_next_state(driver)
                 # S_t+n transition
                 #next_state_tensor = T.from_numpy(np.expand_dims(next_state.astype(np.float32), axis=0)).to(device)
@@ -119,7 +119,7 @@ class AM_DQN_Agent(Agent):
                         actions[did] = cache[driver.zid]
                     else:
                         with T.no_grad():
-                            state = AM_DQN_Agent.get_state_dist(time, day, driver.zid, obs["on_call_rider_num"], obs["online_driver_num"])
+                            state = AM_DQN_Agent.get_state_dist_cmp(time, day, driver.zid, obs["on_call_rider_num"], obs["online_driver_num"])
                             #state = AM_DQN_Agent.get_state(time, day, driver.zid)
                             state_tensor = T.from_numpy(np.expand_dims(state.astype(np.float32), axis=0)).to(device)
                             actions[did] = np.argmax(self.policy_net(state_tensor)[0][0:adj_num + 1].cpu().numpy())
