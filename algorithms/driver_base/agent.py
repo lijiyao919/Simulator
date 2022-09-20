@@ -87,19 +87,22 @@ class Agent(object):
 
     @classmethod
     def get_state_dist_cmp(cls, time, day, zone_id, demand_dist, supply_dist):
-        time_code = np.array(cls._one_hot_encode(time, 1440))
-        day_code = np.array(cls._one_hot_encode(day - 1, 7))  # Mon(1), encode as 0 here, [1,0,0,0,...]
+        #time_code = np.array(cls._one_hot_encode(time, 1440))
+        #day_code = np.array(cls._one_hot_encode(day - 1, 7))  # Mon(1), encode as 0 here, [1,0,0,0,...]
         zone_code = np.array(cls._one_hot_encode(zone_id - 1, 77))  # id 1, endcode as 0 here [1,0,0,0,....]
 
         cmp = []
         for i in range(1,78):
-            if demand_dist[i]>supply_dist[i]:
-                cmp+=[1,0,0]
+            if demand_dist[i] < supply_dist[i]:
+                cmp += [1, 0, 0]
             elif demand_dist[i]==supply_dist[i]:
-                cmp+=[0,1,0]
+                cmp += [0, 1, 0]
+            elif demand_dist[i] > supply_dist[i]:
+                cmp += [0, 0, 1]
             else:
-                cmp+=[0,0,1]
-        return np.concatenate([time_code, day_code, zone_code, cmp])
+                print(supply_dist[i], demand_dist[i])
+                raise("Error in dist cmp")
+        return np.concatenate([zone_code, cmp])
 
     @classmethod
     def get_next_state_dist_cmp(cls, driver, demand_dist, supply_dist):
