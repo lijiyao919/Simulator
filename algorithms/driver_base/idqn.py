@@ -58,26 +58,32 @@ class IDQN_Agent(Agent):
 
         self.q_arr = deque(maxlen=10)
 
+    def get_key(self, zid, act, reward):
+        return str(zid) + ":" + str(act) + ":" + str(reward)
+
     def store_exp(self, drivers, obs, actions, rewards, next_obs):
         time = Timer.get_time(Timer.get_time_step()-1)
         day = Timer.get_day(Timer.get_time_step()-1)
         assert 0 <= time <= 1440
         assert 1 <= day <= 7
 
+        finger_print_set = set()
+
         for did, driver in drivers.items():
             A = actions[did]
             if A != -1:
                 assert rewards[did] is not None
                 assert next_obs["driver_locs"][did] == driver.zid
-                state = IDQN_Agent.get_state(time, day, obs["driver_locs"][did])
+                finger_print = self.get_key(driver.zid, A, rewards[did])
+                if finger_print in finger_print_set:
+                    continue
+                finger_print_set.add(finger_print)
+                state = IDQN_Agent.get_state_dist_cmp(time, day, obs["driver_locs"][did], obs["on_call_rider_num"], obs["online_driver_num"])
                 state_tensor = T.from_numpy(np.expand_dims(state.astype(np.float32), axis=0)).to(device)
                 action_torch = T.tensor([[A]], device=device)
                 reward = rewards[did]
                 reward_torch = T.tensor([reward], device=device)
-                next_state = self.get_next_state(driver)
-                #S_t+n transition
-                #next_state_tensor = T.from_numpy(np.expand_dims(next_state.astype(np.float32), axis=0)).to(device)
-                #final None transition
+                next_state = self.get_next_state_dist_cmp(driver, next_obs["on_call_rider_num"], next_obs["online_driver_num"])
                 if next_state is not None:
                     next_state_tensor = T.from_numpy(np.expand_dims(next_state.astype(np.float32), axis=0)).to(device)
                 else:
@@ -94,7 +100,7 @@ class IDQN_Agent(Agent):
 
         cache = defaultdict(lambda:None)
         random_num = random.random()
-        eps_thredhold = 0.1 #self.eps_end + (self.eps_start-self.eps_end)*math.exp(-1 * steps_done / self.eps_decay)
+        eps_thredhold = self.eps_end + (self.eps_start-self.eps_end)*math.exp(-1 * steps_done / self.eps_decay)
         for did, driver in drivers.items():
             if driver.on_line is True:
                 assert obs["driver_locs"][did] == driver.zid
@@ -103,7 +109,7 @@ class IDQN_Agent(Agent):
                         actions[did] = cache[driver.zid]
                     else:
                         with T.no_grad():
-                            state = IDQN_Agent.get_state(time, day, driver.zid)
+                            state = IDQN_Agent.get_state_dist_cmp(time, day, driver.zid, obs["on_call_rider_num"], obs["online_driver_num"])
                             state_tensor = T.from_numpy(np.expand_dims(state.astype(np.float32), axis=0)).to(device)
                             actions[did] = self.policy_net(state_tensor).max(1)[1].item()
                             cache[driver.zid] = actions[did]
@@ -121,17 +127,11 @@ class IDQN_Agent(Agent):
         state_batch = T.cat(batch.state).to(device)
         action_batch = T.cat(batch.action)
         reward_batch = T.cat(batch.reward)
-        #S_t+n transition
-        #next_state_batch = T.cat(batch.next_state).to(device)
-        #final None trasition
         non_final_mask = T.tensor(tuple(map(lambda x: x is not None, batch.next_state)), device=device, dtype=T.bool)
         non_final_next_state_batch = T.cat([s for s in batch.next_state if s is not None]).to(device)
 
         #compute state action values
         state_action_values = self.policy_net(state_batch).gather(1, action_batch)
-        # S_t+n transition
-        #next_state_action_values = self.target_net(next_state_batch).max(1)[0].detach()
-        # final None trasition
         next_state_action_values = T.zeros(self.batch_size, device=device)
         next_state_action_values[non_final_mask] = self.target_net(non_final_next_state_batch).max(1)[0].detach()
 
