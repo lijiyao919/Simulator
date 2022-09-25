@@ -8,7 +8,7 @@ RUN_STEP = 1027180
 
 def run_idqn():
     env = Env()
-    agent = IDQN_Agent(308, 10, 128, 0.00001, batch_size=32, target_update_feq=10000, buffer_size=100000)
+    agent = IDQN_Agent(539, 10, 128, 0.000001, batch_size=32, target_update_feq=10000, buffer_size=100000)
     agent.set_reward_scheme(Reward_Distribution_v2())
     agent.train_mode()
     i_step = 0

@@ -93,12 +93,18 @@ class Agent(object):
 
         cmp = []
         for i in range(1,78):
-            if demand_dist[i] < supply_dist[i]:
-                cmp += [1, 0, 0]
-            elif demand_dist[i]==supply_dist[i]:
-                cmp += [0, 1, 0]
-            elif demand_dist[i] > supply_dist[i]:
-                cmp += [0, 0, 1]
+            if  0 <= (supply_dist[i] - demand_dist[i])/(1+supply_dist[i]) < 0.3:
+                cmp += [1, 0, 0, 0, 0, 0]
+            elif 0.3 <= (supply_dist[i] - demand_dist[i])/(1+supply_dist[i]) < 0.6:
+                cmp += [0, 1, 0, 0, 0, 0]
+            elif 0.6 <= (supply_dist[i] - demand_dist[i])/(1 + supply_dist[i]) <= 1:
+                cmp += [0, 0, 1, 0, 0, 0]
+            elif 0< (demand_dist[i]-supply_dist[i])/(1 + demand_dist[i]) <0.3:
+                cmp += [0, 0, 0, 1, 0, 0]
+            elif 0.3 <= (demand_dist[i]-supply_dist[i])/(1 + demand_dist[i]) <0.6:
+                cmp += [0, 0, 0, 0, 1, 0]
+            elif 0.6 <= (demand_dist[i]-supply_dist[i]) / (1 + demand_dist[i]) <=1:
+                cmp += [0, 0, 0, 0, 0, 1]
             else:
                 print(supply_dist[i], demand_dist[i])
                 raise("Error in dist cmp")
