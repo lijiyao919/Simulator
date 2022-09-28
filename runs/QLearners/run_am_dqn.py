@@ -1,16 +1,17 @@
 from simulator.env import Env
 from simulator.timer import Timer
-from algorithms.driver_base.rewards import Reward_ICAART
+from algorithms.QLearners.rewards import Reward_Distribution_v2
 from simulator.config import *
 from simulator.monitor import Monitor
-from algorithms.driver_base.as_dqn import AS_DQN_Agent
+from algorithms.QLearners.am_dqn import AM_DQN_Agent
 
-RUN_STEP = 1027180
+RUN_STEP = 3027180
 
-def run_ds_dqn():
+def run_am_dqn():
     env = Env()
-    agent = AS_DQN_Agent(1524, 10, 256, 0.0001)
-    agent.set_reward_scheme(Reward_ICAART())
+    agent = AM_DQN_Agent(308, 10, 128, 0.000001, target_update_feq=10000, buffer_size=100000, batch_size=32)
+    agent.set_reward_scheme(Reward_Distribution_v2())
+    #agent = AM_DQN_Agent(1524, 10, 256, 0.0001)
     agent.train_mode()
     i_step = 0
 
@@ -18,8 +19,8 @@ def run_ds_dqn():
         obs = env.reset()
         done = False
         while not done:
-            if Timer.get_time_step() != 0 and Timer.get_time_step() % TOTAL_MINUTES_ONE_DAY == 0:
-                '''print("The current step: ", i_step)
+            '''if Timer.get_time_step() != 0 and Timer.get_time_step() % TOTAL_MINUTES_ONE_DAY == 0:
+                print("The current step: ", i_step)
                 print("The current time stamp: ", Timer.get_time_step())
                 print("The current date: ", Timer.get_date(Timer.get_time_step()))
                 print(env.show_metrics_in_summary())
@@ -32,8 +33,8 @@ def run_ds_dqn():
             agent.update(i_step)
             obs = next_obs
             i_step += 1
-        #print("save checkpoint")
-        #agent.policy_net.save_checkpoint()
+        print("save checkpoint")
+        agent.policy_net.save_checkpoint()
         print("Episode end:")
         print("The current time stamp: ", Timer.get_time_step())
         print("The current step: ", i_step)
@@ -41,4 +42,4 @@ def run_ds_dqn():
 
 
 if __name__ == '__main__':
-    run_ds_dqn()
+    run_am_dqn()

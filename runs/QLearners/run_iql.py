@@ -1,6 +1,6 @@
 from simulator.env import Env
-from algorithms.driver_base.rewards import Reward_ICAART, Reward_SD_DIST
-from algorithms.driver_base.iql import IQL_Agent
+from algorithms.QLearners.rewards import Reward_ICAART, Reward_SD_DIST
+from algorithms.QLearners.iql import IQL_Agent
 from simulator.monitor import Monitor
 from simulator.config import *
 

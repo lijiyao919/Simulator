@@ -2,8 +2,8 @@ from collections import namedtuple
 from collections import deque
 from torch.utils.tensorboard import SummaryWriter
 from algorithms.models.mlp_net import MLP_Network
-from algorithms.driver_base.agent import Agent
-from algorithms.driver_base.agent import device
+from algorithms.QLearners.agent import Agent
+from algorithms.QLearners.agent import device
 from simulator.timer import Timer
 import numpy as np
 import torch as T
