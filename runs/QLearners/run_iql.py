@@ -1,5 +1,5 @@
 from simulator.env import Env
-from algorithms.QLearners.rewards import Reward_ICAART, Reward_SD_DIST
+from algorithms.QLearners.rewards import Reward_ICAART, Reward_COOP
 from algorithms.QLearners.iql import IQL_Agent
 from simulator.monitor import Monitor
 from simulator.config import *

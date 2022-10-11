@@ -2,12 +2,13 @@ from simulator.rider import Rider
 
 class Driver:
 
-    __slots__ = ["_id", "_zid", "_wake_up_time", "_rider", "_on_line", "_in_service", "_total_relocate_effort", "_total_idle_time", "_reward_zid"]
+    __slots__ = ["_id", "_zid", "_wake_up_time", "_rider", "_on_line", "_in_service", "_total_relocate_effort", "_total_idle_time", "_reward_zid", "_pickup_zid"]
 
     def __init__(self, wID, pos):
         self._id = wID
         self._zid = pos
         self._reward_zid = pos
+        self._pickup_zid = None
 
         self._on_line = True   # available or not, offline means unavailable
         self._in_service = False # delivering riders or not
@@ -26,6 +27,7 @@ class Driver:
     def id(self):
         return self._id
 
+    #current zone id
     @property
     def zid(self):
         return self._zid
@@ -34,6 +36,7 @@ class Driver:
     def zid(self, p):
         self._zid = p
 
+    #last step zone id on move
     @property
     def reward_zid(self):
         return self._reward_zid
@@ -41,6 +44,15 @@ class Driver:
     @reward_zid.setter
     def reward_zid(self, p):
         self._reward_zid = p
+
+    # zone id for marking pick up
+    @property
+    def pickup_zid(self):
+        return self._pickup_zid
+
+    @pickup_zid.setter
+    def pickup_zid(self, p):
+        self._pickup_zid = p
 
     @property
     def on_line(self):

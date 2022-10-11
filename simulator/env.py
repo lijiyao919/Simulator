@@ -243,7 +243,10 @@ class Env:
                 self._graph[zid_to_go].add_driver_off_line(d)
 
     def _dispatch_drivers_for_riders(self):
+        self._info = {"fail_math_rate": [None] * (TOTAL_ZONES + 1)}
         for zid in self._graph.keys():
+            if len(self._graph[zid].drivers_on_line) > 0:
+                self._info["fail_math_rate"][zid] = len(self._graph[zid].drivers_on_line)
             while len(self._graph[zid].drivers_on_line)>0 and len(self._graph[zid].riders_on_call)>0:
                 rider = self._graph[zid].pop_first_riders()
                 driver = self._graph[zid].pop_driver_on_line_by_random()
@@ -253,8 +256,11 @@ class Env:
                 assert driver.in_service is False
                 driver.pair_rider(rider)
                 driver.wake_up_time = Timer.get_time_step() + rider.trip_duration
+                driver.pickup_zid = zid
                 self._graph[rider.end_zone].add_driver_off_line(driver)
                 self._graph[zid].tick_success_order_num()
+            if self._info["fail_math_rate"][zid] is not None:
+                self._info["fail_math_rate"][zid] = round(len(self._graph[zid].drivers_on_line)/self._info["fail_math_rate"][zid], 1)
 
 if __name__ == "__main__":
     env = Env()
