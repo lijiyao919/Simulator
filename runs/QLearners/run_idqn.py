@@ -22,7 +22,7 @@ def run_idqn():
                 print("The current time stamp: ", Timer.get_time_step())
                 print("The current date: ", Timer.get_date(Timer.get_time_step()))
                 print(env.show_metrics_in_summary())'''
-            actions = agent.select_action_prob(obs, env.monitor_drivers, i_step)
+            actions = agent.select_action(obs, env.monitor_drivers, i_step)
             next_obs, _, done, _ = env.step(actions)
             rewards = agent.iterate_drivers_reward(env.monitor_drivers, actions, next_obs)
             agent.store_exp(env.monitor_drivers, obs, actions, rewards, next_obs)
