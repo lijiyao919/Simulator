@@ -4,7 +4,7 @@ import math
 import torch as T
 from collections import namedtuple
 from torch.utils.tensorboard import SummaryWriter
-from algorithms.models.mlp_net import MLP_Network
+from algorithms.QLearners.models.mlp_net import MLP_Network
 from algorithms.QLearners.agent import Agent
 from algorithms.QLearners.agent import device
 from simulator.timer import Timer
