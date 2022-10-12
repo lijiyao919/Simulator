@@ -1,14 +1,13 @@
 from simulator.timer import Timer
 from simulator.config import *
 from collections import defaultdict
-from algorithms.QLearners.agent import Agent
+from algorithms.agent import Agent
 import torch.nn.functional as F
 from torch.distributions import Categorical
 import torch as T
 import numpy as np
 import random
 import json
-import math
 
 EPSILON= 0.1
 GAMMA = 0.99
