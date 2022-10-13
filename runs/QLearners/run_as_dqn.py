@@ -1,8 +1,7 @@
 from simulator.env import Env
 from simulator.timer import Timer
-from algorithms.QLearners.rewards import Reward_ICAART
+from algorithms.rewards import Reward_ICAART
 from simulator.config import *
-from simulator.monitor import Monitor
 from algorithms.QLearners.as_dqn import AS_DQN_Agent
 
 RUN_STEP = 1027180

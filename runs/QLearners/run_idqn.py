@@ -1,8 +1,6 @@
 from simulator.env import Env
-from algorithms.QLearners.rewards import Reward_ICAART, Reward_Distribution_v2
+from algorithms.rewards import Reward_Distribution_v2
 from algorithms.QLearners.idqn import IDQN_Agent
-from simulator.timer import Timer
-from simulator.config import *
 
 RUN_STEP = 1027180
 

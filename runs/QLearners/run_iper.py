@@ -1,8 +1,6 @@
 from simulator.env import Env
-from algorithms.QLearners.rewards import Reward_ICAART, Reward_Distribution_v2, Reward_COOP
+from algorithms.rewards import Reward_COOP
 from algorithms.QLearners.iper import IPER_Agent
-from simulator.timer import Timer
-from simulator.config import *
 
 RUN_STEP = 3027180
 
