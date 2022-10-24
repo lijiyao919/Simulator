@@ -157,7 +157,7 @@ class IPER_Agent(Agent):
 
         state = T.tensor(state, dtype=T.float32, device=device)
         action = T.tensor(action, dtype=T.long, device=device)
-        reward = T.tensor(reward, dtype=T.long, device=device)
+        reward = T.tensor(reward, dtype=T.float32, device=device)
         next_state = T.tensor(next_state, dtype=T.float32, device=device)
         done = T.tensor(done, dtype=T.long, device=device)
         weights = T.tensor(weights, dtype=T.float32, device=device)
