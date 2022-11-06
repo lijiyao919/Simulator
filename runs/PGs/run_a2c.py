@@ -1,13 +1,14 @@
 from simulator.env import Env
 from algorithms.rewards import Reward_COOP
 from algorithms.PGs.a2c import A2C_Agent
+import timeit
 
-RUN_STEP = 3027180
+RUN_STEP = 20000
 
 
 def run_a2c():
     env = Env()
-    agent = A2C_Agent(1524, 10, 256, 128, 0.00001)
+    agent = A2C_Agent(327, 10, 256, 128, 0.0001, batch_size=1024)
     agent.set_reward_scheme(Reward_COOP())
     agent.train_mode()
     i_step = 0
@@ -16,11 +17,6 @@ def run_a2c():
         obs = env.reset()
         done = False
         while not done:
-            '''if Timer.get_time_step() != 0 and Timer.get_time_step() % TOTAL_MINUTES_ONE_DAY == 0:
-                print("The current step: ", i_step)
-                print("The current time stamp: ", Timer.get_time_step())
-                print("The current date: ", Timer.get_date(Timer.get_time_step()))
-                print(env.show_metrics_in_summary())'''
             actions, log_probs, values, entropys = agent.feed_forward(obs, env.monitor_drivers)
             next_obs, _, done, info = env.step(actions)
             rewards = agent.iterate_drivers_reward(env.monitor_drivers, actions, info)

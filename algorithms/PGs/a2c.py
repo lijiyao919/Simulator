@@ -1,7 +1,7 @@
 from algorithms.PGs.models.mlp_net import MLP_Net
 import torch as T
 import numpy as np
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 from torch.distributions import Categorical
 from algorithms.agent import Agent
 from algorithms.agent import device
@@ -76,13 +76,18 @@ class A2C_Agent(Agent):
         assert 0 <= time <= 1440
         assert 1 <= day <= 7
 
+        cache = defaultdict(lambda: None)
         for did, driver in drivers.items():
             if driver.on_line is True:
                 assert obs["driver_locs"][did] == driver.zid
-                state = A2C_Agent.get_state(time, day, driver.zid)
-                state_tensor = T.from_numpy(np.expand_dims(state.astype(np.float32), axis=0)).to(device)
-                prob, value = self.policy_net(state_tensor)
-                dist = Categorical(prob)
+                if cache[driver.zid] is None:
+                    state = A2C_Agent.get_state(time, day, driver.zid)
+                    state_tensor = T.from_numpy(np.expand_dims(state.astype(np.float32), axis=0)).to(device)
+                    prob, value = self.policy_net(state_tensor)
+                    dist = Categorical(prob)
+                    cache[driver.zid] = (dist, value)
+                else:
+                    dist, value = cache[driver.zid]
                 action = dist.sample()
                 log_prob = dist.log_prob(action)
                 actions[did] = action
