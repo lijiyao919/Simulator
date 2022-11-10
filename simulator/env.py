@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from data.graph import AdjList_Chicago
 from simulator.objects import Trips
 from simulator.zone import Zone
@@ -28,7 +30,7 @@ class Env:
             Monitor.init(self._graph, self._drivers_tracker)
         return self._state()
 
-    def step(self, actions):
+    def step(self, actions, V=None):
         #reset dynamic metrics of each zones
         self._iterate_reset_zone_metrics_per_cycle()
 
@@ -49,7 +51,7 @@ class Env:
             Monitor.collect_metrics_before_matching_from_env()
 
         # match drivers and riders at each zone
-        self._dispatch_drivers_for_riders()
+        self._dispatch_drivers_for_riders(V)
 
         # iterate on call riders to update call time
         self._iterate_riders_on_call_for_update_call_time()
@@ -194,7 +196,7 @@ class Env:
             while len(self._graph[zid].riders_on_call) > 0:
                 r = self._graph[zid].riders_on_call[0]
                 if r.give_up_time == Timer.get_time_step():
-                    self._graph[zid].pop_first_riders(give_up=True)
+                    self._graph[zid].pop_riders(give_up=True)
                     self._graph[zid].tick_fail_order_num()
                     r.reset_call_taxi_duration()
                 else:
@@ -242,28 +244,49 @@ class Env:
                 self._graph[zid].pop_driver_on_line_by_id(did)
                 self._graph[zid_to_go].add_driver_off_line(d)
 
-    def _dispatch_drivers_for_riders(self):
+    def _dispatch_drivers_for_riders(self, V):
         self._info = {"fail_math_rate": [None] * (TOTAL_ZONES + 1)}
         for zid in self._graph.keys():
             if len(self._graph[zid].drivers_on_line) > 0:
                 self._info["fail_math_rate"][zid] = len(self._graph[zid].drivers_on_line)
-                self._match_1(zid)
+                while len(self._graph[zid].drivers_on_line) > 0 and len(self._graph[zid].riders_on_call) > 0:
+                    rider = self._select_rider_2(zid, V)
+                    driver = self._graph[zid].pop_driver_on_line_by_random()
+                    assert driver.zid == zid
+                    assert driver.on_line is True
+                    assert driver.rider is None
+                    assert driver.in_service is False
+                    driver.pair_rider(rider)
+                    driver.wake_up_time = Timer.get_time_step() + rider.trip_duration
+                    driver.pickup_zid = zid
+                    self._graph[rider.end_zone].add_driver_off_line(driver)
+                    self._graph[zid].tick_success_order_num()
             if self._info["fail_math_rate"][zid] is not None:
                 self._info["fail_math_rate"][zid] = round(len(self._graph[zid].drivers_on_line)/self._info["fail_math_rate"][zid], 1)
 
-    def _match_1(self, zid):
-        while len(self._graph[zid].drivers_on_line) > 0 and len(self._graph[zid].riders_on_call) > 0:
-            rider = self._graph[zid].pop_first_riders()
-            driver = self._graph[zid].pop_driver_on_line_by_random()
-            assert driver.zid == zid
-            assert driver.on_line is True
-            assert driver.rider is None
-            assert driver.in_service is False
-            driver.pair_rider(rider)
-            driver.wake_up_time = Timer.get_time_step() + rider.trip_duration
-            driver.pickup_zid = zid
-            self._graph[rider.end_zone].add_driver_off_line(driver)
-            self._graph[zid].tick_success_order_num()
+    def _select_rider_1(self, zid):
+        rider = self._graph[zid].pop_riders()
+        return rider
+
+    def _select_rider_2(self, zid, V):
+        scores = {}
+        for i, r in enumerate(self._graph[zid].riders_on_call):
+            scores[i] = V[r.end_zone]
+
+        #select rider
+        max_v = float("-inf")
+        max_k = 0
+        for k, v in scores.items():
+            if v > max_v:
+                max_v = v
+                max_k = k
+        rider = self._graph[zid].pop_riders(max_k)
+        return rider
+
+
+
+
+
 
 if __name__ == "__main__":
     env = Env()

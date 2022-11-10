@@ -88,9 +88,9 @@ class Zone:
         self._upcoming_order_num_per_cycle += 1
         self._riders_on_call.append(rider)
 
-    def pop_first_riders(self, give_up=False):
+    def pop_riders(self, give_up=False, idx=0):
         if len(self._riders_on_call) != 0:
-            r = self._riders_on_call.pop(0)
+            r = self._riders_on_call.pop(idx)
             if not give_up:
                 self._riders_call_time += r.call_taxi_duration
                 self._success_order_num_per_cycle += 1
@@ -181,10 +181,10 @@ if __name__ == "__main__":
     rider2.tick_call_taxi_duration()
     rider2.tick_call_taxi_duration()
 
-    z1.pop_first_riders()
+    z1.pop_riders()
     print("riders on call: ", z1.riders_on_call)
 
-    z1.pop_first_riders(give_up=True)
+    z1.pop_riders(give_up=True)
     print("riders on call: ", z1.riders_on_call)
 
     print("success rider num per cycle: ", z1.success_order_num_per_cycle)

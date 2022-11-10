@@ -6,6 +6,7 @@ from torch.distributions import Categorical
 from algorithms.agent import Agent
 from algorithms.agent import device
 from simulator.timer import Timer
+from simulator.config import *
 
 Transition = namedtuple('Transition', ('log_prob', 'value', 'reward', 'success', 'next_state',  'entropy')) #Transition is a class, not object
 
@@ -43,6 +44,7 @@ class A2C_Agent(Agent):
         self.gamma = gamma
         self.batch_size = batch_size
         self.policy_net = MLP_Net(input_dims, n_actions, fc1_dims, fc2_dims, eta).to(device)
+        self.V = defaultdict(lambda : None) #zid:value
 
 
     def store_exp(self, drivers, log_probs, values, rewards, next_obs, entropys, actions):
@@ -64,6 +66,19 @@ class A2C_Agent(Agent):
                     success = 1
                     next_state = [0] * self.input_dims
                 self.memo.push(log_probs[did], values[did], rewards[did], success, next_state, entropys[did])
+
+    def read_rest_V(self, obs=None):
+        time = Timer.get_time(Timer.get_time_step())
+        day = Timer.get_day(Timer.get_time_step())
+        assert 0 <= time <= 1440
+        assert 1 <= day <= 7
+
+        for zid in range(1, TOTAL_ZONES+1):
+            state = A2C_Agent.get_state(time, day, zid)
+            state_tensor = T.from_numpy(np.expand_dims(state.astype(np.float32), axis=0)).to(device)
+            with T.no_grad():
+                _, value = self.policy_net(state_tensor)
+            self.V[zid] = value[0].item()
 
 
     def feed_forward(self, obs, drivers):
