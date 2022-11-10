@@ -9,7 +9,7 @@ import torch as T
 import torch.nn.functional as F
 from simulator.timer import Timer
 
-POLICY = "greedy"
+POLICY = "softmax"
 
 def select_action(obs, drivers):
     actions = [-1] * len(drivers)
