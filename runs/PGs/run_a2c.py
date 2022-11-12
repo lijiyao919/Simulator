@@ -18,8 +18,8 @@ def run_a2c():
         done = False
         while not done:
             actions, log_probs, values, entropys = agent.feed_forward(obs, env.monitor_drivers)
-            agent.read_rest_V()
-            next_obs, _, done, info = env.step(actions, agent.V)
+            #agent.read_rest_V()
+            next_obs, _, done, info = env.step(actions)
             rewards = agent.iterate_drivers_reward(env.monitor_drivers, actions, info)
             agent.store_exp(env.monitor_drivers, log_probs, values, rewards, next_obs, entropys, actions)
             agent.learn()

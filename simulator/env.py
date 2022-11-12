@@ -178,14 +178,12 @@ class Env:
             self._graph[rider.start_zone].add_riders(rider)
 
     def _add_drivers_on_line(self):
-        num_drivers = int(random.uniform(LOW_BOUND, HIGH_BOUND))
         id = 0
-        for zid in self._graph.keys():
-            for _ in range(num_drivers):
-                d = Driver(id, zid)
-                self._graph[zid].add_driver_on_line(d)
-                self._drivers_tracker[id] = d
-                id+=1
+        for _ in range(TOTAL_DRIVER_NUM):
+            d = Driver(id, START_ZONE)
+            self._graph[START_ZONE].add_driver_on_line(d)
+            self._drivers_tracker[id] = d
+            id+=1
 
     def _iterate_reset_zone_metrics_per_cycle(self):
         for zid in self._graph.keys():
@@ -250,7 +248,7 @@ class Env:
             if len(self._graph[zid].drivers_on_line) > 0:
                 self._info["fail_math_rate"][zid] = len(self._graph[zid].drivers_on_line)
                 while len(self._graph[zid].drivers_on_line) > 0 and len(self._graph[zid].riders_on_call) > 0:
-                    rider = self._select_rider_2(zid, V)
+                    rider = self._select_rider_1(zid)
                     driver = self._graph[zid].pop_driver_on_line_by_random()
                     assert driver.zid == zid
                     assert driver.on_line is True
