@@ -5,7 +5,8 @@ from simulator.rider import Rider
 class Zone:
     __slots__ = ["_id", "_neighbor_zones", "_drivers_on_line", "_drivers_off_line",
                  "_riders_on_call", "_total_order_num", "_success_order_num", "_fail_order_num", "_riders_call_time",
-                 "_lost_order_num_per_cycle", "_success_order_num_per_cycle", "_upcoming_order_num_per_cycle"]
+                 "_lost_order_num_per_cycle", "_success_order_num_per_cycle", "_upcoming_order_num_per_cycle",
+                 "_total_order_num_per_day", "_success_order_num_per_day", "_riders_call_time_per_day"]
     def __init__(self, zID):
         self._id = zID
         self._neighbor_zones = {}
@@ -20,6 +21,10 @@ class Zone:
         self._lost_order_num_per_cycle = 0
         self._success_order_num_per_cycle = 0
         self._upcoming_order_num_per_cycle = 0
+
+        self._total_order_num_per_day = 0
+        self._success_order_num_per_day = 0
+        self._riders_call_time_per_day = 0
 
     def __repr__(self):
         message = "cls:" + type(self).__name__ + ", id:" + str(self._id) + ", neighbor_zones:" + str(self._neighbor_zones.keys()) + \
@@ -85,6 +90,7 @@ class Zone:
     def add_riders(self, rider):
         assert rider.start_zone == self._id
         self._total_order_num += 1
+        self._total_order_num_per_day += 1
         self._upcoming_order_num_per_cycle += 1
         self._riders_on_call.append(rider)
 
@@ -93,7 +99,9 @@ class Zone:
             r = self._riders_on_call.pop(0)
             if not give_up:
                 self._riders_call_time += r.call_taxi_duration
+                self._riders_call_time_per_day += r.call_taxi_duration
                 self._success_order_num_per_cycle += 1
+                self._success_order_num_per_day += 1
             else:
                 self._lost_order_num_per_cycle += 1
             return r
@@ -105,8 +113,16 @@ class Zone:
         return self._total_order_num
 
     @property
+    def total_order_num_per_day(self):
+        return self._total_order_num_per_day
+
+    @property
     def success_order_num(self):
         return self._success_order_num
+
+    @property
+    def success_order_num_per_day(self):
+        return self._success_order_num_per_day
 
     def tick_success_order_num(self):
         self._success_order_num += 1
@@ -121,6 +137,10 @@ class Zone:
     @property
     def riders_call_time(self):
         return self._riders_call_time
+
+    @property
+    def riders_call_time_per_day(self):
+        return self._riders_call_time_per_day
 
     @property
     def lost_order_num_per_cycle(self):
@@ -139,6 +159,10 @@ class Zone:
         self._success_order_num_per_cycle = 0
         self._upcoming_order_num_per_cycle = 0
 
+    def reset_rider_metrics_per_day(self):
+        self._total_order_num_per_day = 0
+        self._success_order_num_per_day = 0
+        self._riders_call_time_per_day = 0
 
 
 

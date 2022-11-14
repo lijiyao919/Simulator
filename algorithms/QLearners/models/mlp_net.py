@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 
-DUELING = False
+DUELING = True
 
 class MLP_Network(nn.Module):
     def __init__(self, input_dims, n_actions, fc1_dims, eta, tb_writer, chkpt_dir='../checkpoints', chkpt_file='mlp_nwk.pth'):

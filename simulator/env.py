@@ -66,6 +66,9 @@ class Env:
         if Timer.get_time_step() == TOTAL_TIME_STEP_ONE_EPISODE:
             self._done = True
 
+        if Timer.get_time_step() % TOTAL_MINUTES_ONE_DAY == 0:
+            print(self.show_metrics_per_day())
+
         return self._state(), None, self._done, self._info
 
     def show_graph(self):
@@ -111,6 +114,34 @@ class Env:
         for zid in self._graph.keys():
             message += str(zid) + ": "+str(self._graph[zid].fail_order_num)+", "
         message += "}"
+        return message
+
+    def show_metrics_per_day(self):
+        message = "Date: " + str(Timer.get_date(Timer.get_time_step())-1)+", "
+
+        all_total_order_num_per_day = 0
+        all_success_order_num_per_day = 0
+        all_rider_call_time_per_day = 0
+        all_driver_idle_time_per_day = 0
+
+        for zid in self._graph.keys():
+            all_total_order_num_per_day += self._graph[zid].total_order_num_per_day
+            all_success_order_num_per_day += self._graph[zid].success_order_num_per_day
+            all_rider_call_time_per_day += self._graph[zid].riders_call_time_per_day
+
+        for d in self._drivers_tracker.values():
+            all_driver_idle_time_per_day += d.total_idle_time_per_day
+
+        message += "success rate: " + str(round(all_success_order_num_per_day/all_total_order_num_per_day,2)*100)+"%, "
+        message += "wait time: " + str(round(all_rider_call_time_per_day / all_success_order_num_per_day, 2)) + ", "
+        message += "search time " + str(round(all_driver_idle_time_per_day / all_success_order_num_per_day, 2))
+
+        for zid in self._graph.keys():
+            self._graph[zid].reset_rider_metrics_per_day()
+
+        for d in self._drivers_tracker.values():
+            d.reset_driver_metrics_per_day()
+
         return message
 
     def show_metrics_in_summary(self):

@@ -2,7 +2,8 @@ from simulator.rider import Rider
 
 class Driver:
 
-    __slots__ = ["_id", "_zid", "_wake_up_time", "_rider", "_on_line", "_in_service", "_total_relocate_effort", "_total_idle_time", "_reward_zid", "_pickup_zid"]
+    __slots__ = ["_id", "_zid", "_wake_up_time", "_rider", "_on_line", "_in_service", "_total_relocate_effort", "_total_idle_time",
+                 "_reward_zid", "_pickup_zid", "_total_idle_time_per_day"]
 
     def __init__(self, wID, pos):
         self._id = wID
@@ -16,6 +17,7 @@ class Driver:
         self._rider = None
         self._total_relocate_effort = 0
         self._total_idle_time = 0
+        self._total_idle_time_per_day = 0
 
     def __repr__(self):
         message = "cls:" + type(self).__name__ + ", id:" + str(self._id) +", wake_up_time:" + str(self._wake_up_time) + \
@@ -99,9 +101,17 @@ class Driver:
     def total_idle_time(self):
         return self._total_idle_time
 
+    @property
+    def total_idle_time_per_day(self):
+        return self._total_idle_time_per_day
+
     def tick_idle_time(self):
         assert self._rider is None
         self._total_idle_time += 1
+        self._total_idle_time_per_day += 1
+
+    def reset_driver_metrics_per_day(self):
+        self._total_idle_time_per_day = 0
 
 if __name__ == "__main__":
     driver = Driver(1, 30)
