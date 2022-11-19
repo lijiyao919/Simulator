@@ -8,6 +8,8 @@ from algorithms.agent import device
 from simulator.timer import Timer
 from simulator.config import *
 
+LOAD = False
+
 Transition = namedtuple('Transition', ('log_prob', 'value', 'reward', 'success', 'next_state',  'entropy')) #Transition is a class, not object
 
 class RolloutStorage(object):
@@ -45,6 +47,10 @@ class A2C_Agent(Agent):
         self.batch_size = batch_size
         self.policy_net = MLP_Net(input_dims, n_actions, fc1_dims, fc2_dims, eta).to(device)
         self.V = defaultdict(lambda : None) #zid:value
+
+        if LOAD:
+            print("Load from: a2c.pth")
+            self.policy_net.load_checkpoint()
 
 
     def store_exp(self, drivers, log_probs, values, rewards, next_obs, entropys, actions):
