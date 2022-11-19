@@ -1,5 +1,3 @@
-from collections import defaultdict
-
 from data.graph import AdjList_Chicago
 from simulator.objects import Trips
 from simulator.zone import Zone
@@ -19,6 +17,7 @@ class Env:
         self._drivers_tracker = {}
         self._done = False
         self._info = None
+        self._monitor = Monitor(self._graph)
 
     def reset(self):
         self._create_graph()
@@ -27,13 +26,10 @@ class Env:
         Timer.reset_time_step()
         self._done = False
         if ON_MONITOR:
-            Monitor.init(self._graph, self._drivers_tracker)
+            self._monitor.reset_metrics()
         return self._state()
 
     def step(self, actions, V=None):
-        #reset dynamic metrics of each zones
-        self._iterate_reset_zone_metrics_per_cycle()
-
         # move on line drivers to seek
         self._iterate_drivers_on_line_for_move(actions)
 
@@ -46,9 +42,8 @@ class Env:
         # iterate all off-line drivers in each zone
         self._iterate_drivers_off_line_for_wake_up()
 
-        # for tracking collection
         if ON_MONITOR:
-            Monitor.collect_metrics_before_matching_from_env()
+            self._monitor.record_current_supply_demand()
 
         # match drivers and riders at each zone
         self._dispatch_drivers_for_riders(V)
@@ -59,14 +54,16 @@ class Env:
         # iterate idle driver to update idle time
         self._iterate_drivers_for_update_idle_time()
 
-        # for tracking collection and shown
-        if ON_MONITOR:
-            Monitor.collect_metrics_after_matching_from_env()
-
         Timer.tick_time_step()
+
+        if ON_MONITOR:
+            self._monitor.plot_metrics_by_time()
+            self._monitor.clear_now_data()
 
         if Timer.get_time_step() == TOTAL_TIME_STEP_ONE_EPISODE:
             self._done = True
+            if ON_MONITOR:
+                self._monitor.pause()
 
         return self._state(), None, self._done, self._info
 
@@ -184,10 +181,6 @@ class Env:
             self._graph[START_ZONE].add_driver_on_line(d)
             self._drivers_tracker[id] = d
             id+=1
-
-    def _iterate_reset_zone_metrics_per_cycle(self):
-        for zid in self._graph.keys():
-            self._graph[zid].reset_metrics_per_cycle()
 
     def _iterate_riders_on_call_for_give_up(self):
         for zid in self._graph.keys():
