@@ -1,3 +1,4 @@
+'''Use test_trditions_pg for the tradictional approaches test'''
 import numpy as np
 
 from simulator.env import Env
@@ -40,7 +41,7 @@ def run_demand_base():
     env = Env()
     i_step = 0
 
-    obs = env.reset()
+    env.reset()
     done = False
     while not done:
         '''if Timer.get_time_step() != 0 and Timer.get_time_step() % TOTAL_MINUTES_ONE_DAY == 0:
@@ -48,6 +49,7 @@ def run_demand_base():
             print("The current time stamp: ", Timer.get_time_step())
             print("The current date: ", Timer.get_date(Timer.get_time_step()))
             print(env.show_metrics_in_summary())'''
+        obs = env.pre_step()
         actions = select_action(obs, env.monitor_drivers)
         next_obs, _, done, _ = env.step(actions)
         obs = next_obs

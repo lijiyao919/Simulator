@@ -1,3 +1,4 @@
+'''Use test_trditions_pg for the tradictional approaches test'''
 from simulator.env import Env
 from simulator.timer import Timer
 from simulator.monitor import Monitor
@@ -18,6 +19,7 @@ def run_random():
             print("The current time stamp: ", Timer.get_time_step())
             print("The current date: ", Timer.get_date(Timer.get_time_step()))
             print(env.show_metrics_in_summary())'''
+        env.pre_step()
         actions = [random.randrange(N_ACTIONS) for _ in range(env.get_drivers_length())]
         _, _, done, _ = env.step(actions)
         i_step += 1

@@ -27,20 +27,22 @@ class Env:
         self._done = False
         if ON_MONITOR:
             self._monitor.reset_metrics()
+
+    def pre_step(self):
+        # put current timestamp trips to each zone
+        self._add_riders()
+
+        # iterate on call riders to find give ups
+        self._iterate_riders_on_call_for_give_up()
+
+        # iterate all off-line drivers in each zone
+        self._iterate_drivers_off_line_for_wake_up()
+
         return self._state()
 
     def step(self, actions, V=None):
         # move on line drivers to seek
         self._iterate_drivers_on_line_for_move(actions)
-
-        #put current timestamp trips to each zone
-        self._add_riders()
-
-        #iterate on call riders to find give ups
-        self._iterate_riders_on_call_for_give_up()
-
-        # iterate all off-line drivers in each zone
-        self._iterate_drivers_off_line_for_wake_up()
 
         if ON_MONITOR:
             self._monitor.record_current_supply_demand()

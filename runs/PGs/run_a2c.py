@@ -14,16 +14,16 @@ def run_a2c():
     i_step = 0
 
     while i_step < RUN_STEP:
-        obs = env.reset()
+        env.reset()
         done = False
         while not done:
+            obs = env.pre_step()
             actions, log_probs, values, entropys = agent.feed_forward(obs, env.monitor_drivers)
             #agent.read_rest_V()
             next_obs, _, done, info = env.step(actions)
             rewards = agent.iterate_drivers_reward(env.monitor_drivers, actions, info)
             agent.store_exp(env.monitor_drivers, log_probs, values, rewards, next_obs, entropys, actions)
             agent.learn()
-            obs = next_obs
             i_step += 1
         #print("save checkpoint")
         #agent.policy_net.save_checkpoint()
