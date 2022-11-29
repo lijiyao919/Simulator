@@ -46,7 +46,6 @@ class A2C_Agent(Agent):
         self.gamma = gamma
         self.batch_size = batch_size
         self.policy_net = MLP_Net(input_dims, n_actions, fc1_dims, fc2_dims, eta).to(device)
-        self.V = defaultdict(lambda : None) #zid:value
 
         if LOAD:
             print("Load from: a2c.pth")
@@ -73,18 +72,20 @@ class A2C_Agent(Agent):
                     next_state = [0] * self.input_dims
                 self.memo.push(log_probs[did], values[did], rewards[did], success, next_state, entropys[did])
 
-    def read_rest_V(self, obs=None):
+    def read_V(self, obs=None):
         time = Timer.get_time(Timer.get_time_step())
         day = Timer.get_day(Timer.get_time_step())
         assert 0 <= time <= 1440
         assert 1 <= day <= 7
+        V = defaultdict(lambda: None)  # zid:value
 
         for zid in range(1, TOTAL_ZONES+1):
             state = A2C_Agent.get_state(time, day, zid)
             state_tensor = T.from_numpy(np.expand_dims(state.astype(np.float32), axis=0)).to(device)
             with T.no_grad():
                 _, value = self.policy_net(state_tensor)
-            self.V[zid] = value[0].item()
+            V[zid] = value[0].item()
+        return V
 
 
     def feed_forward(self, obs, drivers):

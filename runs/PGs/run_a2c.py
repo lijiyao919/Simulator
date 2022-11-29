@@ -19,8 +19,8 @@ def run_a2c():
         while not done:
             obs = env.pre_step()
             actions, log_probs, values, entropys = agent.feed_forward(obs, env.monitor_drivers)
-            #agent.read_rest_V()
-            next_obs, _, done, info = env.step(actions)
+            V = agent.read_V()
+            next_obs, _, done, info = env.step(actions, V)
             rewards = agent.iterate_drivers_reward(env.monitor_drivers, actions, info)
             agent.store_exp(env.monitor_drivers, log_probs, values, rewards, next_obs, entropys, actions)
             agent.learn()

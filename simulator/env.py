@@ -243,7 +243,7 @@ class Env:
             if len(self._graph[zid].drivers_on_line) > 0:
                 self._info["fail_math_rate"][zid] = len(self._graph[zid].drivers_on_line)
                 while len(self._graph[zid].drivers_on_line) > 0 and len(self._graph[zid].riders_on_call) > 0:
-                    rider = self._select_rider_1(zid)
+                    rider = self._select_rider_2(zid, V)
                     driver = self._graph[zid].pop_driver_on_line_by_random()
                     assert driver.zid == zid
                     assert driver.on_line is True
