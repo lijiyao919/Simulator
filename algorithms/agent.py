@@ -60,32 +60,23 @@ class Agent(object):
             return cls.get_state(Timer.get_time(Timer.get_time_step()), Timer.get_day(Timer.get_time_step()), driver.zid)
 
     @classmethod
-    def get_state_dist(cls, time, day, zone_id, demand_dist, supply_dist):
-        time_code = np.array(cls._one_hot_encode(time, 1440))
-        day_code = np.array(cls._one_hot_encode(day - 1, 7))  # Mon(1), encode as 0 here, [1,0,0,0,...]
+    def get_state_dist(cls, zone_id, demand_dist, supply_dist):
         zone_code = np.array(cls._one_hot_encode(zone_id - 1, 77))  # id 1, endcode as 0 here [1,0,0,0,....]
-        # dist_diff = np.array(demand_dist) - np.array(supply_dist)
-        # dist_diff = np.delete(dist_diff / max(dist_diff.min(), dist_diff.max(), key=abs), [0])
-        '''if max(np.array(demand_dist)) != 0:
-            d_dist = np.delete(np.array(demand_dist) / max(np.array(demand_dist)), [0])
-        else:
-            d_dist = np.delete(np.array(demand_dist), [0])
-        s_dist = np.delete(np.array(supply_dist) / max(np.array(supply_dist)), [0])'''
+
         d_dist = np.delete(np.array(demand_dist), 0)
         d_dist = (d_dist-np.mean(d_dist))/np.std(d_dist) if np.std(d_dist) != 0 else np.ones(77)
 
         s_dist = np.delete(np.array(supply_dist), 0)
         s_dist = (s_dist - np.mean(s_dist)) / np.std(s_dist) if np.std(s_dist) != 0 else np.ones(77)
 
-        return np.concatenate([time_code, day_code, zone_code, d_dist, s_dist])
+        return s_dist, d_dist, zone_code
 
     @classmethod
     def get_next_state_dist(cls, driver, demand_dist, supply_dist):
         if driver.in_service:
-            return None
+            return None, None, None
         else:
-            return cls.get_state_dist(Timer.get_time(Timer.get_time_step()), Timer.get_day(Timer.get_time_step()),
-                                      driver.zid, demand_dist, supply_dist)
+            return cls.get_state_dist(driver.zid, demand_dist, supply_dist)
 
     @classmethod
     def get_state_dist_cmp(cls, time, day, zone_id, demand_dist, supply_dist):

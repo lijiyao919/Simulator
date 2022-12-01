@@ -8,7 +8,7 @@ RUN_STEP = 20000
 
 def run_a2c():
     env = Env()
-    agent = A2C_Agent(327, 10, 256, 128, 0.001, batch_size=1024)
+    agent = A2C_Agent(77, 10, batch_size=1024)
     agent.set_reward_scheme(Reward_COOP())
     agent.train_mode()
     i_step = 0
@@ -19,7 +19,7 @@ def run_a2c():
         while not done:
             obs = env.pre_step()
             actions, log_probs, values, entropys = agent.feed_forward(obs, env.monitor_drivers)
-            V = agent.read_V()
+            V = agent.read_V(obs)
             next_obs, _, done, info = env.step(actions, V)
             rewards = agent.iterate_drivers_reward(env.monitor_drivers, actions, info)
             agent.store_exp(env.monitor_drivers, log_probs, values, rewards, next_obs, entropys, actions)
