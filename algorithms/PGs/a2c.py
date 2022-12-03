@@ -86,10 +86,12 @@ class A2C_Agent(Agent):
         assert 1 <= day <= 7
         V = defaultdict(lambda: None)  # zid:value
 
+        s_dist, d_dist = A2C_Agent.get_state_dist(obs["on_call_rider_num"], obs["online_driver_num"])
+        d_dist = T.from_numpy(np.expand_dims(d_dist.astype(np.float32), axis=0)).to(device)
+        s_dist = T.from_numpy(np.expand_dims(s_dist.astype(np.float32), axis=0)).to(device)
+
         for zid in range(1, TOTAL_ZONES+1):
-            s_dist, d_dist, z_code = A2C_Agent.get_state_dist(zid, obs["on_call_rider_num"], obs["online_driver_num"])
-            d_dist = T.from_numpy(np.expand_dims(d_dist.astype(np.float32), axis=0)).to(device)
-            s_dist = T.from_numpy(np.expand_dims(s_dist.astype(np.float32), axis=0)).to(device)
+            z_code = A2C_Agent.get_state_zid(zid)
             z_code = T.from_numpy(np.expand_dims(z_code.astype(np.float32), axis=0)).to(device)
             #state = A2C_Agent.get_state(time, day, zid)
             #state_tensor = T.from_numpy(np.expand_dims(state.astype(np.float32), axis=0)).to(device)
@@ -110,15 +112,16 @@ class A2C_Agent(Agent):
         assert 1 <= day <= 7
 
         cache = defaultdict(lambda: None)
+        s_dist, d_dist = A2C_Agent.get_state_dist(obs["on_call_rider_num"], obs["online_driver_num"])
+        d_dist = T.from_numpy(np.expand_dims(d_dist.astype(np.float32), axis=0)).to(device)
+        s_dist = T.from_numpy(np.expand_dims(s_dist.astype(np.float32), axis=0)).to(device)
         for did, driver in drivers.items():
             if driver.on_line is True:
                 assert obs["driver_locs"][did] == driver.zid
                 if cache[driver.zid] is None:
                     #state = A2C_Agent.get_state(time, day, driver.zid)
                     #state_tensor = T.from_numpy(np.expand_dims(state.astype(np.float32), axis=0)).to(device)
-                    s_dist, d_dist, z_code= A2C_Agent.get_state_dist(driver.zid, obs["on_call_rider_num"],obs["online_driver_num"])
-                    d_dist = T.from_numpy(np.expand_dims(d_dist.astype(np.float32), axis=0)).to(device)
-                    s_dist = T.from_numpy(np.expand_dims(s_dist.astype(np.float32), axis=0)).to(device)
+                    z_code = A2C_Agent.get_state_zid(driver.zid)
                     z_code = T.from_numpy(np.expand_dims(z_code.astype(np.float32), axis=0)).to(device)
                     #prob, value = self.policy_net(state_tensor)
                     prob, value = self.policy_net(s_dist, d_dist, z_code)
