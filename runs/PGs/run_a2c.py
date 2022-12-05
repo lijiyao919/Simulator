@@ -15,14 +15,15 @@ def run_a2c():
 
     while i_step < RUN_STEP:
         env.reset()
+        agent.reset_hidden()
         done = False
         while not done:
             obs = env.pre_step()
-            actions, log_probs, values, entropys = agent.feed_forward(obs, env.monitor_drivers)
+            actions, log_probs, values, entropys, hidden_s, hidden_d = agent.feed_forward(obs, env.monitor_drivers)
             V = agent.read_V(obs)
             next_obs, _, done, info = env.step(actions, V)
             rewards = agent.iterate_drivers_reward(env.monitor_drivers, actions, info)
-            agent.store_exp(env.monitor_drivers, log_probs, values, rewards, next_obs, entropys, actions)
+            agent.store_exp(env.monitor_drivers, log_probs, values, rewards, next_obs, entropys, actions, hidden_s, hidden_d)
             agent.learn()
             i_step += 1
         #print("save checkpoint")
