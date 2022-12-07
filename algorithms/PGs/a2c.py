@@ -53,7 +53,7 @@ class A2C_Agent(Agent):
         self.gamma = gamma
         self.batch_size = batch_size
         #self.policy_net = DIST_Net(dist_dims, n_actions, 64, 32, 256, 128, 0.001).to(device)
-        self.policy_net = RNN_DIST_Net(dist_dims, n_actions, 64, 1, 256, 128, 0.0001).to(device)
+        self.policy_net = RNN_DIST_Net(dist_dims, n_actions, 32, 1, 256, 128, 0.0005).to(device)
         self.hidden_supply = defaultdict(lambda : None)
         self.hidden_demand = defaultdict(lambda : None)
 

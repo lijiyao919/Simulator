@@ -11,11 +11,8 @@ class RNN_DIST_Net(nn.Module):
         self.n_hidden = n_hidden
         self.n_layers = n_layers
 
-        self.fc_norm_s = nn.Linear(dist_dims, 64)
-        self.fc_norm_d = nn.Linear(dist_dims, 64)
-
-        self.rnn_s = nn.GRU(64, n_hidden, n_layers)
-        self.rnn_d = nn.GRU(64, n_hidden, n_layers)
+        self.rnn_s = nn.GRU(77, n_hidden, n_layers)
+        self.rnn_d = nn.GRU(77, n_hidden, n_layers)
 
         self.fc_s = nn.Linear(n_hidden, 32)
         self.fc_d = nn.Linear(n_hidden, 32)
@@ -30,16 +27,14 @@ class RNN_DIST_Net(nn.Module):
         self.checkpoint_file = os.path.join(chkpt_dir, chkpt_file)
 
     def forward(self, supply_dist, demand_dist, zid, hidden_in_s, hidden_in_d):
-        out_s = self.fc_norm_s(supply_dist)
-        out_s, hidden_out_s = self.rnn_s(out_s, hidden_in_s)
+        out_s, hidden_out_s = self.rnn_s(supply_dist, hidden_in_s)
         out_s = out_s[-1, :, :]
 
-        out_d = self.fc_norm_s(demand_dist)
-        out_d, hidden_out_d = self.rnn_s(out_d, hidden_in_d)
+        out_d, hidden_out_d = self.rnn_d(demand_dist, hidden_in_d)
         out_d = out_d[-1, :, :]
 
-        encode_supply = F.relu(self.fc_s(out_s))
-        encode_demand = F.relu(self.fc_d(out_d))
+        encode_supply = self.fc_s(out_s)
+        encode_demand = self.fc_d(out_d)
         encode_out = T.cat((encode_supply, encode_demand, zid), dim=1)
         x = F.relu(self.fc1(encode_out))
         x = F.relu(self.fc2(x))
