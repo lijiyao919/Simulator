@@ -4,17 +4,18 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 
-DUELING = True
+DUELING = False
 
 class MLP_Network(nn.Module):
     def __init__(self, input_dims, n_actions, fc1_dims, eta, tb_writer, chkpt_dir='../checkpoints', chkpt_file='mlp_nwk.pth'):
         super(MLP_Network, self).__init__()
         self.fc1 = nn.Linear(input_dims, fc1_dims)
-        self.fc1_pi = nn.Linear(input_dims, fc1_dims)
         self.elu = nn.ELU()
         self.tanh = nn.Tanh()
         self.fc3 = nn.Linear(fc1_dims, n_actions)
-        self.fc2 = nn.Linear(fc1_dims, 1)
+        if DUELING:
+            self.fc1_pi = nn.Linear(input_dims, fc1_dims)
+            self.fc2 = nn.Linear(fc1_dims, 1)
 
         self.optimizer = optim.RMSprop(self.parameters(), lr=eta)    #0.0001
         # self.optimizer = optim.SGD(self.__policy.parameters(), lr=0.0001)  # 0.01 for method2, 3, online learn
@@ -33,8 +34,8 @@ class MLP_Network(nn.Module):
             return V + (A - AVER_A)
         else:
             x = self.fc1(x)
-            #x = self.elu(x)
-            x = self.tanh(x)
+            x = self.elu(x)
+            #x = self.tanh(x)
             action_scores = self.fc3(x)
             return action_scores
 
