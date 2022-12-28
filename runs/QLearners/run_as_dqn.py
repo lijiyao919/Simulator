@@ -2,14 +2,13 @@ from simulator.env import Env
 from simulator.timer import Timer
 from algorithms.QLearners.rewards import Reward_ICAART
 from simulator.config import *
-from simulator.monitor import Monitor
 from algorithms.QLearners.as_dqn import AS_DQN_Agent
 
 RUN_STEP = 1027180
 
 def run_ds_dqn():
     env = Env()
-    agent = AS_DQN_Agent(1524, 10, 256, 0.0001)
+    agent = AS_DQN_Agent(539, 10, 256, 0.0001)
     agent.set_reward_scheme(Reward_ICAART())
     agent.train_mode()
     i_step = 0

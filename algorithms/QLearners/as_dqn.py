@@ -1,3 +1,5 @@
+import math
+
 from algorithms.QLearners.idqn import IDQN_Agent
 from algorithms.QLearners.idqn import device
 from simulator.timer import Timer
@@ -28,13 +30,14 @@ class AS_DQN_Agent(IDQN_Agent):
         assert 1 <= day <= 7
 
         random_num = random.random()
-        eps_thredhold = 0.1 #self.eps_end + (self.eps_start-self.eps_end)*math.exp(-1 * steps_done / self.eps_decay)
+        eps_thredhold = self.eps_end + (self.eps_start-self.eps_end)*math.exp(-1 * steps_done / self.eps_decay)
         for did, driver in drivers.items():
             if driver.on_line is True:
                 assert obs["driver_locs"][did] == driver.zid
                 if random_num > eps_thredhold:
                     with T.no_grad():
-                        state = IDQN_Agent.get_state(time, day, driver.zid)
+                        #state = IDQN_Agent.get_state(time, day, driver.zid)
+                        state = AS_DQN_Agent.get_state_dist_cmp(time, day, driver.zid, obs["on_call_rider_num"], obs["online_driver_num"])
                         state_tensor = T.from_numpy(np.expand_dims(state.astype(np.float32), axis=0)).to(device)
                         if SAMPLE == "softmax":
                             #print("softmax")
