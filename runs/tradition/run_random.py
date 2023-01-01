@@ -1,6 +1,5 @@
 from simulator.env import Env
 from simulator.timer import Timer
-from simulator.monitor import Monitor
 from simulator.config import *
 import random
 

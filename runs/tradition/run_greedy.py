@@ -2,7 +2,6 @@ import numpy as np
 
 from simulator.env import Env
 from data.graph import AdjList_Chicago
-from simulator.monitor import Monitor
 from simulator.config import *
 from torch.distributions import Categorical
 import torch as T
