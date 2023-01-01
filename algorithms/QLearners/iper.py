@@ -9,6 +9,10 @@ from algorithms.QLearners.agent import Agent
 from algorithms.QLearners.agent import device
 from simulator.timer import Timer
 from collections import defaultdict
+import torch.nn.functional as F
+from torch.distributions import Categorical
+
+SAMPLE="rank"
 
 DDQN = True
 
@@ -95,6 +99,13 @@ class IPER_Agent(Agent):
 
         self.replay_buffer = PrioritizedBuffer(buffer_size, self.alpha)
 
+    def _prob_func(self, arr, tao):
+        for i in range(len(arr)):
+            arr[i] = pow(1/arr[i], tao)
+        all_sum = arr.sum()
+        for i in range(len(arr)):
+            arr[i] = arr[i]/all_sum
+
     def get_key(self, zid, act, reward):
         return str(zid) + ":" + str(act) + ":" + str(reward)
 
@@ -147,6 +158,42 @@ class IPER_Agent(Agent):
                             state_tensor = T.from_numpy(np.expand_dims(state.astype(np.float32), axis=0)).to(device)
                             actions[did] = self.policy_net(state_tensor).max(1)[1].item()
                             cache[driver.zid] = actions[did]
+                else:
+                    actions[did] = random.randrange(self.n_actions)
+        return actions
+
+    def select_action_prob(self, obs, drivers, steps_done):
+        actions = [-1] * len(drivers)
+        time = Timer.get_time(Timer.get_time_step())
+        day = Timer.get_day(Timer.get_time_step())
+        assert 0 <= time <= 1440
+        assert 1 <= day <= 7
+
+        random_num = random.random()
+        eps_thredhold = self.eps_end + (self.eps_start-self.eps_end)*math.exp(-1 * steps_done / self.eps_decay)
+        for did, driver in drivers.items():
+            if driver.on_line is True:
+                assert obs["driver_locs"][did] == driver.zid
+                if random_num > eps_thredhold:
+                    with T.no_grad():
+                        #state = IDQN_Agent.get_state(time, day, driver.zid)
+                        state = IPER_Agent.get_state_dist_cmp(time, day, driver.zid, obs["on_call_rider_num"], obs["online_driver_num"])
+                        state_tensor = T.from_numpy(np.expand_dims(state.astype(np.float32), axis=0)).to(device)
+                        if SAMPLE == "softmax":
+                            #print("softmax")
+                            probs = F.softmax(self.policy_net(state_tensor), dim=1)
+                        elif SAMPLE =="rank":
+                            #print("rank")
+                            sort_idx = (-self.policy_net(state_tensor)).argsort(dim=1)
+                            ranks = T.empty_like(sort_idx, dtype=T.float32)
+                            ranks[0][sort_idx] = T.arange(1, len(sort_idx[0])+1, device=device, dtype=T.float32)
+                            self._prob_func(ranks[0], 3)
+                            probs = ranks
+                        else:
+                            raise Exception("No sampling type")
+                        m = Categorical(probs)
+                        action = m.sample()
+                        actions[did] = action.item()
                 else:
                     actions[did] = random.randrange(self.n_actions)
         return actions
