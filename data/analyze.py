@@ -4,7 +4,7 @@ import matplotlib.pylab as plt
 import numpy as np
 import random
 
-FILE_NAME = "Taxi_Trips_Chicago_8_17_2019.csv"
+FILE_NAME = "Taxi_Trips_Chicago_08_29_2019.csv"
 TOTAL_TIME_STEP_ONE_EPISODE = 1440
 mean_range =15
 
@@ -17,7 +17,7 @@ def analyze_data():
         obs = df.iloc[i, :]
 
         #time
-        timestamp = int((pd.to_datetime(obs["Trip Start Timestamp"]) - pd.Timestamp(2019, 8, 17, 0)) / pd.to_timedelta(1, unit='m'))
+        timestamp = int((pd.to_datetime(obs["Trip Start Timestamp"]) - pd.Timestamp(2019, 8, 29, 0)) / pd.to_timedelta(1, unit='m'))
         timestamp = timestamp + round(random.uniform(0, 15))
         demand[timestamp]+=1
 
@@ -30,11 +30,11 @@ def analyze_data():
 
     plt.rc('font', size=12)
     #plt.plot(x, y)
-    plt.plot(x, z)
-    plt.xticks(range(0, 1441, 60), range(0, 25, 1), fontsize=15)
-    plt.yticks(fontsize=15)
-    plt.xlabel("Time (hours)", fontsize=15)
-    plt.ylabel("The Number of Demand", fontsize=15)
+    plt.plot(x, z, linewidth=3)
+    plt.xticks(range(0, 1441, 60), range(0, 25, 1), fontsize=16)
+    plt.yticks(fontsize=16)
+    plt.xlabel("Time (hours)", fontsize=16)
+    plt.ylabel("The Number of Requests", fontsize=16)
     plt.show()
 
 if __name__ == "__main__":
