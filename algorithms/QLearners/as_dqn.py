@@ -7,7 +7,7 @@ import numpy as np
 import random
 from torch.distributions import Categorical
 
-SAMPLE="rank"
+SAMPLE="softmax"
 
 class AS_DQN_Agent(IDQN_Agent):
     def __init__(self, input_dims, n_actions, fc1_dims, eta, buffer_size=10000, batch_size=32, gamma=0.99, target_update_feq=1000, eps_end=0.1, eps_decay=1000000):
@@ -34,7 +34,7 @@ class AS_DQN_Agent(IDQN_Agent):
                 assert obs["driver_locs"][did] == driver.zid
                 if random_num > eps_thredhold:
                     with T.no_grad():
-                        state = IDQN_Agent.get_state(time, day, driver.zid)
+                        state = IDQN_Agent.get_state_dist_cmp(time, day, obs["driver_locs"][did], obs["on_call_rider_num"], obs["online_driver_num"])
                         state_tensor = T.from_numpy(np.expand_dims(state.astype(np.float32), axis=0)).to(device)
                         if SAMPLE == "softmax":
                             #print("softmax")

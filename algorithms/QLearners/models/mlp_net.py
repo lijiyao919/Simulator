@@ -10,11 +10,11 @@ class MLP_Network(nn.Module):
     def __init__(self, input_dims, n_actions, fc1_dims, eta, tb_writer, chkpt_dir='../checkpoints', chkpt_file='mlp_nwk.pth'):
         super(MLP_Network, self).__init__()
         self.fc1 = nn.Linear(input_dims, fc1_dims)
-        self.fc1_pi = nn.Linear(input_dims, fc1_dims)
+        #self.fc1_pi = nn.Linear(input_dims, fc1_dims)
         self.elu = nn.ELU()
         self.tanh = nn.Tanh()
         self.fc3 = nn.Linear(fc1_dims, n_actions)
-        self.fc2 = nn.Linear(fc1_dims, 1)
+        #self.fc2 = nn.Linear(fc1_dims, 1)
 
         self.optimizer = optim.RMSprop(self.parameters(), lr=eta)    #0.0001
         # self.optimizer = optim.SGD(self.__policy.parameters(), lr=0.0001)  # 0.01 for method2, 3, online learn
