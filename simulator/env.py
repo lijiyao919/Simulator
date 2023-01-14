@@ -174,6 +174,7 @@ class Env:
     def _add_riders(self):
         while self._trips.is_valid() and self._trips.get_trip().start_time == Timer.get_time_step():
             rider = self._trips.pop_trip()
+            rider.reset_call_taxi_duration()   # bug fix for unfinished request at the end of last iteration
             self._graph[rider.start_zone].add_riders(rider)
 
     def _add_drivers_on_line(self):
