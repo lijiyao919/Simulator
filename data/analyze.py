@@ -13,6 +13,7 @@ def analyze_data():
     demand = defaultdict(lambda : 0)
     duration = defaultdict(lambda: 0)
     spatio = defaultdict(lambda : [0]*(TOTAL_ZONES+1))
+    plt.rcParams['figure.figsize'] = [8, 6]
 
     print("Importing Trip Data...")
     for i in range(len(df)):
@@ -39,20 +40,23 @@ def analyze_data():
 
     plt.plot(x, y)
     plt.plot(x, z)
-    plt.xticks(range(0, 250, 60))
-    plt.xlabel("Time")
-    plt.ylabel("The Number of Demand")
+    plt.xticks(range(0, 250, 60), ["7:00", "8:00", "9:00", "10:00", "11:00"], fontsize=16)
+    #plt.xticks(range(0, 250, 60), ["11:00", "12:00", "13:00", "14:00", "15:00"], fontsize=16)
+    #plt.xticks(range(0, 250, 60), ["17:00", "18:00", "19:00", "20:00", "21:00"], fontsize=16)
+    plt.yticks(fontsize=16)
+    plt.xlabel("Time", fontsize=16)
+    plt.ylabel("The Number of Tasks", fontsize=16)
     plt.show()
 
     #duration
-    plt.figure(1)
+    '''plt.figure(1)
     lists = sorted(duration.items())  # sorted by key, return a list of tuples
     x, y = zip(*lists)  # unpack a list of pairs into two tuples
     plt.bar(x, y)
-    plt.show()
+    plt.show()'''
 
     #spatio
-    for t, dist in spatio.items():
+    '''for t, dist in spatio.items():
         plt.figure(2)
         plt.title(t*10)
         plt.bar(range(TOTAL_ZONES+1), dist)
@@ -60,7 +64,7 @@ def analyze_data():
         plt.xlabel("Zone")
         figManager = plt.get_current_fig_manager()
         figManager.window.showMaximized()
-        plt.show()
+        plt.show()'''
 
 
 
