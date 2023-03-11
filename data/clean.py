@@ -1,12 +1,12 @@
 import pandas as pd
 import random
 
-FILE_NAME = "Taxi_Trips_Chicago_08_2019.csv"
-CLEAN_FILE_NAME = "Taxi_Trips_Chicago_08_2019_clean.csv"
+FILE_NAME = "Taxi_Trips_Chicago_08_29_2019.csv"
+CLEAN_FILE_NAME = "Taxi_Trips_Chicago_08_29_2019_clean.csv"
 YEAR = 2019
 MONTH = 8
-DATE = 1
-TOTAL_TIME_STEP_ONE_EPISODE = 44640
+DATE = 29
+TOTAL_TIME_STEP_ONE_EPISODE = 1440
 
 def clean_trips_data():
     df = pd.read_csv(FILE_NAME)
@@ -41,12 +41,15 @@ def clean_trips_data():
         d["Dropoff"].append(dropoff_zone)
 
         #Duration
-        trip_duration_in_minute = 1 if int(float(obs["Trip Seconds"])/60)==0 else int(float(obs["Trip Seconds"])/60)
+        trip_duration_in_minute = 1 if int(float(obs["Trip Seconds"].replace(',', ''))/60)==0 else int(float(obs["Trip Seconds"].replace(',', ''))/60)
         assert trip_duration_in_minute != 0
         d["Duration"].append(trip_duration_in_minute)
 
         #Price
-        d["Fare"].append(float(obs["Trip Total"]))
+        if isinstance(obs["Trip Total"], float):
+            d["Fare"].append(obs["Trip Total"])
+        else:
+            d["Fare"].append(float(obs["Trip Total"].replace(',', '')))
 
     print("Write data...")
     df = pd.DataFrame(d)
