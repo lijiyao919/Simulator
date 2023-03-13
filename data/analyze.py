@@ -31,10 +31,10 @@ def analyze_data():
     plt.rc('font', size=12)
     #plt.plot(x, y)
     plt.plot(x, z, linewidth=3)
-    plt.xticks(range(0, 1441, 60), range(0, 25, 1), fontsize=16)
+    plt.xticks(range(0, 1441, 60), range(0, 25, 1), fontsize=18)
     plt.yticks(fontsize=16)
-    plt.xlabel("Time (hours)", fontsize=16)
-    plt.ylabel("The Number of Requests", fontsize=16)
+    plt.xlabel("Time (hours)", fontsize=20)
+    plt.ylabel("The Number of Requests", fontsize=22)
     plt.show()
 
 if __name__ == "__main__":
