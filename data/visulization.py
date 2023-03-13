@@ -2,13 +2,14 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 
 num = [462, 616, 770]
-mpl.rcParams['font.size'] = 16
+mpl.rcParams['font.size'] = 20
 mpl.rcParams['lines.linewidth'] = 3
 mpl.rcParams['lines.markersize'] = 10
 mpl.rcParams['xtick.major.width'] = 2
 mpl.rcParams['xtick.major.size'] = 6
 mpl.rcParams['ytick.major.width'] = 2
 mpl.rcParams['ytick.major.size'] = 6
+plt.rcParams['figure.figsize'] = [12, 9]
 
 #serving rate
 random = [54, 62, 69]
@@ -24,7 +25,7 @@ plt.plot(num, am_dqn, 'b*-', label="AM-DQN")
 plt.plot(num, as_dqn, 'k^-', label="AS-DQN")
 plt.plot(num, pr_ddqn, 'rs-', label="Pr-DDQN")
 plt.xticks(num)
-plt.xlabel("Driver Number")
+plt.xlabel("The Number of Vehicles")
 plt.ylabel("Service Rate (%)")
 plt.legend()
 plt.show()
@@ -44,7 +45,7 @@ plt.plot(num, am_dqn, 'b*-', label="AM-DQN")
 plt.plot(num, as_dqn, 'k^-', label="AS-DQN")
 plt.plot(num, pr_ddqn, 'rs-', label="Pr-DDQN")
 plt.xticks(num)
-plt.xlabel("Driver Number")
+plt.xlabel("The Number of Vehicles")
 plt.ylabel("Requesting Time (Minutes)")
 plt.legend()
 plt.show()
@@ -64,7 +65,7 @@ plt.plot(num, am_dqn, 'b*-', label="AM-DQN")
 plt.plot(num, as_dqn, 'k^-', label="AS-DQN")
 plt.plot(num, pr_ddqn, 'rs-', label="Pr-DDQN")
 plt.xticks(num)
-plt.xlabel("Driver Number")
+plt.xlabel("The Number of Vehicles")
 plt.ylabel("Navigaton Time (Minutes)")
 plt.legend()
 plt.show()
