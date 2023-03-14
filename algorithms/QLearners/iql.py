@@ -16,7 +16,6 @@ ALPHA = 0.1
 EPS_START = 1
 EPS_END = 0.1
 EPS_DECAY = 20
-N_ACTIONS = 10
 
 LOAD = False
 

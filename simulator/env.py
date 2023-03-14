@@ -23,20 +23,24 @@ class Env:
         self._trips.reset_index()
         Timer.reset_time_step()
         self._done = False
-        return self._state()
 
-    def step(self, actions):
-        # move on line drivers to seek
-        self._iterate_drivers_on_line_for_move(actions)
 
-        #put current timestamp trips to each zone
+    def pre_step(self):
+        # put current timestamp trips to each zone
         self._add_riders()
 
-        #iterate on call riders to find give ups
+        # iterate on call riders to find give ups
         self._iterate_riders_on_call_for_give_up()
 
         # iterate all off-line drivers in each zone
         self._iterate_drivers_off_line_for_wake_up()
+
+        return self._state()
+
+
+    def step(self, actions):
+        # move on line drivers to seek
+        self._iterate_drivers_on_line_for_move(actions)
 
         # match drivers and riders at each zone
         self._dispatch_drivers_for_riders()
@@ -52,8 +56,8 @@ class Env:
         if Timer.get_time_step() == TOTAL_TIME_STEP_ONE_EPISODE:
             self._done = True
 
-        if Timer.get_time_step() % TOTAL_MINUTES_ONE_DAY == 0:
-            print(self.show_metrics_per_day())
+        #if Timer.get_time_step() % TOTAL_MINUTES_ONE_DAY == 0:
+        #    print(self.show_metrics_per_day())
 
         return self._state(), None, self._done, self._info
 

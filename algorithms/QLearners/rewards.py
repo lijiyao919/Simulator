@@ -33,8 +33,8 @@ class Reward_COOP(Reward):
         #dist_diff = obs["on_call_rider_num"][driver.zid] - obs["online_driver_num"][driver.zid]
         if driver.in_service is True:
             assert driver.rider is not None
-            coop_reg = info["fail_math_rate"][driver.pickup_zid]
-            assert 0 <= coop_reg <= 1
-            return 1-coop_reg #2-coop_reg
+            #coop_reg = info["fail_math_rate"][driver.pickup_zid]
+            #assert 0 <= coop_reg <= 1
+            return 1  # -coop_reg #2-coop_reg
         else:
             return -1 #0.63*math.atan(0.05*dist_diff)

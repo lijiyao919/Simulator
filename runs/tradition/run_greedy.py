@@ -1,14 +1,12 @@
+import random
+from simulator.config import *
 import numpy as np
 
 from simulator.env import Env
 from data.graph import AdjList_Chicago
-from simulator.config import *
-from torch.distributions import Categorical
-import torch as T
-import torch.nn.functional as F
 from simulator.timer import Timer
 
-POLICY = "greedy"
+epsilon = 0
 
 def select_action(obs, drivers):
     actions = [-1] * len(drivers)
@@ -24,14 +22,10 @@ def select_action(obs, drivers):
                 else:
                     adj_zone = AdjList_Chicago[driver.zid][i]
                     choices[i] = obs["on_call_rider_num"][adj_zone]
-            if POLICY=="softmax":
-                probs = F.softmax(T.tensor([choices], dtype=float), dim=1)
-                m = Categorical(probs)
-                actions[did] = m.sample()
-            elif POLICY=="greedy":
+            if random.random() >= epsilon:
                 actions[did] = np.argmax(choices)
             else:
-                raise Exception("No such policy.")
+                actions[did] = random.randrange(N_ACTIONS)
 
     return actions
 
@@ -39,17 +33,12 @@ def run_greedy():
     env = Env()
     i_step = 0
 
-    obs = env.reset()
+    env.reset()
     done = False
     while not done:
-        '''if Timer.get_time_step() != 0 and Timer.get_time_step() % TOTAL_MINUTES_ONE_DAY == 0:
-            print("The current step: ", i_step)
-            print("The current time stamp: ", Timer.get_time_step())
-            print("The current date: ", Timer.get_date(Timer.get_time_step()))
-            print(env.show_metrics_in_summary())'''
+        obs = env.pre_step()
         actions = select_action(obs, env.monitor_drivers)
         next_obs, _, done, _ = env.step(actions)
-        obs = next_obs
         i_step += 1
     print("Episode end:")
     print("The current step: ", i_step)

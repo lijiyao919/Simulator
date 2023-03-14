@@ -1,19 +1,20 @@
 import math
-
+from simulator.config import *
 from algorithms.QLearners.idqn import IDQN_Agent
 from algorithms.QLearners.idqn import device
 from simulator.timer import Timer
-import torch.nn.functional as F
 import torch as T
 import numpy as np
 import random
-from torch.distributions import Categorical
 
 SAMPLE="rank"
 
 class AS_DQN_Agent(IDQN_Agent):
-    def __init__(self, input_dims, n_actions, fc1_dims, eta, buffer_size=10000, batch_size=32, gamma=0.99, target_update_feq=1000, eps_end=0.1, eps_decay=1000000):
+    def __init__(self, input_dims, n_actions, fc1_dims, eta, buffer_size=1000, batch_size=128, gamma=0.99, target_update_feq=1000, eps_end=0.1, eps_decay=25000):
         super().__init__(input_dims, n_actions, fc1_dims, eta, buffer_size, batch_size, gamma, target_update_feq, eps_end, eps_decay)
+
+    def _softmax(self, x):
+        return (np.exp(x) / np.exp(x).sum())
 
     def _prob_func(self, arr, tao):
         for i in range(len(arr)):
@@ -41,19 +42,18 @@ class AS_DQN_Agent(IDQN_Agent):
                         state_tensor = T.from_numpy(np.expand_dims(state.astype(np.float32), axis=0)).to(device)
                         if SAMPLE == "softmax":
                             #print("softmax")
-                            probs = F.softmax(self.policy_net(state_tensor), dim=1)
+                            scores = self.policy_net(state_tensor).cpu().numpy()[0]
+                            probs = self._softmax(scores)
                         elif SAMPLE =="rank":
                             #print("rank")
                             sort_idx = (-self.policy_net(state_tensor)).argsort(dim=1)
                             ranks = T.empty_like(sort_idx, dtype=T.float32)
                             ranks[0][sort_idx] = T.arange(1, len(sort_idx[0])+1, device=device, dtype=T.float32)
                             self._prob_func(ranks[0], 3)
-                            probs = ranks
+                            probs = ranks.cpu().numpy()[0]
                         else:
                             raise Exception("No sampling type")
-                        m = Categorical(probs)
-                        action = m.sample()
-                        actions[did] = action.item()
+                        actions[did] = np.random.choice(N_ACTIONS, replace=False, p=probs)
                 else:
                     actions[did] = random.randrange(self.n_actions)
         return actions

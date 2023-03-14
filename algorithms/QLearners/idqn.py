@@ -110,31 +110,6 @@ class IDQN_Agent(Agent):
                     actions[did] = random.randrange(self.n_actions)
         return actions
 
-    def select_action_prob(self, obs, drivers, steps_done):
-        actions = [-1] * len(drivers)
-        time = Timer.get_time(Timer.get_time_step())
-        day = Timer.get_day(Timer.get_time_step())
-        assert 0 <= time <= 1440
-        assert 1 <= day <= 7
-
-        probs = defaultdict(lambda:None)
-        #random_num = random.random()
-        #eps_thredhold = self.eps_end + (self.eps_start-self.eps_end)*math.exp(-1 * steps_done / self.eps_decay)
-        for did, driver in drivers.items():
-            if driver.on_line is True:
-                assert obs["driver_locs"][did] == driver.zid
-                #if random_num > eps_thredhold:
-                if probs[driver.zid] is None:
-                    with T.no_grad():
-                        state = IDQN_Agent.get_state_dist_cmp(time, day, driver.zid, obs["on_call_rider_num"], obs["online_driver_num"])
-                        state_tensor = T.from_numpy(np.expand_dims(state.astype(np.float32), axis=0)).to(device)
-                        probs[driver.zid] = Categorical(F.softmax(self.policy_net(state_tensor), dim=1))
-                action = probs[driver.zid].sample()
-                actions[did] = action.item()
-                #else:
-                    #actions[did] = random.randrange(self.n_actions)
-        return actions
-
     def update(self, step):
         if len(self.replay_buffer) < self.batch_size:
             return

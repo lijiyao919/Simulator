@@ -2,6 +2,7 @@ import numpy as np
 import random
 import math
 import torch as T
+from simulator.config import *
 from collections import namedtuple
 from torch.utils.tensorboard import SummaryWriter
 from algorithms.QLearners.models.mlp_net import MLP_Network
@@ -9,12 +10,9 @@ from algorithms.QLearners.agent import Agent
 from algorithms.QLearners.agent import device
 from simulator.timer import Timer
 from collections import defaultdict
-import torch.nn.functional as F
-from torch.distributions import Categorical
 
-SAMPLE="rank"
 
-DDQN = True
+DDQN = False
 
 Transition = namedtuple('Transition', ('state', 'action', 'reward', 'next_state', 'success')) #Transition is a class, not object
 
@@ -74,8 +72,8 @@ class PrioritizedBuffer(object):
         return len(self.buffer)
 
 class IPER_Agent(Agent):
-    def __init__(self, input_dims, n_actions, fc1_dims, eta, buffer_size=100000, batch_size=32, gamma=0.99, target_update_feq=1000, \
-                 alpha=0.6, beta_start=0.4, beta_frames = 1000, eps_end=0.1, eps_decay=1000000):
+    def __init__(self, input_dims, n_actions, fc1_dims, eta, buffer_size=1000, batch_size=128, gamma=0.99, target_update_feq=1000, \
+                 alpha=0.6, beta_start=0.4, beta_frames = 1000, eps_end=0.1, eps_decay=25000):
         super(IPER_Agent, self).__init__()
         self.input_dims = input_dims
         self.n_actions = n_actions
@@ -99,12 +97,8 @@ class IPER_Agent(Agent):
 
         self.replay_buffer = PrioritizedBuffer(buffer_size, self.alpha)
 
-    def _prob_func(self, arr, tao):
-        for i in range(len(arr)):
-            arr[i] = pow(1/arr[i], tao)
-        all_sum = arr.sum()
-        for i in range(len(arr)):
-            arr[i] = arr[i]/all_sum
+    def _softmax(self, x):
+        return (np.exp(x) / np.exp(x).sum())
 
     def get_key(self, zid, act, reward):
         return str(zid) + ":" + str(act) + ":" + str(reward)
@@ -122,10 +116,10 @@ class IPER_Agent(Agent):
             if action != -1:
                 assert rewards[did] is not None
                 assert next_obs["driver_locs"][did] == driver.zid
-                finger_print = self.get_key(driver.zid, action, rewards[did])
+                '''finger_print = self.get_key(driver.zid, action, rewards[did])
                 if finger_print in finger_print_set:
                     continue
-                finger_print_set.add(finger_print)
+                finger_print_set.add(finger_print)'''
                 state = IPER_Agent.get_state_dist_cmp(time, day, obs["driver_locs"][did], obs["on_call_rider_num"], obs["online_driver_num"])
                 reward = rewards[did]
                 next_state = self.get_next_state_dist_cmp(driver, next_obs["on_call_rider_num"], next_obs["online_driver_num"])
@@ -156,44 +150,9 @@ class IPER_Agent(Agent):
                         with T.no_grad():
                             state = IPER_Agent.get_state_dist_cmp(time, day, driver.zid, obs["on_call_rider_num"],obs["online_driver_num"])
                             state_tensor = T.from_numpy(np.expand_dims(state.astype(np.float32), axis=0)).to(device)
-                            actions[did] = self.policy_net(state_tensor).max(1)[1].item()
-                            cache[driver.zid] = actions[did]
-                else:
-                    actions[did] = random.randrange(self.n_actions)
-        return actions
-
-    def select_action_prob(self, obs, drivers, steps_done):
-        actions = [-1] * len(drivers)
-        time = Timer.get_time(Timer.get_time_step())
-        day = Timer.get_day(Timer.get_time_step())
-        assert 0 <= time <= 1440
-        assert 1 <= day <= 7
-
-        random_num = random.random()
-        eps_thredhold = self.eps_end + (self.eps_start-self.eps_end)*math.exp(-1 * steps_done / self.eps_decay)
-        for did, driver in drivers.items():
-            if driver.on_line is True:
-                assert obs["driver_locs"][did] == driver.zid
-                if random_num > eps_thredhold:
-                    with T.no_grad():
-                        #state = IDQN_Agent.get_state(time, day, driver.zid)
-                        state = IPER_Agent.get_state_dist_cmp(time, day, driver.zid, obs["on_call_rider_num"], obs["online_driver_num"])
-                        state_tensor = T.from_numpy(np.expand_dims(state.astype(np.float32), axis=0)).to(device)
-                        if SAMPLE == "softmax":
-                            #print("softmax")
-                            probs = F.softmax(self.policy_net(state_tensor), dim=1)
-                        elif SAMPLE =="rank":
-                            #print("rank")
-                            sort_idx = (-self.policy_net(state_tensor)).argsort(dim=1)
-                            ranks = T.empty_like(sort_idx, dtype=T.float32)
-                            ranks[0][sort_idx] = T.arange(1, len(sort_idx[0])+1, device=device, dtype=T.float32)
-                            self._prob_func(ranks[0], 3)
-                            probs = ranks
-                        else:
-                            raise Exception("No sampling type")
-                        m = Categorical(probs)
-                        action = m.sample()
-                        actions[did] = action.item()
+                            scores = self.policy_net(state_tensor).cpu().numpy()[0]
+                            probs = self._softmax(scores)
+                            actions[did] = np.random.choice(N_ACTIONS, replace=False, p=probs)
                 else:
                     actions[did] = random.randrange(self.n_actions)
         return actions

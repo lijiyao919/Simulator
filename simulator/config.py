@@ -1,5 +1,5 @@
 #clean order file
-FILE_NAME = "../../data/Taxi_Trips_Chicago_08_2019_clean.csv"
+FILE_NAME = "../../data/Taxi_Trips_Chicago_08_29_2019_clean.csv"
 
 #Images Folder
 IMGS_FOLDER = "./img/"
@@ -12,15 +12,16 @@ TOTAL_ZONES = 77
 TOTAL_MINUTES_ONE_DAY = 1440
 YEAR = 2019
 MONTH = 8
-DATE = 1
+DATE = 29
 ALL_DAYS_IN_MONTH = 31
-TOTAL_TIME_STEP_ONE_EPISODE = 44660 #1460 #(one day)
+TOTAL_TIME_STEP_ONE_EPISODE = 1460 #(one day) #44660 #(one month)
 ON_MONITOR = False
 
 #driver generator
 LOW_BOUND = 10
 HIGH_BOUND = 10
 TIME_TO_NEIGHBOR = 1
+N_ACTIONS = 10
 
 #rider
 RIDER_NUM = None #45924 #(one day) #None means import all riders

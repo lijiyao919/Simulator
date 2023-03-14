@@ -8,26 +8,21 @@ RUN_STEP = 3027180
 
 def run_iper():
     env = Env()
-    agent = IPER_Agent(539, 10, 128, 0.00001, batch_size=32, target_update_feq=10000, buffer_size=100000)
+    agent = IPER_Agent(539, 10, 128, 0.0001, alpha=0, beta_start=0)
     agent.set_reward_scheme(Reward_COOP())
     agent.train_mode()
     i_step = 0
 
     while i_step < RUN_STEP:
-        obs = env.reset()
+        env.reset()
         done = False
         while not done:
-            '''if Timer.get_time_step() != 0 and Timer.get_time_step() % TOTAL_MINUTES_ONE_DAY == 0:
-                print("The current step: ", i_step)
-                print("The current time stamp: ", Timer.get_time_step())
-                print("The current date: ", Timer.get_date(Timer.get_time_step()))
-                print(env.show_metrics_in_summary())'''
-            actions = agent.select_action_prob(obs, env.monitor_drivers, i_step)
+            obs = env.pre_step()
+            actions = agent.select_action(obs, env.monitor_drivers, i_step)
             next_obs, _, done, info = env.step(actions)
             rewards = agent.iterate_drivers_reward(env.monitor_drivers, actions, info)
             agent.store_exp(env.monitor_drivers, obs, actions, rewards, next_obs)
             agent.update(i_step)
-            obs = next_obs
             i_step += 1
         #print("save checkpoint")
         #agent.policy_net.save_checkpoint()

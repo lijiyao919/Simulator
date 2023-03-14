@@ -1,7 +1,6 @@
 from simulator.env import Env
 from algorithms.QLearners.rewards import Reward_ICAART, Reward_COOP
 from algorithms.QLearners.iql import IQL_Agent
-from simulator.monitor import Monitor
 from simulator.config import *
 
 ACT_SELECT="argmin"
@@ -15,14 +14,10 @@ def run_iql():
     i_step = 0
 
     while i_step < RUN_STEP:
-        obs = env.reset()
+        env.reset()
         done = False
         while not done:
-            '''if Timer.get_time_step() != 0 and Timer.get_time_step() % TOTAL_MINUTES_ONE_DAY == 0:
-                print("The current step: ", i_step)
-                print("The current time stamp: ", Timer.get_time_step())
-                print("The current date: ", Timer.get_date(Timer.get_time_step()))
-                print(env.show_metrics_in_summary())'''
+            obs = env.pre_step()
             locs = obs["driver_locs"]
             if ACT_SELECT=="argmin":
                 actions = agent.select_action_argmax(env.monitor_drivers, i_step)
@@ -35,11 +30,6 @@ def run_iql():
             obs, _, done, _ = env.step(actions)
             rewards = agent.iterate_drivers_reward(env.monitor_drivers, actions, obs)
             agent.update(env.monitor_drivers, actions, rewards, locs)
-            if ON_MONITOR:
-                Monitor.collect_value_function_by_zone(agent.get_value_function())
-                Monitor.collect_delta_by_zone(agent.get_delta_value())
-                Monitor.plot_metrics_by_zone()
-                #Monitor.plot_metrics_by_time()
             i_step += 1
         #print("save Json")
         #agent.save()
