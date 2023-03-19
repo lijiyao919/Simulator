@@ -73,7 +73,7 @@ class PrioritizedBuffer(object):
 
 class IPER_Agent(Agent):
     def __init__(self, input_dims, n_actions, fc1_dims, eta, buffer_size=1000, batch_size=128, gamma=0.99, target_update_feq=1000, \
-                 alpha=0.6, beta_start=0.4, beta_frames = 1000, eps_end=0.1, eps_decay=25000):
+                 alpha=0.6, beta_start=0.4, beta_frames = 10000, eps_end=0.1, eps_decay=25000):
         super(IPER_Agent, self).__init__()
         self.input_dims = input_dims
         self.n_actions = n_actions

@@ -8,7 +8,7 @@ RUN_STEP = 3027180
 
 def run_iper():
     env = Env()
-    agent = IPER_Agent(539, 10, 128, 0.0001, alpha=0, beta_start=0)
+    agent = IPER_Agent(539, 10, 128, 0.0001, buffer_size=1000, batch_size=128, alpha=0.6, beta_start=0.4)
     agent.set_reward_scheme(Reward_COOP())
     agent.train_mode()
     i_step = 0
