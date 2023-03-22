@@ -3,12 +3,12 @@ from simulator.rider import Rider
 class Driver:
 
     __slots__ = ["_id", "_zid", "_wake_up_time", "_rider", "_on_line", "_in_service", "_total_relocate_effort", "_total_idle_time",
-                 "_reward_zid", "_pickup_zid", "_total_idle_time_per_day"]
+                 "_last_zid", "_pickup_zid", "_total_idle_time_per_day"]
 
     def __init__(self, wID, pos):
         self._id = wID
         self._zid = pos
-        self._reward_zid = pos
+        self._last_zid = pos
         self._pickup_zid = None
 
         self._on_line = True   # available or not, offline means unavailable
@@ -21,7 +21,7 @@ class Driver:
 
     def __repr__(self):
         message = "cls:" + type(self).__name__ + ", id:" + str(self._id) +", wake_up_time:" + str(self._wake_up_time) + \
-                  ", pos:" + str(self.zid) + ", reward_pos:" + str(self.reward_zid) + ", on_line: " + str(self._on_line) + ", in_service: " + str(self._in_service) + \
+                  ", pos:" + str(self.zid) + ", last_pos:" + str(self.last_zid) + ", on_line: " + str(self._on_line) + ", in_service: " + str(self._in_service) + \
                   ", total_relocate_effort: " + str(self._total_relocate_effort)
         return message+", rider info: ["+str(self._rider)+"]" if self._rider is not None else message
 
@@ -40,12 +40,12 @@ class Driver:
 
     #last step zone id on move
     @property
-    def reward_zid(self):
-        return self._reward_zid
+    def last_zid(self):
+        return self._last_zid
 
-    @reward_zid.setter
-    def reward_zid(self, p):
-        self._reward_zid = p
+    @last_zid.setter
+    def last_zid(self, p):
+        self._last_zid = p
 
     # zone id for marking pick up
     @property
@@ -132,8 +132,8 @@ if __name__ == "__main__":
     print("wake up time: ", driver.wake_up_time)
     driver.finish_rider()
     print(driver)
-    driver.reward_zid = 50
-    print("reward pos: ", driver.reward_zid)
+    driver.last_zid = 50
+    print("reward pos: ", driver.last_zid)
 
 
 

@@ -250,7 +250,7 @@ class Env:
                 assert d.in_service is False
                 act = actions[did]
                 assert act != -1
-                d.reward_zid = d.zid  # trace the last step src
+                d.last_zid = d.zid  # trace the last step src
                 if act >= len(self._graph[zid].neighbod_zones):
                     continue
                 zid_to_go = list(self._graph[zid].neighbod_zones.keys())[act]
