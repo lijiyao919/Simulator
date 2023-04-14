@@ -3,7 +3,7 @@ from simulator.rider import Rider
 class Driver:
 
     __slots__ = ["_id", "_zid", "_wake_up_time", "_rider", "_on_line", "_in_service", "_total_relocate_effort", "_total_idle_time",
-                 "_last_zid", "_pickup_zid", "_total_idle_time_per_day"]
+                 "_last_zid", "_pickup_zid", "_episode_idle_time"]
 
     def __init__(self, wID, pos):
         self._id = wID
@@ -17,7 +17,7 @@ class Driver:
         self._rider = None
         self._total_relocate_effort = 0
         self._total_idle_time = 0
-        self._total_idle_time_per_day = 0
+        self._episode_idle_time = 0
 
     def __repr__(self):
         message = "cls:" + type(self).__name__ + ", id:" + str(self._id) +", wake_up_time:" + str(self._wake_up_time) + \
@@ -102,16 +102,17 @@ class Driver:
         return self._total_idle_time
 
     @property
-    def total_idle_time_per_day(self):
-        return self._total_idle_time_per_day
+    def episode_idle_time(self):
+        return self._episode_idle_time
 
     def tick_idle_time(self):
         assert self._rider is None
         self._total_idle_time += 1
-        self._total_idle_time_per_day += 1
+        self._episode_idle_time += 1
 
-    def reset_driver_metrics_per_day(self):
-        self._total_idle_time_per_day = 0
+    def reset_episode_idle_time(self):
+        self._episode_idle_time = 0
+
 
 if __name__ == "__main__":
     driver = Driver(1, 30)
@@ -120,6 +121,9 @@ if __name__ == "__main__":
     print("total relocate effort: ", driver.total_relocate_effort)
     driver.tick_idle_time()
     print("total idle time: ", driver.total_idle_time)
+    print("episode idle time: ", driver.episode_idle_time)
+    driver.reset_episode_idle_time()
+    print("episode idle time: ", driver.episode_idle_time)
 
 
     rider = Rider(1, 10, 23, 12, 40, 10, 20)
@@ -133,7 +137,7 @@ if __name__ == "__main__":
     driver.finish_rider()
     print(driver)
     driver.last_zid = 50
-    print("reward pos: ", driver.last_zid)
+    print("last pos: ", driver.last_zid)
 
 
 

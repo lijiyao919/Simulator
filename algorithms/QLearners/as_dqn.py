@@ -13,9 +13,6 @@ class AS_DQN_Agent(IDQN_Agent):
     def __init__(self, input_dims, n_actions, fc1_dims, eta, buffer_size=1000, batch_size=128, gamma=0.99, target_update_feq=1000, eps_end=0.1, eps_decay=25000):
         super().__init__(input_dims, n_actions, fc1_dims, eta, buffer_size, batch_size, gamma, target_update_feq, eps_end, eps_decay)
 
-    def _softmax(self, x):
-        return (np.exp(x) / np.exp(x).sum())
-
     def _prob_func(self, arr, tao):
         for i in range(len(arr)):
             arr[i] = pow(1/arr[i], tao)
@@ -43,7 +40,7 @@ class AS_DQN_Agent(IDQN_Agent):
                         if SAMPLE == "softmax":
                             #print("softmax")
                             scores = self.policy_net(state_tensor).cpu().numpy()[0]
-                            probs = self._softmax(scores)
+                            probs = self.softmax(scores)
                         elif SAMPLE =="rank":
                             #print("rank")
                             sort_idx = (-self.policy_net(state_tensor)).argsort(dim=1)

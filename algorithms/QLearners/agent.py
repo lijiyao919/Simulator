@@ -26,6 +26,9 @@ class Agent(object):
     def get_adj_zone_num(self, zid):
         return len(AdjList_Chicago[zid])
 
+    def softmax(self, x):
+        return (np.exp(x) / np.exp(x).sum())
+
     @staticmethod
     def _binary_encode(x, length):
         return [int(d) for d in str(bin(x))[2:].zfill(length)]
