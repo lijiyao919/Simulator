@@ -5,6 +5,7 @@ from simulator.driver import Driver
 from simulator.timer import Timer
 from simulator.config import *
 from simulator.monitor import Monitor
+from simulator.log import MyLogger
 import random
 
 random.seed(SEED)
@@ -18,6 +19,7 @@ class Env:
         self._done = False
         self._info = None
         self._monitor = Monitor(self._graph)
+        self._logger = MyLogger(__name__).get_logger()
 
     def reset(self):
         self._create_graph()
@@ -64,6 +66,7 @@ class Env:
 
         if Timer.get_time_step() == TOTAL_TIME_STEP_ONE_EPISODE:
             self._done = True
+            Timer.tick_episode()
             if ON_MONITOR:
                 self._monitor.pause()
 
@@ -133,7 +136,8 @@ class Env:
         for d in self._drivers_tracker.values():
             all_driver_relocate_effort += d.total_relocate_effort
             all_driver_idle_time += d.total_idle_time
-
+        message += "The current episode: "+str(Timer.get_episode())+"\n"
+        message += "The current step: "+str(Timer.get_time_step())+"\n"
         message += "all total order num: "+str(all_total_order_num)+"\n"
         message += "all total driver num: " + str(len(self._drivers_tracker)) + "\n"
         message += "success rate: "+str(round(all_success_order_num/all_total_order_num,6)*100)+"%\n"
@@ -230,6 +234,7 @@ class Env:
                 act = actions[did]
                 assert act != -1
                 d.reward_zid = d.zid  # trace the last step src
+                d.record_trajectory(d.zid)
                 if act >= len(self._graph[zid].neighbod_zones):
                     continue
                 zid_to_go = list(self._graph[zid].neighbod_zones.keys())[act]
@@ -250,6 +255,7 @@ class Env:
                     assert driver.on_line is True
                     assert driver.rider is None
                     assert driver.in_service is False
+                    driver.clear_trajectory()
                     driver.pair_rider(rider)
                     driver.wake_up_time = Timer.get_time_step() + rider.trip_duration
                     driver.pickup_zid = zid

@@ -2,13 +2,14 @@ from simulator.rider import Rider
 
 class Driver:
 
-    __slots__ = ["_id", "_zid", "_wake_up_time", "_rider", "_on_line", "_in_service", "_total_relocate_effort", "_total_idle_time", "_reward_zid", "_pickup_zid"]
+    __slots__ = ["_id", "_zid", "_wake_up_time", "_rider", "_on_line", "_in_service", "_total_relocate_effort", "_total_idle_time", "_reward_zid", "_pickup_zid", "_trajectory"]
 
     def __init__(self, wID, pos):
         self._id = wID
         self._zid = pos
         self._reward_zid = pos
         self._pickup_zid = None
+        self._trajectory = []
 
         self._on_line = True   # available or not, offline means unavailable
         self._in_service = False # delivering riders or not
@@ -103,6 +104,16 @@ class Driver:
         assert self._rider is None
         self._total_idle_time += 1
 
+    @property
+    def trajectory(self):
+        return self._trajectory
+
+    def record_trajectory(self, zid):
+        self._trajectory.append(zid)
+
+    def clear_trajectory(self):
+        self._trajectory = []
+
 if __name__ == "__main__":
     driver = Driver(1, 30)
     print(driver)
@@ -124,6 +135,12 @@ if __name__ == "__main__":
     print(driver)
     driver.reward_zid = 50
     print("reward pos: ", driver.reward_zid)
+
+    driver.record_trajectory(8)
+    driver.record_trajectory(10)
+    print(driver.trajectory)
+    driver.clear_trajectory()
+    print(driver.trajectory)
 
 
 
