@@ -3,6 +3,7 @@ from simulator.config import *
 
 class Timer:
     _time_step = 0
+    _episode = 1
 
     @staticmethod
     def get_time_step():
@@ -11,6 +12,14 @@ class Timer:
     @staticmethod
     def tick_time_step():
         Timer._time_step += 1
+
+    @staticmethod
+    def get_episode():
+        return Timer._episode
+
+    @staticmethod
+    def tick_episode():
+        Timer._episode += 1
 
     @staticmethod
     def reset_time_step():
