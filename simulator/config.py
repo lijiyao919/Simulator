@@ -1,3 +1,5 @@
+import logging
+
 #clean order file
 #FILE_NAME = "../../data/Taxi_Trips_Chicago_7AM_to_11AM_09_17_2019_clean.csv"
 #FILE_NAME = "../../data/Taxi_Trips_Chicago_11AM_to_3PM_09_17_2019_clean.csv"
@@ -20,7 +22,7 @@ TOTAL_TIME_STEP_ONE_EPISODE = 250
 ON_MONITOR = False
 
 #driver generator
-TOTAL_DRIVER_NUM = 700
+TOTAL_DRIVER_NUM = 1000
 START_ZONE = 56
 TIME_TO_NEIGHBOR = 1
 
@@ -31,6 +33,10 @@ PATIENCE_TIME = 11
 #random
 SEED = 100
 
+#log
+LOG_FILE = "sim.log"
+LOG_LEVEL = logging.DEBUG
+LOG_EP_LEVEL = 2
 
 #for the test in Sep 23-29
 #FILE_NAME = "C:/Users/Jiyao/PycharmProjects/Simulator/data/Taxi_Trips_Chicago_09_23_29_2019_clean.csv"

@@ -1,14 +1,13 @@
 from simulator.env import Env
 from algorithms.rewards import Reward_COOP
 from algorithms.PGs.a2c import A2C_Agent
-import timeit
 
-RUN_STEP = 20000
+RUN_STEP = 10000
 
 
 def run_a2c():
     env = Env()
-    agent = A2C_Agent(77, 10, batch_size=1024)
+    agent = A2C_Agent(77, 10, batch_size=1500)
     agent.set_reward_scheme(Reward_COOP())
     agent.train_mode()
     i_step = 0
@@ -28,8 +27,7 @@ def run_a2c():
             i_step += 1
         #print("save checkpoint")
         #agent.policy_net.save_checkpoint()
-        print("Episode end:")
-        print("The current step: ", i_step)
+        #print("The current step: ", i_step)
         print(env.show_metrics_in_summary())
 
 if __name__ == '__main__':
