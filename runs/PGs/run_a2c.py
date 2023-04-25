@@ -21,6 +21,7 @@ def run_a2c():
             actions, log_probs, values, entropys, hidden_s, hidden_d = agent.feed_forward(obs, env.monitor_drivers)
             V = agent.read_V(obs)
             next_obs, _, done, info = env.step(actions, V)
+            env.show_lost_riders_num_in_spatial()
             rewards = agent.iterate_drivers_reward(env.monitor_drivers, actions, info)
             agent.store_exp(env.monitor_drivers, log_probs, values, rewards, next_obs, entropys, actions, hidden_s, hidden_d)
             agent.learn()

@@ -5,7 +5,7 @@ from simulator.rider import Rider
 class Zone:
     __slots__ = ["_id", "_neighbor_zones", "_drivers_on_line", "_drivers_off_line",
                  "_riders_on_call", "_total_order_num", "_success_order_num", "_fail_order_num", "_riders_call_time",
-                 "_total_order_num_now", "_success_order_num_now"]
+                 "_total_order_num_now", "_success_order_num_now", "_fail_order_num_now"]
 
     def __init__(self, zID):
         self._id = zID
@@ -20,6 +20,7 @@ class Zone:
 
         self._total_order_num_now = 0
         self._success_order_num_now = 0
+        self._fail_order_num_now = 0
 
     def __repr__(self):
         message = "cls:" + type(self).__name__ + ", id:" + str(self._id) + ", neighbor_zones:" + str(self._neighbor_zones.keys()) + \
@@ -113,11 +114,16 @@ class Zone:
         self._success_order_num_now += 1
 
     @property
+    def fail_order_num_now(self):
+        return self._fail_order_num_now
+
+    @property
     def fail_order_num(self):
         return self._fail_order_num
 
     def tick_fail_order_num(self):
         self._fail_order_num += 1
+        self._fail_order_num_now += 1
 
     @property
     def riders_call_time(self):
@@ -125,6 +131,7 @@ class Zone:
 
     def clear_now_data(self):
         self._success_order_num_now = 0
+        self._fail_order_num_now = 0
 
 if __name__ == "__main__":
     z1 = Zone(1)

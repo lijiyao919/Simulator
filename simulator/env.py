@@ -25,6 +25,7 @@ class Env:
         self._create_graph()
         self._add_drivers_on_line()
         self._trips.reset_index()
+        Timer.tick_episode()
         Timer.reset_time_step()
         self._done = False
         if ON_MONITOR:
@@ -66,7 +67,6 @@ class Env:
 
         if Timer.get_time_step() == TOTAL_TIME_STEP_ONE_EPISODE:
             self._done = True
-            Timer.tick_episode()
             if ON_MONITOR:
                 self._monitor.pause()
 
@@ -79,43 +79,14 @@ class Env:
         message+="}"
         return message
 
-    def show_drivers_in_spatial(self):
-        message = "Driver Dist:\n" + "{\n"
+    def show_lost_riders_num_in_spatial(self):
+        message = "Lost riders each zone: {"
         for zid in self._graph.keys():
-            message += str(zid) + ": driver_on_line: " + str(self._graph[zid].drivers_on_line.keys()) + "\n"
-            message += "  : driver_off_line: " + str(self._graph[zid].drivers_off_line.keys()) + "\n"
+            if self._graph[zid].fail_order_num_now > 0:
+                message += str(zid) + ":"+str(self._graph[zid].fail_order_num_now)+";  "
+            self._graph[zid].clear_now_data()
         message += "}"
-        return message
-
-    def show_drivers_num_in_spatial(self):
-        message = "Driver NUM Dist:" + "{"
-        for zid in self._graph.keys():
-            message += str(zid) + ": " + str(len(self._graph[zid].drivers_on_line)) + "/" + str(len(self._graph[zid].drivers_off_line))+", "
-        message += "}"
-        return message
-
-    def show_offline_driver_status_in_specific_zone(self, zid):
-        message = str(zid) + ":\n"
-        for driver in self._graph[zid].drivers_off_line.values():
-            message += str(driver)+"\n"
-        return message
-
-    def show_riders_in_spatial(self):
-        message = "Riders Dist:\n" + "{\n"
-        for zid in self._graph.keys():
-            message += str(zid) + ": ["
-            for r in self._graph[zid].riders_on_call:
-                message += str(r.id)+ ", "
-            message += "]\n"
-        message += "}"
-        return message
-
-    def show_fail_riders_num_in_spatial(self):
-        message = "Fail Riders Num Dist:" + "{"
-        for zid in self._graph.keys():
-            message += str(zid) + ": "+str(self._graph[zid].fail_order_num)+", "
-        message += "}"
-        return message
+        self._logger.debug("%s-%s: %s", Timer.get_episode(), Timer.get_time_step(), message)
 
     def show_metrics_in_summary(self):
         message = "Metrics In Summary:\n"

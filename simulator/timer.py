@@ -3,7 +3,7 @@ from simulator.config import *
 
 class Timer:
     _time_step = 0
-    _episode = 1
+    _episode = 0
 
     @staticmethod
     def get_time_step():
