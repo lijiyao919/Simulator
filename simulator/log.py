@@ -6,8 +6,7 @@ class EpisodeFilter(logging.Filter):
 
     def filter(self, record):
         msg = record.getMessage()
-        ep = int(msg[0])
-
+        ep = int(msg.split('-')[0])
         if ep >= self._ep_thred:
             return True
         else:
