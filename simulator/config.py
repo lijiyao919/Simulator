@@ -36,7 +36,8 @@ SEED = 100
 #log
 LOG_FILE = "sim.log"
 LOG_LEVEL = logging.DEBUG
-LOG_EP_LEVEL = 2
+LOG_EP_LEVEL = 16
+LOG_DRIVER_TRAJECTORY_LEN = 10
 
 #for the test in Sep 23-29
 #FILE_NAME = "C:/Users/Jiyao/PycharmProjects/Simulator/data/Taxi_Trips_Chicago_09_23_29_2019_clean.csv"

@@ -88,6 +88,18 @@ class Env:
         message += "}"
         self._logger.debug("%s-%s: %s", Timer.get_episode(), Timer.get_time_step(), message)
 
+    def show_lost_drivers_trajectory(self):
+        message = "Lost drivers: {"
+        cnt = 0
+        for d in self._drivers_tracker.values():
+            if len(d.trajectory) >= LOG_DRIVER_TRAJECTORY_LEN:
+                assert d.in_service is False
+                message += str(d.id)+":"+str(d.trajectory)+"; "
+                cnt += 1
+        message += "} " + str(cnt)
+        self._logger.debug("%s-%s: %s", Timer.get_episode(), Timer.get_time_step(), message)
+
+
     def show_metrics_in_summary(self):
         message = "Metrics In Summary:\n"
 
