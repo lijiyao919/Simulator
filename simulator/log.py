@@ -35,3 +35,6 @@ class MyLogger:
     def debug(self, message):
         self._logger.debug("%s-%s: %s", Timer.get_episode(), Timer.get_time_step(), message)
 
+    def info(self, message):
+        self._logger.info("%s-%s: %s", Timer.get_episode(), Timer.get_time_step(), message)
+
