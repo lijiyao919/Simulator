@@ -80,10 +80,22 @@ class Env:
         return message
 
     def show_lost_riders_num_in_spatial(self):
-        message = "Lost riders each zone: {"
+        message = "Lost riders each zone currently: {"
         for zid in self._graph.keys():
             if self._graph[zid].fail_order_num_now > 0:
                 message += str(zid) + ":"+str(self._graph[zid].fail_order_num_now)+";  "
+            self._graph[zid].clear_now_data()
+        message += "}"
+        self._logger.debug("%s-%s: %s", Timer.get_episode(), Timer.get_time_step(), message)
+
+    def show_lost_rate_in_spatial(self):
+        message = "Lost rate each zone so far: {"
+        for zid in self._graph.keys():
+            if self._graph[zid].total_order_num == 0:
+                continue
+            lost_rate = round(self._graph[zid].fail_order_num/self._graph[zid].total_order_num*100, 1)
+            if lost_rate > 0:
+                message += str(zid) + ":" + str(lost_rate) + "%;  "
             self._graph[zid].clear_now_data()
         message += "}"
         self._logger.debug("%s-%s: %s", Timer.get_episode(), Timer.get_time_step(), message)

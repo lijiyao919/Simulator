@@ -36,7 +36,7 @@ SEED = 100
 #log
 LOG_FILE = "sim.log"
 LOG_LEVEL = logging.DEBUG
-LOG_EP_LEVEL = 16
+LOG_EP_LEVEL = 20
 LOG_DRIVER_TRAJECTORY_LEN = 10
 
 #for the test in Sep 23-29
