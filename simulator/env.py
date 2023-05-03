@@ -19,7 +19,7 @@ class Env:
         self._done = False
         self._info = None
         self._monitor = Monitor(self._graph)
-        self._logger = MyLogger(__name__).get_logger()
+        self._logger = MyLogger(__name__)
 
     def reset(self):
         self._create_graph()
@@ -86,7 +86,7 @@ class Env:
                 message += str(zid) + ":"+str(self._graph[zid].fail_order_num_now)+";  "
             self._graph[zid].clear_now_data()
         message += "}"
-        self._logger.debug("%s-%s: %s", Timer.get_episode(), Timer.get_time_step(), message)
+        self._logger.debug(message)
 
     def show_lost_rate_in_spatial(self):
         message = "Lost rate each zone so far: {"
@@ -98,7 +98,7 @@ class Env:
                 message += str(zid) + ":" + str(lost_rate) + "%;  "
             self._graph[zid].clear_now_data()
         message += "}"
-        self._logger.debug("%s-%s: %s", Timer.get_episode(), Timer.get_time_step(), message)
+        self._logger.debug(message)
 
     def show_lost_drivers_trajectory(self):
         message = "Lost drivers: {"
@@ -109,7 +109,7 @@ class Env:
                 message += str(d.id)+":"+str(d.trajectory)+"; "
                 cnt += 1
         message += "} " + str(cnt)
-        self._logger.debug("%s-%s: %s", Timer.get_episode(), Timer.get_time_step(), message)
+        self._logger.debug(message)
 
 
     def show_metrics_in_summary(self):

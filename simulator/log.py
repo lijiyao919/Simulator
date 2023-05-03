@@ -1,4 +1,5 @@
 from simulator.config import *
+from simulator.timer import Timer
 
 class EpisodeFilter(logging.Filter):
     def __init__(self, ep_thred):
@@ -31,6 +32,6 @@ class MyLogger:
         self._logger.addFilter(ep_f)
         self.propagate = False
 
-    def get_logger(self):
-        return self._logger
+    def debug(self, message):
+        self._logger.debug("%s-%s: %s", Timer.get_episode(), Timer.get_time_step(), message)
 
