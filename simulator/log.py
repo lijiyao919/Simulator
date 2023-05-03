@@ -20,7 +20,8 @@ class MyLogger:
 
         #create a handler
         formatter = logging.Formatter("%(levelname)s - %(name)s - %(message)s")
-        file_handler = logging.FileHandler(LOG_FILE, mode='w', encoding='utf-8')
+        log_file_name = LOG_FOLDER + logger_name + ".log"
+        file_handler = logging.FileHandler(log_file_name, mode='w', encoding='utf-8')
         file_handler.setFormatter(formatter)
 
         #create a filter
