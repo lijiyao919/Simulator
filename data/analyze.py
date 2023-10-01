@@ -4,7 +4,9 @@ import matplotlib.pylab as plt
 from simulator.config import *
 import numpy as np
 
-FILE_NAME = "Taxi_Trips_Chicago_7AM_to_11AM_09_17_2019_clean.csv"
+#FILE_NAME = "Taxi_Trips_Chicago_7AM_to_11AM_09_17_2019_clean.csv"
+#FILE_NAME = "Taxi_Trips_Chicago_11AM_to_3PM_09_17_2019_clean.csv"
+FILE_NAME = "Taxi_Trips_Chicago_5PM_to_9PM_09_17_2019_clean.csv"
 TOTAL_TIME_STEP_ONE_EPISODE = 240
 mean_range =15
 
@@ -40,10 +42,10 @@ def analyze_data():
 
     plt.plot(x, y)
     plt.plot(x, z)
-    plt.xticks(range(0, 250, 60), ["7:00", "8:00", "9:00", "10:00", "11:00"], fontsize=16)
+    #plt.xticks(range(0, 250, 60), ["7:00", "8:00", "9:00", "10:00", "11:00"], fontsize=16)
     #plt.xticks(range(0, 250, 60), ["11:00", "12:00", "13:00", "14:00", "15:00"], fontsize=16)
-    #plt.xticks(range(0, 250, 60), ["17:00", "18:00", "19:00", "20:00", "21:00"], fontsize=16)
-    plt.yticks(fontsize=16)
+    plt.xticks(range(0, 250, 60), ["17:00", "18:00", "19:00", "20:00", "21:00"], fontsize=16)
+    plt.yticks(range(10, 81, 10), ["10", "20", "30", "40", "50", "60", "70", "80"], fontsize=16)
     plt.xlabel("Time", fontsize=16)
     plt.ylabel("The Number of Tasks", fontsize=16)
     plt.show()
