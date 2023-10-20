@@ -9,7 +9,7 @@ mpl.rcParams['xtick.major.width'] = 2
 mpl.rcParams['xtick.major.size'] = 6
 mpl.rcParams['ytick.major.width'] = 2
 mpl.rcParams['ytick.major.size'] = 6
-plt.rcParams['figure.figsize'] = [12, 9]
+plt.rcParams['figure.figsize'] = [15, 12]
 
 #serving rate
 random = [54, 62, 69]
@@ -22,12 +22,12 @@ plt.figure(0)
 plt.plot(num, random, 'gp-', label="Random")
 plt.plot(num, demand_based, 'co-', label="Demand Heuristic")
 plt.plot(num, am_dqn, 'b*-', label="AM-DQN")
-plt.plot(num, as_dqn, 'k^-', label="AS-DQN")
+plt.plot(num, as_dqn, 'kh-', label="AS-DQN")
 plt.plot(num, pr_ddqn, 'rs-', label="Pr-DDQN")
 plt.xticks(num)
 plt.xlabel("The Number of Vehicles")
 plt.ylabel("Service Rate (%)")
-plt.legend()
+#plt.legend()
 plt.show()
 
 
@@ -42,12 +42,12 @@ plt.figure(0)
 plt.plot(num, random, 'gp-', label="Random")
 plt.plot(num, demand_based, 'co-', label="Demand Heuristic")
 plt.plot(num, am_dqn, 'b*-', label="AM-DQN")
-plt.plot(num, as_dqn, 'k^-', label="AS-DQN")
+plt.plot(num, as_dqn, 'kh-', label="AS-DQN")
 plt.plot(num, pr_ddqn, 'rs-', label="Pr-DDQN")
 plt.xticks(num)
 plt.xlabel("The Number of Vehicles")
 plt.ylabel("Requesting Time (Minutes)")
-plt.legend()
+#plt.legend()
 plt.show()
 
 
@@ -62,10 +62,10 @@ plt.figure(0)
 plt.plot(num, random, 'gp-', label="Random")
 plt.plot(num, demand_based, 'co-', label="Demand Heuristic")
 plt.plot(num, am_dqn, 'b*-', label="AM-DQN")
-plt.plot(num, as_dqn, 'k^-', label="AS-DQN")
+plt.plot(num, as_dqn, 'kh-', label="AS-DQN")
 plt.plot(num, pr_ddqn, 'rs-', label="Pr-DDQN")
 plt.xticks(num)
 plt.xlabel("The Number of Vehicles")
-plt.ylabel("Navigaton Time (Minutes)")
-plt.legend()
+plt.ylabel("Repositioning Time (Minutes)")
+#plt.legend()
 plt.show()

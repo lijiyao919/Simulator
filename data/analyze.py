@@ -32,8 +32,8 @@ def analyze_data():
     #plt.plot(x, y)
     plt.plot(x, z, linewidth=3)
     plt.xticks(range(0, 1441, 60), range(0, 25, 1), fontsize=18)
-    plt.yticks(fontsize=16)
-    plt.xlabel("Time (hours)", fontsize=20)
+    plt.yticks(fontsize=18)
+    plt.xlabel("Time (hours)", fontsize=22)
     plt.ylabel("The Number of Requests", fontsize=22)
     plt.show()
 
