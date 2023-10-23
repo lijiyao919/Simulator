@@ -33,7 +33,7 @@ def plot2(ylabel, yticks=None):
     plt.figure(0)
     plt.plot(time, morning, 'b*-', label="Morning")
     plt.plot(time, noon, 'kh-', label="Noon")
-    plt.plot(time, evening, 'rs-', label="Evening")
+    plt.plot(time, evening, 'gs-', label="Evening")
     plt.xticks(time)
     if yticks is not None:
         plt.yticks(yticks)
