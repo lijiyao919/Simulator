@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import numpy as np
 
 num = [462, 616, 770]
 mpl.rcParams['font.size'] = 20
@@ -32,11 +33,11 @@ plt.show()
 
 
 #requesting time
-random = [5, 4.5, 4]
-demand_based = [3.7, 3, 2.6]
-am_dqn = [3.5, 2.5, 1.5]
-as_dqn = [3, 2.3, 1.5]
-pr_ddqn = [2.5, 1.5, 1]
+random = 7.5 - np.array([5, 4.5, 4])
+demand_based = 7.5 - np.array([3.7, 3, 2.6])
+am_dqn = 7.5 - np.array([3.5, 2.5, 1.5])
+as_dqn = 7.5 - np.array([3, 2.3, 1.5])
+pr_ddqn = 7.5 - np.array([2.5, 1.5, 1])
 
 plt.figure(0)
 plt.plot(num, random, 'gp-', label="Random")
@@ -46,7 +47,7 @@ plt.plot(num, as_dqn, 'kh-', label="AS-DQN")
 plt.plot(num, pr_ddqn, 'rs-', label="Pr-DDQN")
 plt.xticks(num)
 plt.xlabel("The Number of Vehicles")
-plt.ylabel("Requesting Time (Minutes)")
+plt.ylabel("Satisfaction Index")
 #plt.legend()
 plt.show()
 
