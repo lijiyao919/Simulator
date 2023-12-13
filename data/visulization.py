@@ -3,9 +3,9 @@ import matplotlib as mpl
 import numpy as np
 
 num = [462, 616, 770]
-mpl.rcParams['font.size'] = 20
+mpl.rcParams['font.size'] = 40
 mpl.rcParams['lines.linewidth'] = 3
-mpl.rcParams['lines.markersize'] = 10
+mpl.rcParams['lines.markersize'] = 25
 mpl.rcParams['xtick.major.width'] = 2
 mpl.rcParams['xtick.major.size'] = 6
 mpl.rcParams['ytick.major.width'] = 2
@@ -26,7 +26,8 @@ plt.plot(num, am_dqn, 'b*-', label="AM-DQN")
 plt.plot(num, as_dqn, 'kh-', label="AS-DQN")
 plt.plot(num, pr_ddqn, 'rs-', label="Pr-DDQN")
 plt.xticks(num)
-plt.xlabel("The Number of Vehicles")
+plt.yticks([50, 60, 70, 80, 90])
+plt.xlabel("The Number of Vehicles", fontsize=35)
 plt.ylabel("Service Rate (%)")
 plt.grid(linestyle='--')
 #plt.legend()
@@ -47,7 +48,8 @@ plt.plot(num, am_dqn, 'b*-', label="AM-DQN")
 plt.plot(num, as_dqn, 'kh-', label="AS-DQN")
 plt.plot(num, pr_ddqn, 'rs-', label="Pr-DDQN")
 plt.xticks(num)
-plt.xlabel("The Number of Vehicles")
+plt.yticks(np.arange(2.5,6.6,0.5))
+plt.xlabel("The Number of Vehicles", fontsize=35)
 plt.ylabel("Satisfaction Index")
 plt.grid(linestyle='--')
 #plt.legend()
@@ -68,7 +70,8 @@ plt.plot(num, am_dqn, 'b*-', label="AM-DQN")
 plt.plot(num, as_dqn, 'kh-', label="AS-DQN")
 plt.plot(num, pr_ddqn, 'rs-', label="Pr-DDQN")
 plt.xticks(num)
-plt.xlabel("The Number of Vehicles")
+plt.yticks(np.arange(5, 25.1, 2.5))
+plt.xlabel("The Number of Vehicles", fontsize=35)
 plt.ylabel("Repositioning Time (Minutes)")
 plt.grid(linestyle='--')
 #plt.legend()
