@@ -9,6 +9,7 @@ from algorithms.agent import Agent
 from algorithms.agent import device
 from simulator.timer import Timer
 from simulator.config import *
+from data.graph import AdjList_Chicago
 
 LOAD = False
 
@@ -162,6 +163,49 @@ class A2C_Agent(Agent):
                 hiddens_supply[did] = h_s
                 hiddens_demand[did] = h_d
         return actions, log_probs, values, dist_entropys, hiddens_supply, hiddens_demand
+
+    def fake_exp_maker(self, obs, lost_locs):
+        cache = defaultdict(lambda: None)
+        s_dist, d_dist = A2C_Agent.get_state_dist(obs["on_call_rider_num"], obs["online_driver_num"])
+        d_dist = T.from_numpy(np.expand_dims(d_dist.astype(np.float32), axis=0)).to(device)
+        s_dist = T.from_numpy(np.expand_dims(s_dist.astype(np.float32), axis=0)).to(device)
+        d_dist = d_dist.unsqueeze(0)
+        s_dist = s_dist.unsqueeze(0)
+
+        for zid in lost_locs:
+
+            #lost loc
+            if cache[zid] is None:
+                z_code = A2C_Agent.get_state_zid(zid)
+                z_code = T.from_numpy(np.expand_dims(z_code.astype(np.float32), axis=0)).to(device)
+                prob, value, h_s, h_d = self.policy_net(s_dist, d_dist, z_code, self.hidden_supply[zid], self.hidden_demand[zid])
+                dist = Categorical(prob)
+                cache[zid] = (dist, value)
+            else:
+                dist, value = cache[zid]
+            action = T.tensor(len(AdjList_Chicago[zid]), device=device)
+            log_prob = dist.log_prob(action)
+            entropy = dist.entropy().mean()
+            self.memo.push(log_prob, value[0], 1, 1, [0] * 77, [0] * 77, [0] * 77, entropy, h_s, h_d)
+
+
+            for adj_zid in AdjList_Chicago[zid]:
+                if cache[adj_zid] is None:
+                    z_code = A2C_Agent.get_state_zid(adj_zid)
+                    z_code = T.from_numpy(np.expand_dims(z_code.astype(np.float32), axis=0)).to(device)
+                    prob, value, h_s, h_d = self.policy_net(s_dist, d_dist, z_code, self.hidden_supply[adj_zid], self.hidden_demand[adj_zid])
+                    dist = Categorical(prob)
+                    cache[adj_zid] = (dist, value)
+                else:
+                    dist, value = cache[adj_zid]
+                if zid not in AdjList_Chicago[adj_zid]:
+                    #print(AdjList_Chicago[adj_zid], adj_zid, zid)
+                    continue
+                idx = AdjList_Chicago[adj_zid].index(zid)
+                action = T.tensor(idx, device=device)
+                log_prob = dist.log_prob(action)
+                entropy = dist.entropy().mean()
+                self.memo.push(log_prob, value[0], 1, 1, [0]*77, [0]*77, [0]*77, entropy, h_s, h_d)
 
     def learn(self):
         log_probs_tensor, values_tensor, rewards_tensor, successes_tensor, next_s, next_d, next_z, total_entropy_tensor, hidden_s, hidden_d = \

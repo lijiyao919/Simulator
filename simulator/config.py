@@ -1,9 +1,9 @@
 import logging
 
 #clean order file
-#FILE_NAME = "../../data/Taxi_Trips_Chicago_7AM_to_11AM_09_17_2019_clean.csv"
+FILE_NAME = "../../data/Taxi_Trips_Chicago_7AM_to_11AM_09_17_2019_clean.csv"
 #FILE_NAME = "../../data/Taxi_Trips_Chicago_11AM_to_3PM_09_17_2019_clean.csv"
-FILE_NAME = "../../data/Taxi_Trips_Chicago_5PM_to_9PM_09_17_2019_clean.csv"
+#FILE_NAME = "../../data/Taxi_Trips_Chicago_5PM_to_9PM_09_17_2019_clean.csv"
 
 #Images Folder
 IMGS_FOLDER = "./img/"
@@ -22,7 +22,7 @@ TOTAL_TIME_STEP_ONE_EPISODE = 250
 ON_MONITOR = False
 
 #driver generator
-TOTAL_DRIVER_NUM = 1000
+TOTAL_DRIVER_NUM = 900
 START_ZONE = 56
 TIME_TO_NEIGHBOR = 1
 

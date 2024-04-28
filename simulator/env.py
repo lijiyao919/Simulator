@@ -70,6 +70,8 @@ class Env:
             if ON_MONITOR:
                 self._monitor.pause()
 
+        self._query_riders_on_call_will_give_up()
+
         return self._state(), None, self._done, self._info
 
     def show_graph(self):
@@ -192,6 +194,15 @@ class Env:
                     self._graph[zid].pop_riders(give_up=True)
                     self._graph[zid].tick_fail_order_num()
                     r.reset_call_taxi_duration()
+                else:
+                    break
+
+    def _query_riders_on_call_will_give_up(self):
+        self._info["lost_locs"] = []
+        for zid in self._graph.keys():
+            for r in self._graph[zid].riders_on_call:
+                if r.give_up_time == Timer.get_time_step():
+                    self._info["lost_locs"].append(r.start_zone)
                 else:
                     break
 

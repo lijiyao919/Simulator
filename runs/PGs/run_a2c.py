@@ -7,7 +7,7 @@ RUN_STEP = 10000
 
 def run_a2c():
     env = Env()
-    agent = A2C_Agent(77, 10, batch_size=1500)
+    agent = A2C_Agent(77, 10, batch_size=1000)
     agent.set_reward_scheme(Reward_COOP())
     agent.train_mode()
     i_step = 0
@@ -21,11 +21,12 @@ def run_a2c():
             actions, log_probs, values, entropys, hidden_s, hidden_d = agent.feed_forward(obs, env.monitor_drivers)
             V = agent.read_V(obs)
             next_obs, _, done, info = env.step(actions, V)
-            env.show_lost_riders_num_in_spatial()
-            env.show_lost_rate_in_spatial()
-            env.show_lost_drivers_trajectory()
+            #env.show_lost_riders_num_in_spatial()
+            #env.show_lost_rate_in_spatial()
+            #env.show_lost_drivers_trajectory()
             rewards = agent.iterate_drivers_reward(env.monitor_drivers, actions, info)
             agent.store_exp(env.monitor_drivers, log_probs, values, rewards, next_obs, entropys, actions, hidden_s, hidden_d)
+            agent.fake_exp_maker(obs, info["lost_locs"])
             agent.learn()
             i_step += 1
         #print("save checkpoint")
